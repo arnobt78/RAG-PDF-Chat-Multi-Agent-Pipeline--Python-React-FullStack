@@ -5,11 +5,10 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 /**
- * ESLint Configuration
- * 
- * Rules configured for:
- * - TypeScript strict mode
- * - React hooks best practices
+ * ESLint Configuration (flat config for ESLint 9+)
+ *
+ * - TypeScript strict mode via typescript-eslint
+ * - React hooks best practices via eslint-plugin-react-hooks v5
  * - React Fast Refresh compatibility
  */
 export default tseslint.config(
@@ -26,13 +25,27 @@ export default tseslint.config(
       "react-refresh": reactRefresh,
     },
     rules: {
-      ...reactHooks.configs.recommended.rules,
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
       "react-refresh/only-export-components": [
         "warn",
-        { allowConstantExport: true, allowExportNames: ["badgeVariants", "buttonVariants", "glassCardVariants", "useChatContext"] },
+        {
+          allowConstantExport: true,
+          allowExportNames: [
+            "badgeVariants",
+            "buttonVariants",
+            "glassCardVariants",
+            "useChatContext",
+            "AI_MODELS",
+            "TypingIndicator",
+          ],
+        },
       ],
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        { argsIgnorePattern: "^_" },
+      ],
       "@typescript-eslint/no-explicit-any": "warn",
     },
-  }
+  },
 );

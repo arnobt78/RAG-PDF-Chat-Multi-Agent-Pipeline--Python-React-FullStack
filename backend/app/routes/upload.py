@@ -4,6 +4,8 @@ Upload Routes
 Endpoints for PDF upload and processing.
 """
 
+from typing import Optional
+
 from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
 
 from ..models import UploadResponse, StatusResponse
@@ -14,8 +16,8 @@ from ..config import get_settings
 router = APIRouter(tags=["Upload"])
 
 # Global services (initialized in main.py and injected)
-_pdf_processor: PDFProcessor = None
-_vector_service: VectorStoreService = None
+_pdf_processor: Optional[PDFProcessor] = None
+_vector_service: Optional[VectorStoreService] = None
 
 
 def get_pdf_processor() -> PDFProcessor:
@@ -64,8 +66,9 @@ async def upload_pdf(
     Raises:
         HTTPException: If file is invalid or processing fails
     """
+    fname = file.filename or ""
     # Validate file type
-    if not file.filename.lower().endswith('.pdf'):
+    if not fname.lower().endswith(".pdf"):
         raise HTTPException(
             status_code=400,
             detail="Only PDF files are allowed"
@@ -83,15 +86,15 @@ async def upload_pdf(
     
     try:
         # Process the PDF
-        result = pdf_processor.process_uploaded_file(contents, file.filename)
+        result = pdf_processor.process_uploaded_file(contents, fname)
         
         # Create vector store from chunks
         vector_service.create_from_documents(result.chunks)
         
         return UploadResponse(
-            message=f"Successfully processed '{file.filename}'",
+            message=f"Successfully processed '{fname}'",
             chunks_created=result.total_chunks,
-            file_name=file.filename
+            file_name=fname or None,
         )
         
     except ValueError as e:

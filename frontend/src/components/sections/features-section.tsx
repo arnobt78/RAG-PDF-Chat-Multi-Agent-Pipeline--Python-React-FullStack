@@ -1,6 +1,6 @@
 /**
  * FeaturesSection Component
- * 
+ *
  * Features showcase section with:
  * - Grid of feature cards
  * - Icons and descriptions
@@ -14,8 +14,10 @@ import {
   Brain,
   Layers,
   Workflow,
-  MessageSquare,
+  Radio,
   RefreshCw,
+  BookOpen,
+  HardDrive,
   Container,
 } from "lucide-react";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
@@ -29,8 +31,10 @@ const featureIcons = [
   Brain,
   Layers,
   Workflow,
-  MessageSquare,
+  Radio,
   RefreshCw,
+  BookOpen,
+  HardDrive,
   Container,
 ];
 
@@ -64,7 +68,6 @@ export function FeaturesSection() {
                 padding="lg"
               >
                 <GlassCardContent>
-                  {/* Icon */}
                   <motion.div
                     className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
                     whileHover={{ rotate: 5 }}
@@ -72,12 +75,10 @@ export function FeaturesSection() {
                     <Icon className="w-7 h-7 text-purple-400" />
                   </motion.div>
 
-                  {/* Title */}
                   <h3 className="text-xl font-semibold text-white mb-3">
                     {feature.title}
                   </h3>
 
-                  {/* Description */}
                   <p className="text-slate-400 leading-relaxed">
                     {feature.description}
                   </p>

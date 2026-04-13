@@ -13,7 +13,7 @@ This document tracks what is **done** versus what is **still to implement** for 
 - [x] PDF upload, chunking (`RecursiveCharacterTextSplitter`), embeddings, **FAISS** vector store
 - [x] **FastAPI** modular app: `app/main.py`, routers for health, upload/status, chat (`/ask`)
 - [x] **OpenRouter**-compatible LLM path (`ChatOpenAI` + configurable base URL / model IDs)
-- [x] **Multi-provider config** in code: OpenRouter, Groq, direct OpenAI (keys + model lists in `app/config.py`)
+- [x] **Multi-provider config** in code: OpenRouter, Groq, direct OpenAI, **Gemini**, **HuggingFace** (keys + model lists in `app/config.py`)
 - [x] **LCEL-style** RAG answer generation in `LLMService` (prompt → LLM → parser)
 - [x] **Pydantic** request/response models; **`pydantic-settings`** for env-based config
 - [x] CORS, `.env.example`, default PDF load from `backend/documents/` when present
@@ -23,61 +23,94 @@ This document tracks what is **done** versus what is **still to implement** for 
 - [x] **Extractor** → **Analyzer** → **Preprocessor** → **Optimizer** → **Synthesizer** → **Validator** → **Assembler** as separate classes, orchestrated in `AgentPipeline`
 - [x] **`GET /pipeline-info`** — JSON description of pipeline stages for UI/docs
 
+### Multi-provider failover
+
+- [x] **5-provider fallback chain** — ordered priority: OpenRouter → Groq → Gemini → HuggingFace → OpenAI
+- [x] `_generate_with_failover()` tries user's selected model first, then walks the chain; every failure is logged
+- [x] Native **Gemini** provider via Google's OpenAI-compatible endpoint (`gemini-2.0-flash`, `gemini-1.5-flash`, `gemini-1.5-pro`)
+- [x] Native **HuggingFace** Inference API provider (`Mistral-7B`, `Zephyr-7B`, `Llama-3-8B`)
+- [x] `PROVIDER_PRIORITY` list + `get_fallback_chain()` in config
+
+### FAISS persistence
+
+- [x] Vector index **auto-saved to disk** on `create_from_documents()`
+- [x] **Auto-loaded on startup** if existing index found — no re-upload needed after restart
+- [x] Controlled by `FAISS_PERSIST_DIR` env variable
+
+### SSE streaming
+
+- [x] **`POST /ask/stream`** endpoint emitting `status`, `token`, `done`, `error` SSE events
+- [x] Frontend `streamQuestion()` helper + `useChat` streaming mode
+- [x] Typing indicator shows **live token-by-token text** with blinking cursor
+- [x] **Stream toggle** button + **Stop generating** cancel button
+
 ### Frontend (showcase)
 
 - [x] **TypeScript** + **Vite** + **React Router** (Home, Chat, About; catch-all → home for SPA)
 - [x] **Tailwind CSS**, **Framer Motion**, **Lucide** icons, **CVA**-style UI primitives (button, glass card, scroll reveal, etc.)
 - [x] **max-w-9xl** layout, responsive behavior, **glassmorphism** styling
 - [x] **Public assets:** `favicon.ico`, `logo.svg`, hero/background via `bg-images/bg-66.avif` (CSS)
-- [x] Landing sections: hero, features, how-it-works, **pipeline**, **models/providers**, tech stack, CTA
-- [x] Chat UI: PDF upload (drag/drop), messages, suggestions, toolbar (clear / new PDF), typing indicator
-- [x] **Model selector UI** (dropdown) — _see “Still to implement” for API wiring_
+- [x] Landing sections: hero, features (10), how-it-works, **pipeline**, **models/providers**, tech stack, CTA
+- [x] Chat UI: PDF upload (drag/drop), messages, suggestions, toolbar (clear / new PDF / export), typing indicator
+- [x] **Model selector** — fetches live `/models` from backend, falls back to static list; shows provider badge
+- [x] **Model id wired to `/ask`** — selected model passed through `useChat` → `api.askQuestion(message, model, includeSources)`
+- [x] **Include-sources toggle** — collapsible source citations on assistant messages
+- [x] **Streaming toggle** — switch between SSE streaming and standard JSON mode
+- [x] **Export chat** — download history as `.txt` (also `Ctrl/Cmd+Shift+E`)
+- [x] **Health indicator** — green/red/yellow dot in header polling `/health` every 15s
 - [x] **`vercel.json`** — SPA rewrites + basic security/cache headers for static assets
 - [x] **ESLint 9** (flat config), TypeScript strict build, production **Vite build** passing
+
+### Client-side persistence (IndexedDB + localStorage)
+
+- [x] **localStorage** — persists selected model, include-sources toggle, streaming toggle, banner dismissal
+- [x] **IndexedDB** — chat history saved per-PDF (keyed by filename); auto-restored on re-upload of same PDF
+- [x] **Saved sessions panel** — list / restore / delete previous chat sessions from IndexedDB
+- [x] **Device-local data banner** — dismissible amber notice explaining data stays in this browser
+- [x] All storage operations wrapped in try/catch — degrades gracefully in private mode / quota limits
 
 ### Deployment & repo hygiene
 
 - [x] **Backend `Dockerfile`** (slim Python, non-root user, healthcheck, `PORT`, `uvicorn app.main:app`)
 - [x] **`backend/.dockerignore`**
-- [x] **`.gitignore`** coverage for root / backend / frontend (venv, `node_modules`, `.env`, build artifacts, etc.)
+- [x] **`.gitignore`** coverage for root / backend / frontend (venv, `node_modules`, `.env`, build artifacts, `faiss_index/`, etc.)
+- [x] **`sse-starlette`** added to `requirements.txt`
 
 ---
 
-## Still to implement (recommended next)
+## Still to implement (future production)
 
-### High priority (closes known gaps)
-
-1. **Wire chat model selection to the API**
-   - `useChat` currently calls `api.askQuestion(message)` without the selected model id.
-   - **Do:** pass `model` from `ModelSelector` into `useChat` (e.g. `sendMessage(message, model)` or hook state) so `/ask` receives `model` consistently. Optionally unify with `ChatContext` so one source of truth drives upload + chat + model.
-
-2. **Optional sources in the UI**
-   - Backend supports `include_sources` on `/ask` and Assembler can attach sources.
-   - **Do:** add a toggle and display page/source hints on assistant messages when the API returns `sources`.
-
-### Medium priority (plan / “real world” hardening)
-
-1. **Stronger multi-provider failover**
-   - Today: provider is chosen from model id + available keys; limited automatic retry across providers on transient failures.
-   - **Do:** explicit ordered fallback (e.g. primary model → alternate provider/model) with logging and user-visible “used model X after fallback”.
-
-2. **First-class Gemini & Hugging Face (optional)**
-   - Gemini today is mainly reachable **via OpenRouter** model ids, not a separate `AIProvider` + env block.
-   - **Do:** add `google-generativeai` or HF Inference API as optional providers in `config.py` + `LLMService`, gated by env keys.
-
-3. **Persist vector store**
-   - FAISS is in-memory per process; restart loses index unless default PDF reload path runs.
-   - **Do:** save/load FAISS index (disk or object storage) keyed by upload/session.
-
-4. **Streaming answers**
-   - **Do:** SSE or WebSocket from backend + incremental assistant message in the chat UI.
-
-### Lower priority (future production — referenced in other docs)
+### Lower priority (referenced in other docs)
 
 1. **Auth & multi-tenant** — user accounts, per-user document isolation, rate limits.
 2. **Observability** — Sentry, structured logging, metrics (see [`Redis_Sentry_PostHog_INTEGRATION_GUIDE.md`](./Redis_Sentry_PostHog_INTEGRATION_GUIDE.md)).
 3. **Redis / job queue** — async embedding jobs, deduplication, caching.
 4. **E2E / API tests** — pytest for agents/routes; Playwright or similar for critical UI flows.
+
+---
+
+## SaaS data-layer strategy (future reference)
+
+### Current approach: device-local (demo / showcase)
+
+IndexedDB + `localStorage` gives each visitor "their own" chat history, preferences, and cached metadata — entirely on that one browser. No server-side user accounts, cookies, or databases involved.
+
+> **Caveat:** this is device-local, not real SaaS isolation. Clearing site data, switching browsers, or opening incognito = fresh state.
+
+### Real SaaS upgrade path
+
+When moving to production multi-tenant:
+
+| Layer | Recommendation | Notes |
+|-------|---------------|-------|
+| **Primary DB** | **PostgreSQL** | Users, orgs/tenants, subscriptions, audit rows, strict relationships. The standard choice for FastAPI-style APIs. Run on VPS (Coolify) or managed Postgres. |
+| **Alternative** | **MongoDB** | Valid if guides already standardize on it or you prefer a document model. Less "default" than Postgres for classic auth + billing + tenancy. |
+| **Cache / helpers** | **Redis** | Rate limits, short-lived sessions, job queues, caching. Use **alongside** Postgres (or Mongo), not as a replacement for durable data. |
+| **Auth** | Session/JWT/cookies | Tie every API request to a verified user/tenant. Even magic-link or OAuth counts — the point is server-enforced identity. |
+
+**Short rule:** Postgres (primary) + Redis (optional helpers) is the usual "real SaaS" combo. Mongo instead of Postgres is OK. Redis alone is not sufficient for accounts/documents.
+
+Browser storage (IndexedDB + localStorage) can still serve as a **UX cache** on top of server state — not the source of truth.
 
 ---
 
@@ -90,7 +123,7 @@ The text below is the original blog-style walkthrough this project was inspired 
 How to Chat with Your PDF Using Retrieval Augmented Generation
 
 How to Chat with Your PDF Using Retrieval Augmented Generation
-Large language models are good at answering questions, but they have one big limitation: they don’t know what is inside your private documents.
+Large language models are good at answering questions, but they have one big limitation: they don't know what is inside your private documents.
 
 If you upload a PDF like a company policy, research paper, or contract, the model cannot magically read it unless you give it that content.
 
@@ -102,7 +135,7 @@ In this article, you will learn how to chat with your own PDF using RAG. You wil
 
 You should be comfortable with basic Python and JavaScript, and have a working knowledge of React and REST APIs. Familiarity with language models and a basic understanding of embeddings or vector search will be helpful but not mandatory.
 
-What We’ll Cover
+What We'll Cover
 What Problem Are We Solving?
 
 What Is Retrieval Augmented Generation?
@@ -132,7 +165,7 @@ Final Thoughts
 What Problem Are We Solving?
 Imagine you have a long PDF with hundreds of pages. Searching manually is slow. Copying text into ChatGPT is not practical.
 
-You want to ask simple questions like “What is the leave policy?” or “What does this contract say about termination?”
+You want to ask simple questions like "What is the leave policy?" or "What does this contract say about termination?"
 
 A normal language model cannot answer these questions correctly because it has never seen your PDF. RAG solves this by adding a retrieval step before generation.
 
@@ -159,12 +192,12 @@ An embedding model converts text into vectors and stores them in a vector store.
 
 A language model answers questions using retrieved chunks.
 
-The frontend is a simple chat interface built in React. It sends the user’s question to a backend API and displays the response.
+The frontend is a simple chat interface built in React. It sends the user's question to a backend API and displays the response.
 
 This type of custom RAG development helps companies build internal tools that work with their own private data instead of sending it to large language models.
 
 Setting Up the Backend with LangChain
-We’ll use Python and LangChain for the backend. The backend will load the PDF, build the vector store, and expose an API to answer questions.
+We'll use Python and LangChain for the backend. The backend will load the PDF, build the vector store, and expose an API to answer questions.
 
 Installing Dependencies
 Start by installing the required libraries.
@@ -288,14 +321,14 @@ The backend converts the question into an embedding. It searches the vector stor
 The answer is sent back to the frontend and displayed to the user.
 
 Why This Approach Works Well
-RAG works well because it keeps answers grounded in real data. The model is not guessing – it’s reading from your document.
+RAG works well because it keeps answers grounded in real data. The model is not guessing – it's reading from your document.
 
 This approach also scales well. You can add more PDFs, reindex them, and reuse the same chat interface. You can also swap FAISS for a hosted vector database if needed.
 
 Another benefit is control. You decide what data the model can see. This is important for private or sensitive documents.
 
 Common Improvements You Can Add
-You can improve this setup in many ways. You can persist the vector store so it doesn’t rebuild on every restart. You can also add document citations to the answer. And you can stream responses for a better chat experience.
+You can improve this setup in many ways. You can persist the vector store so it doesn't rebuild on every restart. You can also add document citations to the answer. And you can stream responses for a better chat experience.
 
 You can also add authentication, upload new PDFs from the UI, or support multiple documents per user.
 
@@ -304,4 +337,4 @@ Chatting with PDFs using Retrieval Augmented Generation is one of the most pract
 
 With LangChain handling retrieval and a simple React UI for interaction, you can build a useful system with very little code. The same pattern can be used for HR policies, legal documents, technical manuals, or research papers.
 
-Once you understand this flow, you can adapt it to many real world problems where answers must come from trusted documents rather than from the model’s memory alone.
+Once you understand this flow, you can adapt it to many real world problems where answers must come from trusted documents rather than from the model's memory alone.

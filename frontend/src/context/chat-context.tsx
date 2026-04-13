@@ -1,22 +1,20 @@
 /**
  * ChatContext
- * 
+ *
  * Global context for chat state management.
  * Provides centralized state for PDF upload and chat functionality
- * across the application.
- * 
+ * across the application.  Now supports streaming and include_sources.
+ *
  * Usage:
- * // In App.tsx
  * <ChatProvider>
  *   <YourApp />
  * </ChatProvider>
- * 
- * // In components
+ *
  * const { isLoaded, sendMessage } = useChatContext();
  */
 
 import * as React from "react";
-import { api, ApiError } from "@/lib/api";
+import { api, ApiError, streamQuestion } from "@/lib/api";
 import type { ChatEntry, PDFDocument } from "@/types";
 
 // ============================================================================
@@ -24,21 +22,17 @@ import type { ChatEntry, PDFDocument } from "@/types";
 // ============================================================================
 
 interface ChatContextState {
-  // PDF state
   pdfDocument: PDFDocument | null;
   isUploading: boolean;
   isPdfLoaded: boolean;
-
-  // Chat state
   chatHistory: ChatEntry[];
   isLoading: boolean;
-
-  // Errors
   uploadError: string | null;
   chatError: string | null;
-
-  // Selected model
   selectedModel: string;
+  includeSources: boolean;
+  streamingEnabled: boolean;
+  streamingAnswer: string | null;
 }
 
 interface ChatContextActions {
@@ -47,6 +41,9 @@ interface ChatContextActions {
   clearChat: () => void;
   resetPDF: () => void;
   setSelectedModel: (model: string) => void;
+  setIncludeSources: (v: boolean) => void;
+  setStreamingEnabled: (v: boolean) => void;
+  cancelStream: () => void;
 }
 
 type ChatContextValue = ChatContextState & ChatContextActions;
@@ -70,6 +67,9 @@ const initialState: ChatContextState = {
   uploadError: null,
   chatError: null,
   selectedModel: "openai/gpt-4o-mini",
+  includeSources: false,
+  streamingEnabled: true,
+  streamingAnswer: null,
 };
 
 // ============================================================================
@@ -82,16 +82,10 @@ interface ChatProviderProps {
 
 export function ChatProvider({ children }: ChatProviderProps) {
   const [state, setState] = React.useState<ChatContextState>(initialState);
+  const abortRef = React.useRef<AbortController | null>(null);
 
-  /**
-   * Upload a PDF file
-   */
   const uploadPDF = React.useCallback(async (file: File) => {
-    setState((prev) => ({
-      ...prev,
-      isUploading: true,
-      uploadError: null,
-    }));
+    setState((prev) => ({ ...prev, isUploading: true, uploadError: null }));
 
     try {
       const response = await api.uploadPDF(file);
@@ -109,90 +103,127 @@ export function ChatProvider({ children }: ChatProviderProps) {
         pdfDocument: document,
         isUploading: false,
         isPdfLoaded: true,
-        chatHistory: [], // Clear chat on new upload
+        chatHistory: [],
         uploadError: null,
       }));
     } catch (error) {
       const message =
-        error instanceof ApiError
-          ? error.detail
-          : "Failed to upload PDF";
+        error instanceof ApiError ? error.detail : "Failed to upload PDF";
 
-      setState((prev) => ({
-        ...prev,
-        isUploading: false,
-        uploadError: message,
-      }));
+      setState((prev) => ({ ...prev, isUploading: false, uploadError: message }));
     }
   }, []);
 
-  /**
-   * Send a chat message
-   */
-  const sendMessage = React.useCallback(async (message: string) => {
+  /** Send a chat message – chooses streaming or standard based on toggle */
+  const sendMessage = React.useCallback(
+    async (message: string) => {
+      setState((prev) => ({
+        ...prev,
+        isLoading: true,
+        chatError: null,
+        streamingAnswer: state.streamingEnabled ? "" : null,
+      }));
+
+      if (state.streamingEnabled) {
+        let accumulated = "";
+
+        const controller = streamQuestion(
+          {
+            question: message,
+            model: state.selectedModel,
+            include_sources: state.includeSources,
+          },
+          {
+            onToken(text) {
+              accumulated += text;
+              setState((prev) => ({ ...prev, streamingAnswer: accumulated }));
+            },
+            onDone(meta) {
+              const entry: ChatEntry = {
+                question: message,
+                answer: accumulated,
+                timestamp: new Date(),
+                sources: meta.sources,
+                modelUsed: meta.model_used,
+              };
+              setState((prev) => ({
+                ...prev,
+                chatHistory: [...prev.chatHistory, entry],
+                isLoading: false,
+                streamingAnswer: null,
+              }));
+            },
+            onError(msg) {
+              setState((prev) => ({
+                ...prev,
+                isLoading: false,
+                chatError: msg,
+                streamingAnswer: null,
+              }));
+            },
+          },
+        );
+        abortRef.current = controller;
+      } else {
+        try {
+          const response = await api.askQuestion(
+            message,
+            state.selectedModel,
+            state.includeSources,
+          );
+
+          const entry: ChatEntry = {
+            question: message,
+            answer: response.answer,
+            timestamp: new Date(),
+            sources: response.sources,
+            modelUsed: response.model_used,
+          };
+
+          setState((prev) => ({
+            ...prev,
+            chatHistory: [...prev.chatHistory, entry],
+            isLoading: false,
+          }));
+        } catch (error) {
+          const msg =
+            error instanceof ApiError ? error.detail : "Failed to get response";
+          setState((prev) => ({ ...prev, isLoading: false, chatError: msg }));
+        }
+      }
+    },
+    [state.selectedModel, state.includeSources, state.streamingEnabled],
+  );
+
+  const cancelStream = React.useCallback(() => {
+    abortRef.current?.abort();
     setState((prev) => ({
       ...prev,
-      isLoading: true,
-      chatError: null,
+      isLoading: false,
+      streamingAnswer: null,
     }));
+  }, []);
 
-    try {
-      const response = await api.askQuestion(message, state.selectedModel);
-
-      const entry: ChatEntry = {
-        question: message,
-        answer: response.answer,
-        timestamp: new Date(),
-      };
-
-      setState((prev) => ({
-        ...prev,
-        chatHistory: [...prev.chatHistory, entry],
-        isLoading: false,
-      }));
-    } catch (error) {
-      const message =
-        error instanceof ApiError
-          ? error.detail
-          : "Failed to get response";
-
-      setState((prev) => ({
-        ...prev,
-        isLoading: false,
-        chatError: message,
-      }));
-    }
-  }, [state.selectedModel]);
-
-  /**
-   * Clear chat history
-   */
   const clearChat = React.useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      chatHistory: [],
-      chatError: null,
-    }));
+    setState((prev) => ({ ...prev, chatHistory: [], chatError: null }));
   }, []);
 
-  /**
-   * Reset PDF state
-   */
   const resetPDF = React.useCallback(() => {
     setState(initialState);
   }, []);
 
-  /**
-   * Set selected AI model
-   */
   const setSelectedModel = React.useCallback((model: string) => {
-    setState((prev) => ({
-      ...prev,
-      selectedModel: model,
-    }));
+    setState((prev) => ({ ...prev, selectedModel: model }));
   }, []);
 
-  // Context value
+  const setIncludeSources = React.useCallback((v: boolean) => {
+    setState((prev) => ({ ...prev, includeSources: v }));
+  }, []);
+
+  const setStreamingEnabled = React.useCallback((v: boolean) => {
+    setState((prev) => ({ ...prev, streamingEnabled: v }));
+  }, []);
+
   const value: ChatContextValue = {
     ...state,
     uploadPDF,
@@ -200,12 +231,13 @@ export function ChatProvider({ children }: ChatProviderProps) {
     clearChat,
     resetPDF,
     setSelectedModel,
+    setIncludeSources,
+    setStreamingEnabled,
+    cancelStream,
   };
 
   return (
-    <ChatContext.Provider value={value}>
-      {children}
-    </ChatContext.Provider>
+    <ChatContext.Provider value={value}>{children}</ChatContext.Provider>
   );
 }
 
@@ -213,11 +245,6 @@ export function ChatProvider({ children }: ChatProviderProps) {
 // Hook
 // ============================================================================
 
-/**
- * Hook to access chat context
- * 
- * @throws Error if used outside ChatProvider
- */
 export function useChatContext(): ChatContextValue {
   const context = React.useContext(ChatContext);
 

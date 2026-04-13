@@ -1,6 +1,6 @@
 /**
  * TypeScript Type Definitions
- * 
+ *
  * Central location for all shared types and interfaces used throughout the application.
  * This ensures type safety and provides clear contracts for data structures.
  */
@@ -9,9 +9,6 @@
 // Chat & Message Types
 // ============================================================================
 
-/**
- * Represents a single chat message in the conversation history
- */
 export interface ChatMessage {
   id: string;
   role: "user" | "assistant";
@@ -19,18 +16,14 @@ export interface ChatMessage {
   timestamp: Date;
 }
 
-/**
- * Represents a Q&A entry in the chat history
- */
 export interface ChatEntry {
   question: string;
   answer: string;
   timestamp?: Date;
+  sources?: string[];
+  modelUsed?: string;
 }
 
-/**
- * Chat state for managing conversation
- */
 export interface ChatState {
   messages: ChatMessage[];
   isLoading: boolean;
@@ -41,9 +34,6 @@ export interface ChatState {
 // PDF & Document Types
 // ============================================================================
 
-/**
- * Represents an uploaded PDF document
- */
 export interface PDFDocument {
   id: string;
   fileName: string;
@@ -52,9 +42,6 @@ export interface PDFDocument {
   chunksCreated?: number;
 }
 
-/**
- * PDF upload state
- */
 export interface PDFUploadState {
   isUploading: boolean;
   isLoaded: boolean;
@@ -66,43 +53,30 @@ export interface PDFUploadState {
 // API Types
 // ============================================================================
 
-/**
- * Request body for asking questions
- */
 export interface AskQuestionRequest {
   question: string;
   model?: string;
+  include_sources?: boolean;
 }
 
-/**
- * Response from the /ask endpoint
- */
 export interface AskQuestionResponse {
   answer: string;
   sources?: string[];
   model_used?: string;
+  processing_time?: number;
 }
 
-/**
- * Response from the /upload endpoint
- */
 export interface UploadResponse {
   message: string;
   chunks_created: number;
 }
 
-/**
- * Response from health/status endpoints
- */
 export interface StatusResponse {
   status: string;
   message: string;
   pdf_loaded?: boolean;
 }
 
-/**
- * API error response
- */
 export interface APIError {
   detail: string;
   status_code?: number;
@@ -112,14 +86,13 @@ export interface APIError {
 // AI Model Types
 // ============================================================================
 
-/**
- * Supported AI model providers
- */
-export type AIProvider = "openrouter" | "groq" | "gemini" | "openai" | "huggingface";
+export type AIProvider =
+  | "openrouter"
+  | "groq"
+  | "gemini"
+  | "openai"
+  | "huggingface";
 
-/**
- * AI model configuration
- */
 export interface AIModel {
   id: string;
   name: string;
@@ -130,7 +103,8 @@ export interface AIModel {
 }
 
 /**
- * Available AI models for selection
+ * Static model catalogue used as a client-side fallback before the backend
+ * /models endpoint responds.  The ModelSelector also fetches live models.
  */
 export const AI_MODELS: AIModel[] = [
   {
@@ -158,35 +132,68 @@ export const AI_MODELS: AIModel[] = [
     provider: "openrouter",
     description: "Open source, high quality",
   },
+  {
+    id: "llama-3.1-70b-versatile",
+    name: "Llama 3.1 70B (Groq)",
+    provider: "groq",
+    description: "Ultra-fast inference via Groq LPU",
+  },
+  {
+    id: "llama-3.1-8b-instant",
+    name: "Llama 3.1 8B (Groq)",
+    provider: "groq",
+    description: "Instant responses, great for simple Q&A",
+  },
+  {
+    id: "gemini-2.0-flash",
+    name: "Gemini 2.0 Flash",
+    provider: "gemini",
+    description: "Google's fastest Gemini model",
+  },
+  {
+    id: "gemini-1.5-flash",
+    name: "Gemini 1.5 Flash",
+    provider: "gemini",
+    description: "Balanced speed and quality",
+  },
+  {
+    id: "mistralai/Mistral-7B-Instruct-v0.3",
+    name: "Mistral 7B (HF)",
+    provider: "huggingface",
+    description: "Open-weight Mistral via HuggingFace",
+  },
+  {
+    id: "HuggingFaceH4/zephyr-7b-beta",
+    name: "Zephyr 7B (HF)",
+    provider: "huggingface",
+    description: "HuggingFace fine-tuned assistant",
+  },
 ];
 
 // ============================================================================
 // UI Component Types
 // ============================================================================
 
-/**
- * Button variant types for styling
- */
-export type ButtonVariant = "default" | "destructive" | "outline" | "secondary" | "ghost" | "link";
+export type ButtonVariant =
+  | "default"
+  | "destructive"
+  | "outline"
+  | "secondary"
+  | "ghost"
+  | "link";
 
-/**
- * Button size options
- */
 export type ButtonSize = "default" | "sm" | "lg" | "icon";
 
-/**
- * Badge variant types
- */
-export type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "success" | "warning";
+export type BadgeVariant =
+  | "default"
+  | "secondary"
+  | "destructive"
+  | "outline"
+  | "success"
+  | "warning";
 
-/**
- * Animation direction for scroll reveals
- */
 export type AnimationDirection = "up" | "down" | "left" | "right" | "none";
 
-/**
- * Props for scroll reveal animations
- */
 export interface ScrollRevealProps {
   children: React.ReactNode;
   direction?: AnimationDirection;
@@ -199,18 +206,12 @@ export interface ScrollRevealProps {
 // Feature & Section Types
 // ============================================================================
 
-/**
- * Feature item for features section
- */
 export interface Feature {
   icon: React.ReactNode;
   title: string;
   description: string;
 }
 
-/**
- * Step item for how-it-works section
- */
 export interface HowItWorksStep {
   step: number;
   title: string;
@@ -218,9 +219,6 @@ export interface HowItWorksStep {
   icon: React.ReactNode;
 }
 
-/**
- * Tech stack item
- */
 export interface TechStackItem {
   name: string;
   icon: React.ReactNode;

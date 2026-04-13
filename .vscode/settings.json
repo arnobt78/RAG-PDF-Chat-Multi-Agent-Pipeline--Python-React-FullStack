@@ -1,0 +1,9 @@
+{
+  "python.defaultInterpreterPath": "${workspaceFolder}/backend/venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.extraPaths": ["${workspaceFolder}/backend"],
+  "python.analysis.diagnosticMode": "workspace",
+  "python.venvFolders": ["${workspaceFolder}/backend"],
+  "python-envs.workspaceSearchPaths": ["./**/.venv", "./**/venv"],
+  "python-envs.pythonProjects": []
+}

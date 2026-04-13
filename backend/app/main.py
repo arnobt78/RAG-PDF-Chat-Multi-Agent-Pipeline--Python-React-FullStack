@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .routes import health_router, upload_router, chat_router
+from .routes import health_router, upload_router, chat_router, tunnel_router
 from .routes.upload import set_services as set_upload_services
 from .routes.chat import set_llm_service
 from .services.pdf_processor import PDFProcessor
@@ -111,6 +111,7 @@ def create_app() -> FastAPI:
     app.include_router(health_router)
     app.include_router(upload_router)
     app.include_router(chat_router)
+    app.include_router(tunnel_router)
     
     return app
 

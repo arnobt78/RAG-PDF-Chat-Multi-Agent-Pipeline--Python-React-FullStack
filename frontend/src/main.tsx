@@ -1,20 +1,20 @@
 /**
  * Application Entry Point
- * 
- * Initializes the React application with:
- * - StrictMode for development warnings
- * - Global styles import
- * - Root component mounting
+ *
+ * Initializes Sentry (before anything else), then mounts the React app.
  */
 
 import React from "react";
 import ReactDOM from "react-dom/client";
+import { initSentry } from "@/lib/sentry";
 import App from "./App";
 import "./styles/globals.css";
 
-// Mount the React application to the DOM
+// Sentry must init before the React tree is created
+initSentry();
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
 );
