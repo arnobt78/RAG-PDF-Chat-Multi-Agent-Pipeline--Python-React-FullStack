@@ -96,7 +96,7 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
             "llama-3.1-8b-instant",
             "mixtral-8x7b-32768",
         ],
-        embedding_model=None,
+        embedding_model="nomic-embed-text-v1_5",
     ),
     "openai": AIProvider(
         name="openai",
@@ -118,7 +118,7 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
             "gemini-1.5-flash",
             "gemini-1.5-pro",
         ],
-        embedding_model=None,
+        embedding_model="gemini-embedding-001",
     ),
     "huggingface": AIProvider(
         name="huggingface",
@@ -129,7 +129,7 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
             "HuggingFaceH4/zephyr-7b-beta",
             "meta-llama/Meta-Llama-3-8B-Instruct",
         ],
-        embedding_model=None,
+        embedding_model="sentence-transformers/all-MiniLM-L6-v2",
     ),
 }
 
@@ -255,11 +255,11 @@ def get_fallback_chain() -> List[AIProvider]:
 
 def get_embedding_fallback_chain() -> List[Tuple[AIProvider, str]]:
     """
-    Ordered OpenAI-compatible embedding endpoints to try (upload / index build).
+    Ordered embedding backends to try (upload / index build).
 
     Puts the configured default provider first when it defines an embedding model,
-    then walks PROVIDER_PRIORITY. Direct OpenAI embeddings run only if
-    embedding_openai_direct is true and OPENAI_DIRECT_API_KEY is set.
+    then walks PROVIDER_PRIORITY (OpenRouter, Groq, Gemini, Hugging Face, OpenAI).
+    Direct OpenAI embeddings run only if embedding_openai_direct is true.
     """
     chain: List[Tuple[AIProvider, str]] = []
     seen: set[Tuple[str, str]] = set()
@@ -272,6 +272,12 @@ def get_embedding_fallback_chain() -> List[Tuple[AIProvider, str]]:
             if not settings.embedding_openai_direct:
                 return False
             return bool(provider.api_key or settings.openai_direct_api_key)
+        if provider.name == "groq":
+            return bool(provider.api_key or settings.groq_api_key)
+        if provider.name == "gemini":
+            return bool(provider.api_key or settings.google_api_key)
+        if provider.name == "huggingface":
+            return bool(provider.api_key or settings.hf_api_key)
         return provider.is_enabled
 
     def append_provider(provider: Optional[AIProvider]) -> None:

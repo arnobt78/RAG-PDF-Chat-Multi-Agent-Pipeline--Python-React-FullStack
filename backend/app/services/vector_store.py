@@ -10,7 +10,9 @@ import logging
 from typing import Any, List, Optional, Tuple, cast
 
 from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
 from langchain_community.vectorstores import FAISS
+from langchain_community.embeddings.huggingface import HuggingFaceInferenceAPIEmbeddings
 from langchain_openai import OpenAIEmbeddings
 
 from ..config import get_settings, get_embedding_fallback_chain, AIProvider
@@ -32,19 +34,33 @@ class VectorStoreService:
     def __init__(self):
         self.settings = get_settings()
         self.vectorstore: Optional[FAISS] = None
-        self.embeddings: Optional[OpenAIEmbeddings] = None
+        self.embeddings: Optional[Embeddings] = None
         self._persist_dir = self.settings.faiss_persist_dir
 
         # Attempt to load a previously persisted index at startup
         self._try_load_from_disk()
 
-    def _make_openai_embeddings(self, provider: AIProvider, model: str) -> OpenAIEmbeddings:
-        """Build OpenAIEmbeddings for an OpenAI-compatible provider."""
-        key: Optional[str] = provider.api_key
+    def _resolve_api_key(self, provider: AIProvider) -> Optional[str]:
         if provider.name == "openrouter":
-            key = key or self.settings.openrouter_api_key
-        elif provider.name == "openai":
-            key = key or self.settings.openai_direct_api_key
+            return provider.api_key or self.settings.openrouter_api_key
+        if provider.name == "openai":
+            return provider.api_key or self.settings.openai_direct_api_key
+        if provider.name == "groq":
+            return provider.api_key or self.settings.groq_api_key
+        if provider.name == "gemini":
+            return provider.api_key or self.settings.google_api_key
+        if provider.name == "huggingface":
+            return provider.api_key or self.settings.hf_api_key
+        return provider.api_key
+
+    def _make_embeddings(self, provider: AIProvider, model: str) -> Embeddings:
+        if provider.name == "huggingface":
+            key = self._resolve_api_key(provider)
+            return HuggingFaceInferenceAPIEmbeddings(
+                api_key=cast(Any, key),
+                model_name=model,
+            )
+        key = self._resolve_api_key(provider)
         base_url = (
             self.settings.openrouter_api_base
             if provider.name == "openrouter"
@@ -79,7 +95,7 @@ class VectorStoreService:
         last_error: Optional[Exception] = None
         for provider, model in self._embedding_candidates():
             try:
-                emb = self._make_openai_embeddings(provider, model)
+                emb = self._make_embeddings(provider, model)
                 self.vectorstore = FAISS.load_local(
                     path,
                     emb,
@@ -126,15 +142,15 @@ class VectorStoreService:
         candidates = self._embedding_candidates()
         if not candidates:
             raise ValueError(
-                "No embedding provider configured. Set OPENROUTER_API_KEY "
-                "and/or OPENAI_DIRECT_API_KEY (OpenAI) — embeddings require an "
-                "OpenAI-compatible embedding endpoint."
+                "No embedding provider configured. Set at least one of: "
+                "OPENROUTER_API_KEY, GROQ_API_KEY, GOOGLE_API_KEY, HF_API_KEY, "
+                "or OPENAI_DIRECT_API_KEY (with EMBEDDING_OPENAI_DIRECT=true)."
             )
 
         last_error: Optional[Exception] = None
         for provider, model in candidates:
             try:
-                emb = self._make_openai_embeddings(provider, model)
+                emb = self._make_embeddings(provider, model)
                 self.vectorstore = FAISS.from_documents(documents, emb)
                 self.embeddings = emb
                 self.save_to_disk()
