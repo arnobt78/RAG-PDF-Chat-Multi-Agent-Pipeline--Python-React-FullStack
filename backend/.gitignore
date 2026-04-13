@@ -1,0 +1,26 @@
+# Environment variables (contains API keys - NEVER commit!)
+.env
+.env.local
+.env.*
+!.env.example
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# FAISS vector store (generated at runtime)
+*.faiss
+*.pkl
+faiss_index/
+
+# Uploaded PDFs (temporary)
+uploads/
+
+# Logs
+*.log
