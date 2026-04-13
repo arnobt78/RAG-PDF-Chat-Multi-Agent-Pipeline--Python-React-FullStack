@@ -12,10 +12,11 @@ from typing import Any, List, Optional, Tuple, cast
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings.huggingface import HuggingFaceInferenceAPIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_openai import OpenAIEmbeddings
 
 from ..config import get_settings, get_embedding_fallback_chain, AIProvider
+from .embedding_clients import GroqEmbeddings, GeminiEmbeddings
 
 logger = logging.getLogger(__name__)
 
@@ -53,13 +54,32 @@ class VectorStoreService:
             return provider.api_key or self.settings.hf_api_key
         return provider.api_key
 
+    def _make_local_cpu_embeddings(self, model: str) -> Embeddings:
+        """Runs MiniLM (etc.) on CPU via sentence-transformers — no cloud API."""
+        mk: dict[str, Any] = {"device": "cpu"}
+        return HuggingFaceEmbeddings(model_name=model, model_kwargs=mk)
+
     def _make_embeddings(self, provider: AIProvider, model: str) -> Embeddings:
         if provider.name == "huggingface":
             key = self._resolve_api_key(provider)
-            return HuggingFaceInferenceAPIEmbeddings(
-                api_key=cast(Any, key),
-                model_name=model,
+            mk: dict[str, Any] = {"device": "cpu"}
+            if key:
+                mk["token"] = key
+            return HuggingFaceEmbeddings(model_name=model, model_kwargs=mk)
+        if provider.name == "groq":
+            key = self._resolve_api_key(provider)
+            if not key:
+                raise ValueError("GROQ_API_KEY missing")
+            return GroqEmbeddings(
+                api_key=key,
+                model=model,
+                base_url=provider.base_url.rstrip("/"),
             )
+        if provider.name == "gemini":
+            key = self._resolve_api_key(provider)
+            if not key:
+                raise ValueError("GOOGLE_API_KEY missing")
+            return GeminiEmbeddings(api_key=key, model=model)
         key = self._resolve_api_key(provider)
         base_url = (
             self.settings.openrouter_api_base
@@ -118,6 +138,21 @@ class VectorStoreService:
                     exc,
                 )
 
+        try:
+            emb = self._make_local_cpu_embeddings(
+                "sentence-transformers/all-MiniLM-L6-v2"
+            )
+            self.vectorstore = FAISS.load_local(
+                path,
+                emb,
+                allow_dangerous_deserialization=True,
+            )
+            self.embeddings = emb
+            logger.info("Loaded persisted FAISS index using local CPU embeddings")
+            return
+        except Exception as exc:
+            logger.debug("Local embedding load failed: %s", exc)
+
         logger.warning(
             "Could not load persisted FAISS index from %s (last error: %s)",
             path,
@@ -167,11 +202,27 @@ class VectorStoreService:
                     provider.name,
                     model,
                     exc,
+                    exc_info=logger.isEnabledFor(logging.DEBUG),
                 )
 
+        try:
+            emb = self._make_local_cpu_embeddings(
+                "sentence-transformers/all-MiniLM-L6-v2"
+            )
+            self.vectorstore = FAISS.from_documents(documents, emb)
+            self.embeddings = emb
+            self.save_to_disk()
+            logger.info("Vector index built with local CPU embeddings (MiniLM)")
+            return len(documents)
+        except Exception as exc:
+            last_error = exc
+            logger.warning("Local CPU embedding fallback failed: %s", exc)
+
+        err = last_error
+        detail = f"{type(err).__name__}: {err!r}" if err else "unknown"
         raise RuntimeError(
-            f"All embedding providers failed. Last error: {last_error}"
-        ) from last_error
+            f"All embedding providers failed. Last error: {detail}"
+        ) from err
 
     def similarity_search(self, query: str, k: Optional[int] = None) -> List[Document]:
         """Search for similar documents."""

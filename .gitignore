@@ -16,8 +16,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
-lib64/
+# Root-only (bare "lib/" wrongly ignored frontend/src/lib/)
+/lib/
+/lib64/
 parts/
 sdist/
 var/

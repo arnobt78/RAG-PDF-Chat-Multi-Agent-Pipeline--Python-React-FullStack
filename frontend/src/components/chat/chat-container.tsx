@@ -420,21 +420,21 @@ export function ChatContainer() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="h-full flex flex-col items-center justify-center text-center py-12"
+                  className="h-full flex flex-col items-center justify-center text-center py-10 px-2"
                 >
-                  <div className="p-4 rounded-2xl bg-white/5 mb-4">
-                    <MessageSquare className="w-12 h-12 text-slate-500" />
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/10 mb-5">
+                    <MessageSquare className="w-10 h-10 text-purple-300/90" />
                   </div>
-                  <h3 className="text-lg font-medium text-white mb-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-white/95 mb-2 tracking-tight">
                     {isLoaded ? "Ready to chat!" : "No PDF uploaded yet"}
                   </h3>
-                  <p className="text-sm text-slate-400 max-w-sm">
+                  <p className="text-xs sm:text-sm text-slate-400/95 max-w-md leading-relaxed">
                     {isLoaded
-                      ? "Ask any question about your document and I'll find the answer using the 7-agent RAG pipeline."
+                      ? "Ask anything about your document. The pipeline retrieves context, then your chosen model answers—with automatic fallback if a provider is unavailable."
                       : "Upload a PDF document to start asking questions about its content."}
                   </p>
                   {isLoaded && (
-                    <div className="mt-6 flex flex-wrap justify-center gap-2">
+                    <div className="mt-5 flex flex-wrap justify-center gap-2 max-w-lg">
                       {[
                         "Summarize this document",
                         "What are the key points?",
@@ -442,9 +442,10 @@ export function ChatContainer() {
                         "List all important sections",
                       ].map((suggestion) => (
                         <button
+                          type="button"
                           key={suggestion}
                           onClick={() => handleSend(suggestion)}
-                          className="px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-300 hover:bg-white/10 hover:border-white/20 transition-all"
+                          className="px-3 py-2 rounded-xl bg-white/[0.06] border border-purple-500/20 text-xs text-slate-200 hover:bg-white/10 hover:border-purple-400/35 active:scale-[0.98] transition-colors duration-200 text-left leading-snug max-w-[11rem] sm:max-w-none"
                         >
                           {suggestion}
                         </button>
@@ -475,7 +476,10 @@ export function ChatContainer() {
               )}
 
               {isLoading && (
-                <TypingIndicator streamingText={streamingAnswer} />
+                <TypingIndicator
+                  key="typing-indicator"
+                  streamingText={streamingAnswer}
+                />
               )}
             </AnimatePresence>
 
@@ -484,8 +488,8 @@ export function ChatContainer() {
 
           {/* Chat error display */}
           {chatError && (
-            <div className="px-4 sm:px-6 pb-2">
-              <div className="p-3 rounded-xl bg-red-500/20 border border-red-500/30 text-red-300 text-sm">
+            <div className="px-4 sm:px-6 pb-3">
+              <div className="rounded-xl bg-rose-950/40 border border-rose-500/25 px-3 py-2.5 text-rose-100/90 text-xs sm:text-sm leading-relaxed max-h-36 overflow-y-auto scrollbar-hide">
                 {chatError}
               </div>
             </div>

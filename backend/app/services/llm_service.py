@@ -19,9 +19,10 @@ from langchain_core.documents import Document
 from ..config import (
     get_settings,
     get_default_provider,
-    get_fallback_chain,
     AI_PROVIDERS,
     AIProvider,
+    PROVIDER_PRIORITY,
+    provider_has_credentials,
 )
 
 logger = logging.getLogger(__name__)
@@ -59,6 +60,20 @@ Answer: """
     # Provider / LLM helpers
     # ------------------------------------------------------------------
 
+    def _resolve_llm_api_key(self, provider: AIProvider) -> Any:
+        s = self.settings
+        if provider.name == "openrouter":
+            return provider.api_key or s.openrouter_api_key
+        if provider.name == "openai":
+            return provider.api_key or s.openai_direct_api_key
+        if provider.name == "groq":
+            return provider.api_key or s.groq_api_key
+        if provider.name == "gemini":
+            return provider.api_key or s.google_api_key
+        if provider.name == "huggingface":
+            return provider.api_key or s.hf_api_key
+        return provider.api_key
+
     def _build_llm(self, provider: AIProvider, model_id: str) -> ChatOpenAI:
         """Create a ChatOpenAI instance pointing at the given provider."""
         base_url = (
@@ -66,14 +81,9 @@ Answer: """
             if provider.name == "openrouter"
             else provider.base_url
         )
-        key_fallback = (
-            self.settings.openrouter_api_key
-            if provider.name == "openrouter"
-            else None
-        )
         return ChatOpenAI(
             base_url=base_url,
-            api_key=cast(Any, provider.api_key or key_fallback),
+            api_key=cast(Any, self._resolve_llm_api_key(provider)),
             model=model_id,
             temperature=self.settings.temperature,
             max_tokens=self.settings.max_tokens,  # pyright: ignore[reportCallIssue]
@@ -82,7 +92,7 @@ Answer: """
     def _find_provider_for_model(self, model: str) -> Optional[AIProvider]:
         """Find which provider supports the given model."""
         for provider in AI_PROVIDERS.values():
-            if model in provider.models and provider.is_enabled:
+            if model in provider.models and provider_has_credentials(provider):
                 return provider
         return None
 
@@ -98,6 +108,37 @@ Answer: """
     # Failover-aware generation
     # ------------------------------------------------------------------
 
+    def _llm_attempt_sequence(self, preferred_model: Optional[str]) -> List[Tuple[AIProvider, str]]:
+        """Ordered (provider, model_id) tries: selected provider first, then all credentialed models."""
+        seen: set[Tuple[str, str]] = set()
+        seq: List[Tuple[AIProvider, str]] = []
+
+        def add(p: AIProvider, mid: str) -> None:
+            if not provider_has_credentials(p) or mid not in p.models:
+                return
+            key = (p.name, mid)
+            if key in seen:
+                return
+            seen.add(key)
+            seq.append((p, mid))
+
+        if preferred_model:
+            pref_p = self._find_provider_for_model(preferred_model)
+            if pref_p and preferred_model in pref_p.models:
+                add(pref_p, preferred_model)
+                for mid in pref_p.models:
+                    if mid != preferred_model:
+                        add(pref_p, mid)
+
+        for name in PROVIDER_PRIORITY:
+            p = AI_PROVIDERS.get(name)
+            if not p:
+                continue
+            for mid in p.models:
+                add(p, mid)
+
+        return seq
+
     def _generate_with_failover(
         self,
         question: str,
@@ -105,37 +146,21 @@ Answer: """
         preferred_model: Optional[str] = None,
     ) -> Tuple[str, str]:
         """
-        Try the preferred model first, then walk the fallback chain.
+        Try the preferred model first, then every other credentialed model in priority order.
         Returns (answer, model_used).
         """
         prompt = ChatPromptTemplate.from_template(self.RAG_PROMPT_TEMPLATE)
         payload = {"context": context, "question": question}
 
-        # Attempt 1: preferred model
-        if preferred_model:
-            provider = self._find_provider_for_model(preferred_model)
-            if provider:
-                try:
-                    llm = self._build_llm(provider, preferred_model)
-                    chain = prompt | llm | StrOutputParser()
-                    answer = chain.invoke(payload)
-                    return answer, preferred_model
-                except Exception as exc:
-                    logger.warning("Primary model %s failed: %s", preferred_model, exc)
-
-        # Attempt 2+: ordered fallback across providers
-        for provider in get_fallback_chain():
-            fallback_model = provider.models[0] if provider.models else None
-            if not fallback_model:
-                continue
+        for provider, model_id in self._llm_attempt_sequence(preferred_model):
             try:
-                llm = self._build_llm(provider, fallback_model)
+                llm = self._build_llm(provider, model_id)
                 chain = prompt | llm | StrOutputParser()
                 answer = chain.invoke(payload)
-                logger.info("Fallback succeeded: %s / %s", provider.name, fallback_model)
-                return answer, fallback_model
+                logger.info("LLM succeeded: %s / %s", provider.name, model_id)
+                return answer, model_id
             except Exception as exc:
-                logger.warning("Fallback %s/%s failed: %s", provider.name, fallback_model, exc)
+                logger.warning("LLM %s/%s failed: %s", provider.name, model_id, exc)
 
         raise RuntimeError("All AI providers failed. Check your API keys and try again.")
 
@@ -190,7 +215,7 @@ Answer: """
         settings = get_settings()
         models = []
         for provider in AI_PROVIDERS.values():
-            if provider.is_enabled:
+            if provider_has_credentials(provider):
                 for model_id in provider.models:
                     models.append({
                         "id": model_id,

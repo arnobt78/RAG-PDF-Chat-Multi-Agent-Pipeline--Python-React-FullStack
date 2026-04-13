@@ -215,11 +215,27 @@ def get_settings() -> Settings:
     return Settings()
 
 
+def provider_has_credentials(provider: AIProvider) -> bool:
+    """True if LLM calls can authenticate (env + pydantic Settings)."""
+    settings = get_settings()
+    if provider.name == "openrouter":
+        return bool(provider.api_key or settings.openrouter_api_key)
+    if provider.name == "openai":
+        return bool(provider.api_key or settings.openai_direct_api_key)
+    if provider.name == "groq":
+        return bool(provider.api_key or settings.groq_api_key)
+    if provider.name == "gemini":
+        return bool(provider.api_key or settings.google_api_key)
+    if provider.name == "huggingface":
+        return bool(provider.api_key or settings.hf_api_key)
+    return bool(provider.api_key)
+
+
 def get_available_providers() -> List[str]:
     """Get list of providers with valid API keys."""
     return [
         name for name, provider in AI_PROVIDERS.items()
-        if provider.is_enabled
+        if provider_has_credentials(provider)
     ]
 
 
@@ -233,23 +249,23 @@ def get_default_provider() -> AIProvider:
     settings = get_settings()
 
     default = AI_PROVIDERS.get(settings.default_provider)
-    if default and default.is_enabled:
+    if default and provider_has_credentials(default):
         return default
 
     for name in PROVIDER_PRIORITY:
         provider = AI_PROVIDERS.get(name)
-        if provider and provider.is_enabled:
+        if provider and provider_has_credentials(provider):
             return provider
 
     return AI_PROVIDERS["openrouter"]
 
 
 def get_fallback_chain() -> List[AIProvider]:
-    """Return an ordered list of enabled providers for failover."""
+    """Return an ordered list of providers that have credentials for LLM calls."""
     return [
         AI_PROVIDERS[name]
         for name in PROVIDER_PRIORITY
-        if name in AI_PROVIDERS and AI_PROVIDERS[name].is_enabled
+        if name in AI_PROVIDERS and provider_has_credentials(AI_PROVIDERS[name])
     ]
 
 

@@ -164,9 +164,13 @@ export function ChatMessage({
  *
  * Shows animated dots or streaming text while assistant is generating.
  */
-export function TypingIndicator({ streamingText }: { streamingText?: string | null }) {
+export const TypingIndicator = React.forwardRef<
+  HTMLDivElement,
+  { streamingText?: string | null }
+>(function TypingIndicator({ streamingText }, ref) {
   return (
     <motion.div
+      ref={ref}
       className="flex gap-3"
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -201,4 +205,5 @@ export function TypingIndicator({ streamingText }: { streamingText?: string | nu
       </div>
     </motion.div>
   );
-}
+});
+TypingIndicator.displayName = "TypingIndicator";
