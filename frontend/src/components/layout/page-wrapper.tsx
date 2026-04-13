@@ -1,12 +1,12 @@
 /**
  * PageWrapper Component
- * 
+ *
  * Consistent page layout wrapper with:
  * - Background image/pattern
  * - Overlay gradient
  * - Max width container
  * - Header spacing
- * 
+ *
  * Usage:
  * <PageWrapper>
  *   <YourPageContent />
@@ -64,8 +64,8 @@ export function PageWrapper({
   const content = (
     <main
       className={cn(
-        "flex-1 pt-16 sm:pt-20", // Header spacing
-        className
+        "flex-1", // Header spacing
+        className,
       )}
     >
       {children}
@@ -76,7 +76,7 @@ export function PageWrapper({
     <div
       className={cn(
         "min-h-screen flex flex-col",
-        showBackground && "bg-pattern bg-overlay"
+        showBackground && "bg-pattern bg-overlay",
       )}
     >
       {/* Fixed Header */}
@@ -105,7 +105,7 @@ export function PageWrapper({
 
 /**
  * SectionWrapper Component
- * 
+ *
  * Consistent section container with max-width and padding.
  */
 export interface SectionWrapperProps {
@@ -124,7 +124,7 @@ export function SectionWrapper({
       id={id}
       className={cn(
         "max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24",
-        className
+        className,
       )}
     >
       {children}

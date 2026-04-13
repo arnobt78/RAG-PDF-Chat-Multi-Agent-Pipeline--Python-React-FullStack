@@ -9,9 +9,10 @@ chunks so downstream agents receive consistent, well-formed text.
 
 import re
 import unicodedata
-from typing import Any, Dict, List
+from typing import Any
 
 from langchain_core.documents import Document
+
 from .base_agent import BaseAgent
 
 
@@ -70,8 +71,8 @@ class PreprocessorAgent(BaseAgent):
     # ------------------------------------------------------------------
 
     def process(
-        self, input_data: List[Document], context: Dict[str, Any]
-    ) -> List[Document]:
+        self, input_data: list[Document], context: dict[str, Any]
+    ) -> list[Document]:
         """
         Clean every chunk and return the processed list.
 
@@ -82,7 +83,7 @@ class PreprocessorAgent(BaseAgent):
         Returns:
             List of cleaned Document objects.
         """
-        cleaned: List[Document] = []
+        cleaned: list[Document] = []
         chars_before = 0
         chars_after = 0
 

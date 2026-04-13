@@ -5,11 +5,12 @@ Generates the final answer using the LLM based on
 the filtered context and question.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any
+
 from langchain_core.documents import Document
 
-from .base_agent import BaseAgent
 from ..services.llm_service import LLMService
+from .base_agent import BaseAgent
 
 
 class SynthesizerAgent(BaseAgent):
@@ -39,8 +40,8 @@ class SynthesizerAgent(BaseAgent):
     
     def process(
         self,
-        input_data: Tuple[str, List[Document]],
-        context: Dict[str, Any]
+        input_data: tuple[str, list[Document]],
+        context: dict[str, Any]
     ) -> str:
         """
         Generate answer from question and context.

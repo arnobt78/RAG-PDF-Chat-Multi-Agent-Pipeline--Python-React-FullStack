@@ -7,13 +7,11 @@ Uses LangChain for document loading and text splitting.
 
 import os
 import tempfile
-import shutil
-from typing import List, Optional
 from dataclasses import dataclass
 
 from langchain_community.document_loaders import PyPDFLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from ..config import get_settings
 
@@ -29,7 +27,7 @@ class ProcessedPDF:
         total_pages: Number of pages in PDF
         total_chunks: Number of chunks created
     """
-    chunks: List[Document]
+    chunks: list[Document]
     file_name: str
     total_pages: int
     total_chunks: int
@@ -51,8 +49,8 @@ class PDFProcessor:
     
     def __init__(
         self,
-        chunk_size: Optional[int] = None,
-        chunk_overlap: Optional[int] = None
+        chunk_size: int | None = None,
+        chunk_overlap: int | None = None
     ):
         """
         Initialize the PDF processor.

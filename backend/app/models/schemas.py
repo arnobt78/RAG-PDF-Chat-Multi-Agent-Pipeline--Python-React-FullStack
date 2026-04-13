@@ -5,10 +5,8 @@ Request and response models for the API.
 These ensure type safety and automatic validation.
 """
 
-from typing import Optional, List
-from pydantic import BaseModel, Field
-from datetime import datetime
 
+from pydantic import BaseModel, Field
 
 # ============================================================================
 # Request Models
@@ -24,7 +22,7 @@ class QuestionRequest(BaseModel):
         include_sources: Whether to include source chunks in response
     """
     question: str = Field(..., min_length=1, max_length=2000)
-    model: Optional[str] = None
+    model: str | None = None
     include_sources: bool = False
 
 
@@ -43,9 +41,9 @@ class AnswerResponse(BaseModel):
         processing_time: Time taken to generate response
     """
     answer: str
-    model_used: Optional[str] = None
-    sources: Optional[List[str]] = None
-    processing_time: Optional[float] = None
+    model_used: str | None = None
+    sources: list[str] | None = None
+    processing_time: float | None = None
 
 
 class UploadResponse(BaseModel):
@@ -59,7 +57,7 @@ class UploadResponse(BaseModel):
     """
     message: str
     chunks_created: int
-    file_name: Optional[str] = None
+    file_name: str | None = None
 
 
 class StatusResponse(BaseModel):
@@ -75,7 +73,7 @@ class StatusResponse(BaseModel):
     status: str = "running"
     message: str
     pdf_loaded: bool = False
-    model: Optional[str] = None
+    model: str | None = None
 
 
 class ModelInfo(BaseModel):
@@ -102,7 +100,7 @@ class ModelsResponse(BaseModel):
         models: List of available models
         default_model: Current default model ID
     """
-    models: List[ModelInfo]
+    models: list[ModelInfo]
     default_model: str
 
 
@@ -115,7 +113,7 @@ class ErrorResponse(BaseModel):
         error_code: Optional error code for programmatic handling
     """
     detail: str
-    error_code: Optional[str] = None
+    error_code: str | None = None
 
 
 class AgentStepInfo(BaseModel):

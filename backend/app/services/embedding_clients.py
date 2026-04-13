@@ -4,15 +4,13 @@ Thin embedding clients for providers where LangChain OpenAIEmbeddings mismatches
 
 from __future__ import annotations
 
-from typing import List
-
 import httpx
 from langchain_core.embeddings import Embeddings
 
 _BATCH = 32
 
 
-def _norm_texts(texts: List[str]) -> List[str]:
+def _norm_texts(texts: list[str]) -> list[str]:
     return [(t.replace("\n", " ").strip() or " ") for t in texts]
 
 
@@ -24,10 +22,10 @@ class GroqEmbeddings(Embeddings):
         self._model = model
         self._base = base_url.rstrip("/")
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         normed = _norm_texts(texts)
         headers = {"Authorization": f"Bearer {self._key}", "Content-Type": "application/json"}
-        out: List[List[float]] = []
+        out: list[list[float]] = []
         with httpx.Client(timeout=120.0) as client:
             for i in range(0, len(normed), _BATCH):
                 batch = normed[i : i + _BATCH]
@@ -42,7 +40,7 @@ class GroqEmbeddings(Embeddings):
                 out.extend(row["embedding"] for row in rows)
         return out
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         headers = {"Authorization": f"Bearer {self._key}", "Content-Type": "application/json"}
         t = _norm_texts([text])[0]
         with httpx.Client(timeout=60.0) as client:
@@ -64,16 +62,29 @@ class GeminiEmbeddings(Embeddings):
         self._key = api_key
         self._resource = model if model.startswith("models/") else f"models/{model}"
 
-    def embed_documents(self, texts: List[str]) -> List[List[float]]:
+    def _embedding_v2(self) -> bool:
+        return "embedding-2" in self._resource.lower()
+
+    def embed_documents(self, texts: list[str]) -> list[list[float]]:
         normed = _norm_texts(texts)
         url = f"https://generativelanguage.googleapis.com/v1beta/{self._resource}:batchEmbedContents"
         headers = {"x-goog-api-key": self._key, "Content-Type": "application/json"}
-        out: List[List[float]] = []
+        out: list[list[float]] = []
         with httpx.Client(timeout=120.0) as client:
             for i in range(0, len(normed), _BATCH):
                 batch = normed[i : i + _BATCH]
-                body = {
-                    "requests": [
+                if self._embedding_v2():
+                    reqs = [
+                        {
+                            "model": self._resource,
+                            "content": {
+                                "parts": [{"text": f"title: none | text: {t}"}],
+                            },
+                        }
+                        for t in batch
+                    ]
+                else:
+                    reqs = [
                         {
                             "model": self._resource,
                             "content": {"parts": [{"text": t}]},
@@ -81,11 +92,11 @@ class GeminiEmbeddings(Embeddings):
                         }
                         for t in batch
                     ]
-                }
+                body = {"requests": reqs}
                 r = client.post(url, headers=headers, json=body)
                 r.raise_for_status()
                 data = r.json()
-                chunk_out: List[List[float]] = []
+                chunk_out: list[list[float]] = []
                 for emb in data.get("embeddings", []):
                     vals = emb.get("values")
                     if vals is not None:
@@ -95,15 +106,23 @@ class GeminiEmbeddings(Embeddings):
                 out.extend(chunk_out)
         return out
 
-    def embed_query(self, text: str) -> List[float]:
+    def embed_query(self, text: str) -> list[float]:
         url = f"https://generativelanguage.googleapis.com/v1beta/{self._resource}:embedContent"
         headers = {"x-goog-api-key": self._key, "Content-Type": "application/json"}
         t = _norm_texts([text])[0]
-        body = {
-            "model": self._resource,
-            "content": {"parts": [{"text": t}]},
-            "taskType": "RETRIEVAL_QUERY",
-        }
+        if self._embedding_v2():
+            body = {
+                "model": self._resource,
+                "content": {
+                    "parts": [{"text": f"task: question answering | query: {t}"}],
+                },
+            }
+        else:
+            body = {
+                "model": self._resource,
+                "content": {"parts": [{"text": t}]},
+                "taskType": "RETRIEVAL_QUERY",
+            }
         with httpx.Client(timeout=60.0) as client:
             r = client.post(url, headers=headers, json=body)
             r.raise_for_status()

@@ -4,11 +4,11 @@ Health Check Routes
 Endpoints for system health, status monitoring, and pipeline info.
 """
 
-from typing import List
+
 from fastapi import APIRouter
 
-from ..models import StatusResponse, ModelsResponse, ModelInfo
 from ..config import get_settings
+from ..models import ModelInfo, ModelsResponse, StatusResponse
 from ..services.llm_service import LLMService
 
 router = APIRouter(tags=["Health"])
@@ -75,7 +75,7 @@ async def pipeline_info():
 
     Useful for frontend visualization and documentation.
     """
-    stages: List[dict] = [
+    stages: list[dict] = [
         {
             "order": 1,
             "name": "Extractor",

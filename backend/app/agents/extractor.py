@@ -5,11 +5,12 @@ Retrieves relevant document chunks from the vector store
 based on the user's question.
 """
 
-from typing import Any, Dict, List
+from typing import Any
+
 from langchain_core.documents import Document
 
-from .base_agent import BaseAgent
 from ..services.vector_store import VectorStoreService
+from .base_agent import BaseAgent
 
 
 class ExtractorAgent(BaseAgent):
@@ -39,7 +40,7 @@ class ExtractorAgent(BaseAgent):
         self.vector_service = vector_service
         self.k = k
     
-    def process(self, input_data: str, context: Dict[str, Any]) -> List[Document]:
+    def process(self, input_data: str, context: dict[str, Any]) -> list[Document]:
         """
         Extract relevant chunks for the question.
         

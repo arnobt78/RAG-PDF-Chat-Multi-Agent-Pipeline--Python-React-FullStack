@@ -5,18 +5,18 @@ Manages FAISS vector store for document embeddings and retrieval.
 Supports saving and loading the index from disk for persistence.
 """
 
-import os
 import logging
-from typing import Any, List, Optional, Tuple, cast
+import os
+from typing import Any, cast
 
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_core.embeddings import Embeddings
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_openai import OpenAIEmbeddings
 
-from ..config import get_settings, get_embedding_fallback_chain, AIProvider
-from .embedding_clients import GroqEmbeddings, GeminiEmbeddings
+from ..config import AIProvider, get_embedding_fallback_chain, get_settings
+from .embedding_clients import GeminiEmbeddings, GroqEmbeddings
 
 logger = logging.getLogger(__name__)
 
@@ -34,14 +34,14 @@ class VectorStoreService:
 
     def __init__(self):
         self.settings = get_settings()
-        self.vectorstore: Optional[FAISS] = None
-        self.embeddings: Optional[Embeddings] = None
+        self.vectorstore: FAISS | None = None
+        self.embeddings: Embeddings | None = None
         self._persist_dir = self.settings.faiss_persist_dir
 
         # Attempt to load a previously persisted index at startup
         self._try_load_from_disk()
 
-    def _resolve_api_key(self, provider: AIProvider) -> Optional[str]:
+    def _resolve_api_key(self, provider: AIProvider) -> str | None:
         if provider.name == "openrouter":
             return provider.api_key or self.settings.openrouter_api_key
         if provider.name == "openai":
@@ -86,13 +86,13 @@ class VectorStoreService:
             if provider.name == "openrouter"
             else provider.base_url
         )
-        return OpenAIEmbeddings(
+        return OpenAIEmbeddings(  # type: ignore[call-arg]
             base_url=base_url,
             model=model,
             api_key=cast(Any, key),
         )
 
-    def _embedding_candidates(self) -> List[Tuple[AIProvider, str]]:
+    def _embedding_candidates(self) -> list[tuple[AIProvider, str]]:
         return get_embedding_fallback_chain()
 
     # ------------------------------------------------------------------
@@ -112,7 +112,7 @@ class VectorStoreService:
         if not os.path.exists(index_file):
             return
 
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         for provider, model in self._embedding_candidates():
             try:
                 emb = self._make_embeddings(provider, model)
@@ -172,17 +172,17 @@ class VectorStoreService:
     # Core operations
     # ------------------------------------------------------------------
 
-    def create_from_documents(self, documents: List[Document]) -> int:
+    def create_from_documents(self, documents: list[Document]) -> int:
         """Create vector store from document chunks and persist to disk."""
         candidates = self._embedding_candidates()
         if not candidates:
             raise ValueError(
                 "No embedding provider configured. Set at least one of: "
-                "OPENROUTER_API_KEY, GROQ_API_KEY, GOOGLE_API_KEY, HF_API_KEY, "
+                "OPENROUTER_API_KEY, GOOGLE_API_KEY, HF_API_KEY, "
                 "or OPENAI_DIRECT_API_KEY (with EMBEDDING_OPENAI_DIRECT=true)."
             )
 
-        last_error: Optional[Exception] = None
+        last_error: Exception | None = None
         for provider, model in candidates:
             try:
                 emb = self._make_embeddings(provider, model)
@@ -224,14 +224,14 @@ class VectorStoreService:
             f"All embedding providers failed. Last error: {detail}"
         ) from err
 
-    def similarity_search(self, query: str, k: Optional[int] = None) -> List[Document]:
+    def similarity_search(self, query: str, k: int | None = None) -> list[Document]:
         """Search for similar documents."""
         if self.vectorstore is None:
             raise ValueError("Vector store not initialized. Upload a PDF first.")
         k = k or self.settings.retrieval_k
         return self.vectorstore.similarity_search(query, k=k)
 
-    def get_retriever(self, k: Optional[int] = None):
+    def get_retriever(self, k: int | None = None):
         """Get a retriever for use in chains."""
         if self.vectorstore is None:
             raise ValueError("Vector store not initialized. Upload a PDF first.")

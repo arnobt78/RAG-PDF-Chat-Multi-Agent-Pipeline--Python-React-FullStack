@@ -1,0 +1,11 @@
+{
+  "name": "rag-pdf-chat",
+  "private": true,
+  "scripts": {
+    "check": "npm run check:frontend && npm run check:backend",
+    "check:frontend": "npm --prefix frontend run typecheck && npm --prefix frontend run lint",
+    "check:backend": "bash scripts/check-backend.sh",
+    "build": "npm --prefix frontend run build",
+    "build:all": "npm run check && npm run build"
+  }
+}

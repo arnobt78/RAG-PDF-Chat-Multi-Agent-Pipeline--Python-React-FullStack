@@ -9,19 +9,19 @@ Orchestrates the full 7-agent RAG pipeline in sequence:
 Each agent receives the previous agent's output plus a shared context dict.
 """
 
-from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
+from typing import Any
 
-from .base_agent import BaseAgent, AgentResult
-from .extractor import ExtractorAgent
+from ..services.llm_service import LLMService
+from ..services.vector_store import VectorStoreService
 from .analyzer import AnalyzerAgent
-from .preprocessor import PreprocessorAgent
+from .assembler import AssemblerAgent
+from .base_agent import AgentResult, BaseAgent
+from .extractor import ExtractorAgent
 from .optimizer import OptimizerAgent
+from .preprocessor import PreprocessorAgent
 from .synthesizer import SynthesizerAgent
 from .validator import ValidatorAgent
-from .assembler import AssemblerAgent
-from ..services.vector_store import VectorStoreService
-from ..services.llm_service import LLMService
 
 
 @dataclass
@@ -39,13 +39,13 @@ class PipelineResult:
         sources: Page-level source references (when requested)
     """
     success: bool
-    answer: Optional[str] = None
-    model_used: Optional[str] = None
+    answer: str | None = None
+    model_used: str | None = None
     processing_time: float = 0.0
-    agent_results: List[AgentResult] = field(default_factory=list)
-    context: Dict[str, Any] = field(default_factory=dict)
-    error: Optional[str] = None
-    sources: Optional[List[str]] = None
+    agent_results: list[AgentResult] = field(default_factory=list)
+    context: dict[str, Any] = field(default_factory=dict)
+    error: str | None = None
+    sources: list[str] | None = None
 
 
 class AgentPipeline:
@@ -92,9 +92,9 @@ class AgentPipeline:
     @staticmethod
     def _fail(
         error: str,
-        results: List[AgentResult],
+        results: list[AgentResult],
         total_ms: float,
-        context: Dict[str, Any],
+        context: dict[str, Any],
     ) -> PipelineResult:
         """Convenience builder for an error result."""
         return PipelineResult(
@@ -109,8 +109,8 @@ class AgentPipeline:
         self,
         agent: BaseAgent,
         data: Any,
-        context: Dict[str, Any],
-        results: List[AgentResult],
+        context: dict[str, Any],
+        results: list[AgentResult],
     ):
         """Run one agent step, accumulate results, return (ok, output, total_ms_delta)."""
         result = agent.execute(data, context)
@@ -124,7 +124,7 @@ class AgentPipeline:
     def run(
         self,
         question: str,
-        model: Optional[str] = None,
+        model: str | None = None,
         include_sources: bool = False,
     ) -> PipelineResult:
         """
@@ -138,13 +138,13 @@ class AgentPipeline:
         Returns:
             PipelineResult with answer, metadata, and telemetry.
         """
-        context: Dict[str, Any] = {
+        context: dict[str, Any] = {
             "question": question,
             "model": model,
             "include_sources": include_sources,
             "retrieval_k": self.retrieval_k,
         }
-        results: List[AgentResult] = []
+        results: list[AgentResult] = []
         total_ms = 0.0
 
         try:

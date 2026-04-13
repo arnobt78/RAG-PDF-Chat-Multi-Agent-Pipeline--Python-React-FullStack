@@ -4,20 +4,19 @@ Upload Routes
 Endpoints for PDF upload and processing.
 """
 
-from typing import Optional
 
-from fastapi import APIRouter, UploadFile, File, HTTPException, Depends
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
-from ..models import UploadResponse, StatusResponse
+from ..config import get_settings
+from ..models import StatusResponse, UploadResponse
 from ..services.pdf_processor import PDFProcessor
 from ..services.vector_store import VectorStoreService
-from ..config import get_settings
 
 router = APIRouter(tags=["Upload"])
 
 # Global services (initialized in main.py and injected)
-_pdf_processor: Optional[PDFProcessor] = None
-_vector_service: Optional[VectorStoreService] = None
+_pdf_processor: PDFProcessor | None = None
+_vector_service: VectorStoreService | None = None
 
 
 def get_pdf_processor() -> PDFProcessor:
@@ -98,12 +97,12 @@ async def upload_pdf(
         )
         
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         raise HTTPException(
             status_code=500,
             detail=f"Error processing PDF: {str(e)}"
-        )
+        ) from e
 
 
 @router.get("/status", response_model=StatusResponse)

@@ -12,16 +12,17 @@ Run with: uvicorn app.main:app --reload
 
 import os
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .routes import health_router, upload_router, chat_router, tunnel_router
-from .routes.upload import set_services as set_upload_services
+from .routes import chat_router, health_router, tunnel_router, upload_router
 from .routes.chat import set_llm_service
+from .routes.upload import set_services as set_upload_services
+from .services.llm_service import LLMService
 from .services.pdf_processor import PDFProcessor
 from .services.vector_store import VectorStoreService
-from .services.llm_service import LLMService
 
 
 @asynccontextmanager

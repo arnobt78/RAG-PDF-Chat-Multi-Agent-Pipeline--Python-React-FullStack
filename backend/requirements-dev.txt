@@ -1,0 +1,7 @@
+# Dev / CI — install on top of requirements.txt:
+#   cd backend && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt -r requirements-dev.txt
+
+-r requirements.txt
+
+ruff>=0.8.0
+mypy>=1.13.0

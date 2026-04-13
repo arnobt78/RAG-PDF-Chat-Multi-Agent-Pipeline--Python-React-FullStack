@@ -9,11 +9,11 @@ an *optimized prompt payload* for the Synthesizer.  Responsibilities:
 - Truncates the combined context to fit within a safe token budget.
 """
 
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from langchain_core.documents import Document
-from .base_agent import BaseAgent
 
+from .base_agent import BaseAgent
 
 # Rough chars-per-token ratio for English text (conservative).
 _CHARS_PER_TOKEN = 4
@@ -50,10 +50,10 @@ class OptimizerAgent(BaseAgent):
         length_bonus = min(len(doc.page_content) / 1000.0, 1.0)
         return length_bonus - (page * 0.001)
 
-    def _fit_budget(self, docs: List[Document]) -> List[Document]:
+    def _fit_budget(self, docs: list[Document]) -> list[Document]:
         """Drop trailing chunks once the char budget is exceeded."""
         budget_left = self.context_char_budget
-        kept: List[Document] = []
+        kept: list[Document] = []
         for doc in docs:
             cost = len(doc.page_content)
             if cost > budget_left:
@@ -68,9 +68,9 @@ class OptimizerAgent(BaseAgent):
 
     def process(
         self,
-        input_data: Tuple[str, List[Document]],
-        context: Dict[str, Any],
-    ) -> Tuple[str, List[Document]]:
+        input_data: tuple[str, list[Document]],
+        context: dict[str, Any],
+    ) -> tuple[str, list[Document]]:
         """
         Optimise chunks for the Synthesizer.
 

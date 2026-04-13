@@ -5,10 +5,10 @@ Abstract base class for all agents in the pipeline.
 Defines the interface and common functionality.
 """
 
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional
-from dataclasses import dataclass, field
 import time
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
+from typing import Any
 
 
 @dataclass
@@ -25,11 +25,11 @@ class AgentResult:
     """
     success: bool
     data: Any
-    error: Optional[str] = None
+    error: str | None = None
     duration_ms: float = 0.0
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for JSON serialization."""
         return {
             "success": self.success,
@@ -63,7 +63,7 @@ class BaseAgent(ABC):
         self.description = description
     
     @abstractmethod
-    def process(self, input_data: Any, context: Dict[str, Any]) -> Any:
+    def process(self, input_data: Any, context: dict[str, Any]) -> Any:
         """
         Process input data and return result.
         
@@ -78,7 +78,7 @@ class BaseAgent(ABC):
         """
         pass
     
-    def execute(self, input_data: Any, context: Dict[str, Any]) -> AgentResult:
+    def execute(self, input_data: Any, context: dict[str, Any]) -> AgentResult:
         """
         Execute the agent with timing and error handling.
         

@@ -13,15 +13,15 @@ Each agent handles a specific step in the pipeline:
 7. Assembler     - Packages final structured output
 """
 
-from .base_agent import BaseAgent, AgentResult
-from .extractor import ExtractorAgent
 from .analyzer import AnalyzerAgent
-from .preprocessor import PreprocessorAgent
+from .assembler import AssemblerAgent
+from .base_agent import AgentResult, BaseAgent
+from .extractor import ExtractorAgent
 from .optimizer import OptimizerAgent
+from .pipeline import AgentPipeline
+from .preprocessor import PreprocessorAgent
 from .synthesizer import SynthesizerAgent
 from .validator import ValidatorAgent
-from .assembler import AssemblerAgent
-from .pipeline import AgentPipeline
 
 __all__ = [
     "BaseAgent",

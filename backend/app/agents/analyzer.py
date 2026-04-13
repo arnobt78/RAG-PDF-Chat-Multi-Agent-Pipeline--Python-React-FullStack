@@ -5,7 +5,8 @@ Analyzes the retrieved chunks for relevance and quality.
 Filters out low-quality or irrelevant chunks.
 """
 
-from typing import Any, Dict, List
+from typing import Any
+
 from langchain_core.documents import Document
 
 from .base_agent import BaseAgent
@@ -38,7 +39,7 @@ class AnalyzerAgent(BaseAgent):
         )
         self.min_content_length = min_content_length
     
-    def process(self, input_data: List[Document], context: Dict[str, Any]) -> List[Document]:
+    def process(self, input_data: list[Document], context: dict[str, Any]) -> list[Document]:
         """
         Analyze and filter document chunks.
         

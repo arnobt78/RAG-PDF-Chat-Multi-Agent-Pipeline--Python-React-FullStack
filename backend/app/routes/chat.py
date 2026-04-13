@@ -6,17 +6,17 @@ Includes both a standard JSON endpoint and an SSE streaming endpoint.
 """
 
 import json
-import time
 import logging
-from typing import AsyncGenerator, Optional
+import time
+from collections.abc import AsyncGenerator
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
-from ..models import QuestionRequest, AnswerResponse
-from ..services.vector_store import VectorStoreService
-from ..services.llm_service import LLMService
 from ..agents.pipeline import AgentPipeline
+from ..models import AnswerResponse, QuestionRequest
+from ..services.llm_service import LLMService
+from ..services.vector_store import VectorStoreService
 from .upload import get_vector_service
 
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 router = APIRouter(tags=["Chat"])
 
 # Global LLM service
-_llm_service: Optional[LLMService] = None
+_llm_service: LLMService | None = None
 
 
 def get_llm_service() -> LLMService:
@@ -93,7 +93,7 @@ async def ask_question(
         raise HTTPException(
             status_code=500,
             detail=f"Error processing question: {str(e)}",
-        )
+        ) from e
 
 
 # ---------------------------------------------------------------------------

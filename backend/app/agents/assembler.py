@@ -10,7 +10,7 @@ Responsibilities:
 - Optionally formats markdown or plain-text output.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any
 
 from .base_agent import BaseAgent
 
@@ -32,7 +32,7 @@ class AssemblerAgent(BaseAgent):
     # Pipeline interface
     # ------------------------------------------------------------------
 
-    def process(self, input_data: str, context: Dict[str, Any]) -> Dict[str, Any]:
+    def process(self, input_data: str, context: dict[str, Any]) -> dict[str, Any]:
         """
         Build structured output from the validated answer and pipeline context.
 
@@ -46,7 +46,7 @@ class AssemblerAgent(BaseAgent):
         answer = input_data
 
         # Collect source page references if caller asked for them
-        sources: Optional[list] = None
+        sources: list | None = None
         if context.get("include_sources"):
             sources = list(
                 dict.fromkeys(
@@ -63,7 +63,7 @@ class AssemblerAgent(BaseAgent):
             "is_uncertain": context.get("is_uncertain_answer", False),
         }
 
-        result: Dict[str, Any] = {
+        result: dict[str, Any] = {
             "answer": answer,
             "model_used": context.get("model_used"),
             "sources": sources,

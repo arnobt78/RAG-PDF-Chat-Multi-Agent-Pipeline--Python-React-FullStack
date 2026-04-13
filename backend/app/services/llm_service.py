@@ -7,21 +7,21 @@ Hugging Face, and direct OpenAI for maximum reliability.
 """
 
 import logging
-from typing import Any, List, Optional, Tuple, cast
 import time
+from typing import Any, cast
 
-from langchain_openai import ChatOpenAI
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 from langchain_core.documents import Document
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.runnables import RunnablePassthrough
+from langchain_openai import ChatOpenAI
 
 from ..config import (
-    get_settings,
-    get_default_provider,
     AI_PROVIDERS,
-    AIProvider,
     PROVIDER_PRIORITY,
+    AIProvider,
+    get_default_provider,
+    get_settings,
     provider_has_credentials,
 )
 
@@ -52,7 +52,7 @@ Question: {question}
 
 Answer: """
 
-    def __init__(self, model: Optional[str] = None):
+    def __init__(self, model: str | None = None):
         self.settings = get_settings()
         self.model = model or self.settings.default_model
 
@@ -89,14 +89,14 @@ Answer: """
             max_tokens=self.settings.max_tokens,  # pyright: ignore[reportCallIssue]
         )
 
-    def _find_provider_for_model(self, model: str) -> Optional[AIProvider]:
+    def _find_provider_for_model(self, model: str) -> AIProvider | None:
         """Find which provider supports the given model."""
         for provider in AI_PROVIDERS.values():
             if model in provider.models and provider_has_credentials(provider):
                 return provider
         return None
 
-    def _get_llm(self, model: Optional[str] = None) -> Tuple[ChatOpenAI, str]:
+    def _get_llm(self, model: str | None = None) -> tuple[ChatOpenAI, str]:
         """Get LLM instance for the requested model."""
         target_model = model or self.model
         provider = self._find_provider_for_model(target_model)
@@ -108,10 +108,10 @@ Answer: """
     # Failover-aware generation
     # ------------------------------------------------------------------
 
-    def _llm_attempt_sequence(self, preferred_model: Optional[str]) -> List[Tuple[AIProvider, str]]:
+    def _llm_attempt_sequence(self, preferred_model: str | None) -> list[tuple[AIProvider, str]]:
         """Ordered (provider, model_id) tries: selected provider first, then all credentialed models."""
-        seen: set[Tuple[str, str]] = set()
-        seq: List[Tuple[AIProvider, str]] = []
+        seen: set[tuple[str, str]] = set()
+        seq: list[tuple[AIProvider, str]] = []
 
         def add(p: AIProvider, mid: str) -> None:
             if not provider_has_credentials(p) or mid not in p.models:
@@ -143,8 +143,8 @@ Answer: """
         self,
         question: str,
         context: str,
-        preferred_model: Optional[str] = None,
-    ) -> Tuple[str, str]:
+        preferred_model: str | None = None,
+    ) -> tuple[str, str]:
         """
         Try the preferred model first, then every other credentialed model in priority order.
         Returns (answer, model_used).
@@ -169,7 +169,7 @@ Answer: """
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _format_docs(docs: List[Document]) -> str:
+    def _format_docs(docs: list[Document]) -> str:
         """Format retrieved documents into context string."""
         return "\n\n---\n\n".join(
             f"[Source: Page {doc.metadata.get('page', 'N/A')}]\n{doc.page_content}"
@@ -179,9 +179,9 @@ Answer: """
     def generate_answer(
         self,
         question: str,
-        context_docs: List[Document],
-        model: Optional[str] = None,
-    ) -> Tuple[str, str, float]:
+        context_docs: list[Document],
+        model: str | None = None,
+    ) -> tuple[str, str, float]:
         """
         Generate an answer using RAG with automatic failover.
 
@@ -194,7 +194,7 @@ Answer: """
         processing_time = time.time() - start_time
         return answer, model_used, processing_time
 
-    def create_rag_chain(self, retriever, model: Optional[str] = None):
+    def create_rag_chain(self, retriever, model: str | None = None):
         """Create a complete RAG chain with retriever."""
         llm, _ = self._get_llm(model)
         prompt = ChatPromptTemplate.from_template(self.RAG_PROMPT_TEMPLATE)
@@ -210,7 +210,7 @@ Answer: """
         return chain
 
     @staticmethod
-    def get_available_models() -> List[dict]:
+    def get_available_models() -> list[dict]:
         """Get list of all available models across enabled providers."""
         settings = get_settings()
         models = []

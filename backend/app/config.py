@@ -9,7 +9,6 @@ Supports OpenRouter, Groq, OpenAI, Google Gemini, and Hugging Face.
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
 
 from dotenv import load_dotenv
 from pydantic import AliasChoices, Field, computed_field
@@ -18,7 +17,7 @@ from pydantic_settings import BaseSettings
 # Pydantic reads .env into Settings, but AIProvider uses os.getenv — load .env into os.environ first.
 load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
-_DEFAULT_CORS_ORIGINS: List[str] = [
+_DEFAULT_CORS_ORIGINS: list[str] = [
     "http://localhost:5173",
     "http://localhost:3000",
     "http://127.0.0.1:5173",
@@ -42,8 +41,8 @@ class AIProvider:
         name: str,
         base_url: str,
         api_key_env: str,
-        models: List[str],
-        embedding_model: Optional[str] = None,
+        models: list[str],
+        embedding_model: str | None = None,
         is_openai_compatible: bool = True,
     ):
         self.name = name
@@ -52,10 +51,10 @@ class AIProvider:
         self.models = models
         self.embedding_model = embedding_model
         self.is_openai_compatible = is_openai_compatible
-        self._api_key: Optional[str] = None
+        self._api_key: str | None = None
 
     @property
-    def api_key(self) -> Optional[str]:
+    def api_key(self) -> str | None:
         """Get API key from environment."""
         if self._api_key is None:
             self._api_key = os.getenv(self.api_key_env)
@@ -72,7 +71,7 @@ class AIProvider:
 # ---------------------------------------------------------------------------
 # Supported AI providers (order = default fallback priority)
 # ---------------------------------------------------------------------------
-AI_PROVIDERS: Dict[str, AIProvider] = {
+AI_PROVIDERS: dict[str, AIProvider] = {
     "openrouter": AIProvider(
         name="openrouter",
         base_url="https://openrouter.ai/api/v1",
@@ -81,9 +80,9 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
             "openai/gpt-4o-mini",
             "openai/gpt-4o",
             "anthropic/claude-3-haiku",
-            "anthropic/claude-3.5-sonnet",
-            "meta-llama/llama-3.1-70b-instruct",
-            "google/gemini-pro",
+            "anthropic/claude-3.7-sonnet",
+            "meta-llama/llama-3.3-70b-instruct",
+            "google/gemini-2.0-flash-001",
         ],
         embedding_model="openai/text-embedding-3-small",
     ),
@@ -92,11 +91,11 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
         base_url="https://api.groq.com/openai/v1",
         api_key_env="GROQ_API_KEY",
         models=[
-            "llama-3.1-70b-versatile",
+            "llama-3.3-70b-versatile",
             "llama-3.1-8b-instant",
             "mixtral-8x7b-32768",
         ],
-        embedding_model="nomic-embed-text-v1_5",
+        embedding_model=None,
     ),
     "openai": AIProvider(
         name="openai",
@@ -114,15 +113,17 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
         base_url="https://generativelanguage.googleapis.com/v1beta/openai/",
         api_key_env="GOOGLE_API_KEY",
         models=[
+            "gemini-2.5-flash",
+            "gemini-2.5-flash-lite",
+            "gemini-2.5-pro",
+            "gemini-flash-latest",
             "gemini-2.0-flash",
-            "gemini-1.5-flash",
-            "gemini-1.5-pro",
         ],
         embedding_model="gemini-embedding-001",
     ),
     "huggingface": AIProvider(
         name="huggingface",
-        base_url="https://api-inference.huggingface.co/v1/",
+        base_url="https://router.huggingface.co/v1",
         api_key_env="HF_API_KEY",
         models=[
             "mistralai/Mistral-7B-Instruct-v0.3",
@@ -134,7 +135,7 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
 }
 
 # Ordered priority for automatic failover attempts
-PROVIDER_PRIORITY: List[str] = [
+PROVIDER_PRIORITY: list[str] = [
     "openrouter", "groq", "gemini", "huggingface", "openai",
 ]
 
@@ -153,7 +154,7 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # API Keys (loaded from environment)
-    openrouter_api_key: Optional[str] = Field(
+    openrouter_api_key: str | None = Field(
         default=None,
         validation_alias=AliasChoices("OPENROUTER_API_KEY", "OPENAI_API_KEY"),
     )
@@ -161,10 +162,10 @@ class Settings(BaseSettings):
         default="https://openrouter.ai/api/v1",
         validation_alias=AliasChoices("OPENROUTER_API_BASE", "OPENAI_API_BASE"),
     )
-    groq_api_key: Optional[str] = None
-    google_api_key: Optional[str] = None
-    hf_api_key: Optional[str] = None
-    openai_direct_api_key: Optional[str] = None
+    groq_api_key: str | None = None
+    google_api_key: str | None = None
+    hf_api_key: str | None = None
+    openai_direct_api_key: str | None = None
 
     # When false (default), direct OpenAI is not used for PDF embeddings — only OpenRouter
     # (avoids 429/quota errors from a stale OPENAI_DIRECT_API_KEY). Set to true to allow
@@ -186,14 +187,14 @@ class Settings(BaseSettings):
     faiss_persist_dir: str = "faiss_index"
 
     # CORS — comma-separated (avoids pydantic-settings JSON parsing for List fields)
-    cors_origins_csv: Optional[str] = Field(
+    cors_origins_csv: str | None = Field(
         default=None,
         validation_alias="CORS_ORIGINS",
     )
 
-    @computed_field
+    @computed_field  # type: ignore[prop-decorator]
     @property
-    def cors_origins(self) -> List[str]:
+    def cors_origins(self) -> list[str]:
         raw = self.cors_origins_csv
         if not raw or not raw.strip():
             return list(_DEFAULT_CORS_ORIGINS)
@@ -209,7 +210,7 @@ class Settings(BaseSettings):
         extra = "ignore"
 
 
-@lru_cache()
+@lru_cache
 def get_settings() -> Settings:
     """Get cached application settings."""
     return Settings()
@@ -231,7 +232,7 @@ def provider_has_credentials(provider: AIProvider) -> bool:
     return bool(provider.api_key)
 
 
-def get_available_providers() -> List[str]:
+def get_available_providers() -> list[str]:
     """Get list of providers with valid API keys."""
     return [
         name for name, provider in AI_PROVIDERS.items()
@@ -239,7 +240,7 @@ def get_available_providers() -> List[str]:
     ]
 
 
-def get_provider(name: str) -> Optional[AIProvider]:
+def get_provider(name: str) -> AIProvider | None:
     """Get provider configuration by name."""
     return AI_PROVIDERS.get(name)
 
@@ -260,7 +261,7 @@ def get_default_provider() -> AIProvider:
     return AI_PROVIDERS["openrouter"]
 
 
-def get_fallback_chain() -> List[AIProvider]:
+def get_fallback_chain() -> list[AIProvider]:
     """Return an ordered list of providers that have credentials for LLM calls."""
     return [
         AI_PROVIDERS[name]
@@ -269,16 +270,16 @@ def get_fallback_chain() -> List[AIProvider]:
     ]
 
 
-def get_embedding_fallback_chain() -> List[Tuple[AIProvider, str]]:
+def get_embedding_fallback_chain() -> list[tuple[AIProvider, str]]:
     """
     Ordered embedding backends to try (upload / index build).
 
     Puts the configured default provider first when it defines an embedding model,
-    then walks PROVIDER_PRIORITY (OpenRouter, Groq, Gemini, Hugging Face, OpenAI).
+    then walks PROVIDER_PRIORITY (OpenRouter, Gemini, Hugging Face, OpenAI; Groq skipped when no embedding_model).
     Direct OpenAI embeddings run only if embedding_openai_direct is true.
     """
-    chain: List[Tuple[AIProvider, str]] = []
-    seen: set[Tuple[str, str]] = set()
+    chain: list[tuple[AIProvider, str]] = []
+    seen: set[tuple[str, str]] = set()
     settings = get_settings()
 
     def has_embedding_key(provider: AIProvider) -> bool:
@@ -289,6 +290,8 @@ def get_embedding_fallback_chain() -> List[Tuple[AIProvider, str]]:
                 return False
             return bool(provider.api_key or settings.openai_direct_api_key)
         if provider.name == "groq":
+            if not provider.embedding_model:
+                return False
             return bool(provider.api_key or settings.groq_api_key)
         if provider.name == "gemini":
             return bool(provider.api_key or settings.google_api_key)
@@ -296,7 +299,7 @@ def get_embedding_fallback_chain() -> List[Tuple[AIProvider, str]]:
             return bool(provider.api_key or settings.hf_api_key)
         return provider.is_enabled
 
-    def append_provider(provider: Optional[AIProvider]) -> None:
+    def append_provider(provider: AIProvider | None) -> None:
         if provider is None or not has_embedding_key(provider):
             return
         model = provider.embedding_model
@@ -312,5 +315,13 @@ def get_embedding_fallback_chain() -> List[Tuple[AIProvider, str]]:
 
     for name in PROVIDER_PRIORITY:
         append_provider(AI_PROVIDERS.get(name))
+
+    gem = AI_PROVIDERS.get("gemini")
+    if gem and has_embedding_key(gem):
+        m2 = "gemini-embedding-2-preview"
+        sig = (gem.base_url, m2)
+        if sig not in seen:
+            seen.add(sig)
+            chain.append((gem, m2))
 
     return chain

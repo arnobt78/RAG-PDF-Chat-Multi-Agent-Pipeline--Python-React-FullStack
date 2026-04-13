@@ -5,7 +5,7 @@ Validates the generated answer for quality and relevance.
 Can flag low-confidence or potentially incorrect responses.
 """
 
-from typing import Any, Dict
+from typing import Any
 
 from .base_agent import BaseAgent
 
@@ -43,7 +43,7 @@ class ValidatorAgent(BaseAgent):
         self.min_answer_length = min_answer_length
         self.max_answer_length = max_answer_length
     
-    def process(self, input_data: str, context: Dict[str, Any]) -> str:
+    def process(self, input_data: str, context: dict[str, Any]) -> str:
         """
         Validate the generated answer.
         
