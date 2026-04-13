@@ -7,11 +7,16 @@ Supports OpenRouter, Groq, OpenAI, Google Gemini, and Hugging Face.
 """
 
 import os
-from typing import Optional, Dict, List
 from functools import lru_cache
+from pathlib import Path
+from typing import Dict, List, Optional, Tuple
 
-from pydantic import Field, computed_field
+from dotenv import load_dotenv
+from pydantic import AliasChoices, Field, computed_field
 from pydantic_settings import BaseSettings
+
+# Pydantic reads .env into Settings, but AIProvider uses os.getenv — load .env into os.environ first.
+load_dotenv(Path(__file__).resolve().parent.parent / ".env")
 
 _DEFAULT_CORS_ORIGINS: List[str] = [
     "http://localhost:5173",
@@ -54,6 +59,8 @@ class AIProvider:
         """Get API key from environment."""
         if self._api_key is None:
             self._api_key = os.getenv(self.api_key_env)
+            if not self._api_key and self.name == "openrouter":
+                self._api_key = os.getenv("OPENAI_API_KEY")
         return self._api_key
 
     @property
@@ -69,7 +76,7 @@ AI_PROVIDERS: Dict[str, AIProvider] = {
     "openrouter": AIProvider(
         name="openrouter",
         base_url="https://openrouter.ai/api/v1",
-        api_key_env="OPENAI_API_KEY",
+        api_key_env="OPENROUTER_API_KEY",
         models=[
             "openai/gpt-4o-mini",
             "openai/gpt-4o",
@@ -146,12 +153,23 @@ class Settings(BaseSettings):
     debug: bool = False
 
     # API Keys (loaded from environment)
-    openai_api_key: Optional[str] = None
-    openai_api_base: str = "https://openrouter.ai/api/v1"
+    openrouter_api_key: Optional[str] = Field(
+        default=None,
+        validation_alias=AliasChoices("OPENROUTER_API_KEY", "OPENAI_API_KEY"),
+    )
+    openrouter_api_base: str = Field(
+        default="https://openrouter.ai/api/v1",
+        validation_alias=AliasChoices("OPENROUTER_API_BASE", "OPENAI_API_BASE"),
+    )
     groq_api_key: Optional[str] = None
     google_api_key: Optional[str] = None
     hf_api_key: Optional[str] = None
     openai_direct_api_key: Optional[str] = None
+
+    # When false (default), direct OpenAI is not used for PDF embeddings — only OpenRouter
+    # (avoids 429/quota errors from a stale OPENAI_DIRECT_API_KEY). Set to true to allow
+    # api.openai.com as an embedding fallback after OpenRouter.
+    embedding_openai_direct: bool = Field(default=False)
 
     # Default AI settings
     default_model: str = "openai/gpt-4o-mini"
@@ -233,3 +251,44 @@ def get_fallback_chain() -> List[AIProvider]:
         for name in PROVIDER_PRIORITY
         if name in AI_PROVIDERS and AI_PROVIDERS[name].is_enabled
     ]
+
+
+def get_embedding_fallback_chain() -> List[Tuple[AIProvider, str]]:
+    """
+    Ordered OpenAI-compatible embedding endpoints to try (upload / index build).
+
+    Puts the configured default provider first when it defines an embedding model,
+    then walks PROVIDER_PRIORITY. Direct OpenAI embeddings run only if
+    embedding_openai_direct is true and OPENAI_DIRECT_API_KEY is set.
+    """
+    chain: List[Tuple[AIProvider, str]] = []
+    seen: set[Tuple[str, str]] = set()
+    settings = get_settings()
+
+    def has_embedding_key(provider: AIProvider) -> bool:
+        if provider.name == "openrouter":
+            return bool(provider.api_key or settings.openrouter_api_key)
+        if provider.name == "openai":
+            if not settings.embedding_openai_direct:
+                return False
+            return bool(provider.api_key or settings.openai_direct_api_key)
+        return provider.is_enabled
+
+    def append_provider(provider: Optional[AIProvider]) -> None:
+        if provider is None or not has_embedding_key(provider):
+            return
+        model = provider.embedding_model
+        if not model:
+            return
+        sig = (provider.base_url, model)
+        if sig in seen:
+            return
+        seen.add(sig)
+        chain.append((provider, model))
+
+    append_provider(AI_PROVIDERS.get(settings.default_provider))
+
+    for name in PROVIDER_PRIORITY:
+        append_provider(AI_PROVIDERS.get(name))
+
+    return chain

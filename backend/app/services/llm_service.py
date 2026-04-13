@@ -61,9 +61,19 @@ Answer: """
 
     def _build_llm(self, provider: AIProvider, model_id: str) -> ChatOpenAI:
         """Create a ChatOpenAI instance pointing at the given provider."""
+        base_url = (
+            self.settings.openrouter_api_base
+            if provider.name == "openrouter"
+            else provider.base_url
+        )
+        key_fallback = (
+            self.settings.openrouter_api_key
+            if provider.name == "openrouter"
+            else None
+        )
         return ChatOpenAI(
-            base_url=provider.base_url,
-            api_key=cast(Any, provider.api_key or self.settings.openai_api_key),
+            base_url=base_url,
+            api_key=cast(Any, provider.api_key or key_fallback),
             model=model_id,
             temperature=self.settings.temperature,
             max_tokens=self.settings.max_tokens,  # pyright: ignore[reportCallIssue]

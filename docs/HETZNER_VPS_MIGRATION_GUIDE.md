@@ -6016,7 +6016,7 @@ This pattern is now validated in production and can be reused for similar projec
 - **Container port:** `3000` (app reads `PORT`)
 - **Ports mappings:** `5005:3000`
 - **Required env:** `PORT=3000`, `CORS_ORIGINS=https://blog-reader-tts.vercel.app`
-- **Optional env (as needed):** `OPENAI_API_KEY`, `ELEVENLABS_API_KEY`, `REPLICATE_API_TOKEN`, `HF_API_KEY`
+- **Optional env (as needed):** `OPENROUTER_API_KEY`, `ELEVENLABS_API_KEY`, `REPLICATE_API_TOKEN`, `HF_API_KEY`
 
 ### Frontend (Vercel)
 

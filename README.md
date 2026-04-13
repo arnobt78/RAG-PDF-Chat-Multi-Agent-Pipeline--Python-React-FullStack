@@ -58,7 +58,7 @@ pip install -r requirements.txt
 
 # Create .env file
 cp .env.example .env
-# Edit .env and add your OPENAI_API_KEY (OpenRouter key)
+# Edit .env and add your OPENROUTER_API_KEY
 ```
 
 3. **Setup Frontend**
@@ -149,8 +149,8 @@ Question → Extractor → Analyzer → Synthesizer → Validator → Answer
 
 ### Backend (.env)
 ```env
-OPENAI_API_KEY=sk-or-v1-your_key_here
-OPENAI_API_BASE=https://openrouter.ai/api/v1
+OPENROUTER_API_KEY=sk-or-v1-your_key_here
+OPENROUTER_API_BASE=https://openrouter.ai/api/v1
 DEFAULT_MODEL=openai/gpt-4o-mini
 ```
 

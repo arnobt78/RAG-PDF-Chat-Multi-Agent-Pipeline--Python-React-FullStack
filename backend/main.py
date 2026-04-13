@@ -17,7 +17,10 @@ import shutil
 load_dotenv()
 
 # OpenRouter configuration (OpenAI-compatible)
-OPENAI_API_BASE = os.getenv("OPENAI_API_BASE", "https://openrouter.ai/api/v1")
+OPENROUTER_API_BASE = os.getenv("OPENROUTER_API_BASE") or os.getenv(
+    "OPENAI_API_BASE", "https://openrouter.ai/api/v1"
+)
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY") or os.getenv("OPENAI_API_KEY")
 
 # Initialize FastAPI app
 app = FastAPI(
@@ -66,8 +69,9 @@ def load_and_process_pdf(pdf_path: str):
     
     # Create embeddings and vector store (using OpenRouter)
     embeddings = OpenAIEmbeddings(
-        base_url=OPENAI_API_BASE,
-        model="openai/text-embedding-3-small"
+        base_url=OPENROUTER_API_BASE,
+        model="openai/text-embedding-3-small",
+        api_key=OPENROUTER_API_KEY,
     )
     vectorstore = FAISS.from_documents(chunks, embeddings)
     
@@ -75,7 +79,8 @@ def load_and_process_pdf(pdf_path: str):
     llm = ChatOpenAI(
         temperature=0,
         model="openai/gpt-4o-mini",
-        base_url=OPENAI_API_BASE
+        base_url=OPENROUTER_API_BASE,
+        api_key=OPENROUTER_API_KEY,
     )
     
     # Create a RAG prompt template
