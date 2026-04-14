@@ -34,8 +34,8 @@ export interface PageWrapperProps {
 // Page transition variants
 const pageVariants = {
   initial: {
-    opacity: 0,
-    y: 20,
+    opacity: 1,
+    y: 0,
   },
   animate: {
     opacity: 1,
@@ -61,25 +61,16 @@ export function PageWrapper({
   className,
   noAnimation = false,
 }: PageWrapperProps) {
-  const content = (
-    <main
-      className={cn(
-        "flex-1", // Header spacing
-        className,
-      )}
-    >
-      {children}
-    </main>
-  );
+  const content = <main className={cn("flex-1", className)}>{children}</main>;
 
   return (
     <div
       className={cn(
-        "min-h-screen flex flex-col",
-        showBackground && "bg-pattern bg-overlay",
+        "min-h-screen w-full overflow-x-clip flex flex-col relative",
+        showBackground && "bg-pattern",
       )}
     >
-      {/* Fixed Header */}
+      {/* Header */}
       <Header />
 
       {/* Main Content with Animation */}
@@ -123,7 +114,7 @@ export function SectionWrapper({
     <section
       id={id}
       className={cn(
-        "max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24",
+        "w-full max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 xl:py-8",
         className,
       )}
     >

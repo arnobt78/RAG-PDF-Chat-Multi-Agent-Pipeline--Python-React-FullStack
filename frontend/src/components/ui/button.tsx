@@ -1,12 +1,12 @@
 /**
  * Button Component with Ripple Effect
- * 
+ *
  * A versatile button component featuring:
  * - Multiple variants (default, destructive, outline, secondary, ghost, link)
  * - Size options (default, sm, lg, icon)
  * - Ripple click effect animation
  * - Optional CTA shine wrapper for primary actions
- * 
+ *
  * Usage:
  * <Button variant="default" size="lg" withRipple>Click Me</Button>
  * <Button variant="outline" withShine>CTA Button</Button>
@@ -24,17 +24,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 hover:scale-105",
+          "bg-gradient-to-r from-purple-800 via-blue-800 to-sky-700 text-white shadow-2xl shadow-blue-500/30 hover:shadow-blue-500/50 hover:from-purple-900 hover:via-blue-800 hover:to-sky-800 rounded-3xl",
         destructive:
-          "bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105",
+          "bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-2xl shadow-red-500/30 hover:shadow-red-500/50 hover:scale-105",
         outline:
           "border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/30",
-        secondary:
-          "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm",
-        ghost:
-          "text-white hover:bg-white/10",
-        link:
-          "text-purple-400 underline-offset-4 hover:underline hover:text-purple-300",
+        secondary: "bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm",
+        ghost: "text-white hover:bg-white/10",
+        link: "text-purple-400 underline-offset-4 hover:underline hover:text-purple-300",
       },
       size: {
         default: "h-11 px-6 py-2",
@@ -47,12 +44,13 @@ const buttonVariants = cva(
       variant: "default",
       size: "default",
     },
-  }
+  },
 );
 
 // Button props interface extending HTML button attributes
 export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends
+    React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
   /** Enable ripple click effect */
   withRipple?: boolean;
@@ -66,13 +64,13 @@ export interface ButtonProps
 
 /**
  * Creates a ripple effect at click position
- * 
+ *
  * @param event - Mouse event from button click
  * @param button - Button element reference
  */
 function createRipple(
   event: React.MouseEvent<HTMLButtonElement>,
-  button: HTMLButtonElement
+  button: HTMLButtonElement,
 ): void {
   // Calculate ripple position relative to button
   const rect = button.getBoundingClientRect();
@@ -108,7 +106,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       asChild = false,
       ...props
     },
-    ref
+    ref,
   ) => {
     // Handle click with optional ripple effect
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -121,14 +119,21 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonClasses = cn(
       buttonVariants({ variant, size }),
       withRipple && !asChild && "ripple-container",
-      className
+      className,
     );
 
     // If asChild, render children with button styles
     if (asChild && React.isValidElement(children)) {
-      return React.cloneElement(children as React.ReactElement<{ className?: string }>, {
-        className: cn(buttonClasses, (children as React.ReactElement<{ className?: string }>).props.className),
-      });
+      return React.cloneElement(
+        children as React.ReactElement<{ className?: string }>,
+        {
+          className: cn(
+            buttonClasses,
+            (children as React.ReactElement<{ className?: string }>).props
+              .className,
+          ),
+        },
+      );
     }
 
     // Base button element
@@ -150,7 +155,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     }
 
     return buttonElement;
-  }
+  },
 );
 
 Button.displayName = "Button";

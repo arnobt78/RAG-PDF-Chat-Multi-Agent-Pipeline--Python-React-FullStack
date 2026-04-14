@@ -15,11 +15,11 @@ export function CTASection() {
   return (
     <SectionWrapper>
       <ScrollReveal direction="up">
-        <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-purple-600/20 via-blue-600/20 to-purple-600/20 border border-white/10 p-8 sm:p-12 lg:p-16">
+        <div className="relative overflow-hidden rounded-[28px] bg-transparent backdrop-blur-[2px] border border-white/10 p-4 md:p-6 xl:p-8">
           {/* Background effects */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <motion.div
-              className="absolute -top-1/2 -right-1/2 w-full h-full bg-gradient-to-br from-purple-500/20 to-transparent rounded-full blur-3xl"
+              className="hidden"
               animate={{
                 rotate: 360,
               }}
@@ -34,7 +34,7 @@ export function CTASection() {
           {/* Content */}
           <div className="relative z-10 text-center">
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 text-sm text-purple-300 mb-6"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-transparent backdrop-blur-[2px] border border-white/15 text-sm text-purple-300 mb-6"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -43,13 +43,13 @@ export function CTASection() {
               Ready to get started?
             </motion.div>
 
-            <h2 className="heading-2 text-white mb-4">
+            <h2 className="heading-2 text-white mb-4 text-balance">
               Start Chatting with Your
               <br />
               <span className="gradient-text">Documents Today</span>
             </h2>
 
-            <p className="body-large max-w-xl mx-auto mb-8">
+            <p className="body-large max-w-xl mx-auto mb-8 text-pretty">
               Upload your first PDF and experience the power of AI-driven document analysis.
               No signup required.
             </p>
@@ -58,7 +58,7 @@ export function CTASection() {
               <Button
                 size="lg"
                 withShine
-                className="min-w-[200px]"
+                className="w-full sm:w-auto sm:min-w-[200px]"
                 icon={<ArrowRight className="w-5 h-5" />}
                 asChild
               >

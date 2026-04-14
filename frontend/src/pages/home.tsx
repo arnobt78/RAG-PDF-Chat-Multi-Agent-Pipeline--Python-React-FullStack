@@ -18,7 +18,7 @@ import {
 
 export function HomePage() {
   return (
-    <PageWrapper showBackground showFooter>
+    <PageWrapper showBackground showFooter className="w-full overflow-x-clip">
       <HeroSection />
       <FeaturesSection />
       <HowItWorksSection />

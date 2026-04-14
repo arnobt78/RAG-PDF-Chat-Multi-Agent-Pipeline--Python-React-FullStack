@@ -33,7 +33,7 @@
       "Segoe UI",
       Roboto,
       sans-serif;
-    background: linear-gradient(135deg, #0f172a 0%, #581c87 50%, #0f172a 100%);
+    background: transparent;
     color: #f8fafc;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
@@ -42,21 +42,37 @@
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(30, 41, 59, 0.5);
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-track-piece {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #475569;
-    border-radius: 4px;
+    background: #ffffff;
+    border-radius: 9999px;
+    border: 1px solid transparent;
+    background-clip: padding-box;
   }
 
   ::-webkit-scrollbar-thumb:hover {
     background: #64748b;
+  }
+
+  /* Firefox scrollbar */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #475569 transparent;
   }
 }
 
@@ -103,8 +119,14 @@
   /* CTA Shine effect wrapper */
   .cta-shine-wrap {
     position: relative;
+    display: inline-flex;
     overflow: hidden;
     border-radius: 9999px;
+  }
+
+  .cta-shine-wrap > * {
+    position: relative;
+    z-index: 1;
   }
 
   .cta-shine-wrap::after {
@@ -113,14 +135,17 @@
     top: 0;
     left: -100%;
     height: 100%;
-    width: 50%;
+    width: 85%;
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.3),
+      rgba(255, 255, 255, 0.42),
       transparent
     );
-    animation: ctaShine 4.5s ease-in-out infinite;
+    transform: skewX(-8deg);
+    z-index: 2;
+    pointer-events: none;
+    animation: ctaShine 4.5s cubic-bezier(0.35, 0, 0.15, 1) infinite;
   }
 
   /* Primary button with glow */
@@ -195,32 +220,34 @@
    ============================================================================ */
 
 .bg-pattern {
-  background-image: url("/bg-images/bg-66.avif");
+  position: relative;
+  background-image: url("/bg-images/bg-57.avif");
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
 }
 
-.bg-overlay {
-  position: relative;
-}
-
-.bg-overlay::before {
+.bg-pattern::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(15, 23, 42, 0.9),
-    rgba(88, 28, 135, 0.8),
-    rgba(15, 23, 42, 0.9)
-  );
+  pointer-events: none;
   z-index: 0;
+  background: transparent;
+  box-shadow:
+    inset 0 100px 380px -20px rgba(2, 6, 23, 0.84),
+    inset 0 -320px 380px -20px rgba(2, 6, 23, 0.9),
+    inset 320px 0 380px -20px rgba(2, 6, 23, 0.86),
+    inset -320px 0 380px -20px rgba(2, 6, 23, 0.86);
 }
 
-.bg-overlay > * {
+.bg-pattern::after {
+  content: none;
+}
+
+.bg-pattern > * {
   position: relative;
-  z-index: 10;
+  z-index: 1;
 }
 
 /* ============================================================================
@@ -235,9 +262,10 @@
 .ripple {
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.48);
   pointer-events: none;
   transform: scale(0);
+  z-index: 3;
   animation: ripple 0.6s linear forwards;
 }
 
@@ -322,4 +350,39 @@
   .body-large {
     font-size: 1.1rem;
   }
+}
+
+/* Force global scrollbar styling (root viewport) */
+html,
+body {
+  scrollbar-width: thin;
+  scrollbar-color: #5769ef #000000;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+html::-webkit-scrollbar-track-piece,
+body::-webkit-scrollbar-track-piece,
+html::-webkit-scrollbar-corner,
+body::-webkit-scrollbar-corner {
+  background: #000000 !important;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb {
+  background-color: #5769ef !important;
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: padding-box;
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover {
+  background-color: #5769ef !important;
 }

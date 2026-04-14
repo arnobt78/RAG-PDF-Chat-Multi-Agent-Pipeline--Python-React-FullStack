@@ -22,12 +22,12 @@ export function HowItWorksSection() {
     <SectionWrapper id="how-it-works" className="relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-purple-500/5 rounded-full blur-3xl" />
+        <div className="hidden" />
       </div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 w-full">
         {/* Section Header */}
-        <ScrollReveal direction="up" className="text-center mb-16">
+        <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
           <h2 className="heading-2 text-white mb-4">
             How It <span className="gradient-text">Works</span>
           </h2>
@@ -39,9 +39,9 @@ export function HowItWorksSection() {
         {/* Steps */}
         <div className="relative">
           {/* Connection line (desktop only) */}
-          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-purple-500/30 to-transparent -translate-y-1/2" />
+          <div className="hidden lg:block absolute top-1/2 left-0 right-0 h-px bg-white/15 -translate-y-1/2" />
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
             {HOW_IT_WORKS_STEPS.map((step, index) => {
               const Icon = stepIcons[index];
               const isLast = index === HOW_IT_WORKS_STEPS.length - 1;
@@ -57,7 +57,7 @@ export function HowItWorksSection() {
                       <GlassCardContent className="text-center">
                         {/* Step number */}
                         <motion.div
-                          className="w-16 h-16 mx-auto mb-6 rounded-full bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/30"
+                          className="w-16 h-16 mx-auto mb-6 rounded-full bg-transparent backdrop-blur-[2px] border border-white/15 flex items-center justify-center shadow-lg shadow-black/20"
                           whileHover={{ scale: 1.1, rotate: 5 }}
                         >
                           <Icon className="w-8 h-8 text-white" />
@@ -95,7 +95,7 @@ export function HowItWorksSection() {
 
         {/* Technical details */}
         <ScrollReveal direction="up" delay={0.6}>
-          <GlassCard variant="default" className="mt-16" padding="lg">
+          <GlassCard variant="default" className="mt-8 md:mt-10 xl:mt-12" padding="lg">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div>
                 <div className="text-2xl font-bold text-white mb-1">

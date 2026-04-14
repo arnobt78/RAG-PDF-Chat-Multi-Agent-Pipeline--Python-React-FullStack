@@ -42,7 +42,7 @@ export function FeaturesSection() {
   return (
     <SectionWrapper id="features">
       {/* Section Header */}
-      <ScrollReveal direction="up" className="text-center mb-16">
+      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
         <h2 className="heading-2 text-white mb-4">
           Powerful <span className="gradient-text">Features</span>
         </h2>
@@ -52,7 +52,7 @@ export function FeaturesSection() {
       </ScrollReveal>
 
       {/* Features Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {FEATURES.map((feature, index) => {
           const Icon = featureIcons[index % featureIcons.length];
 
@@ -69,7 +69,7 @@ export function FeaturesSection() {
               >
                 <GlassCardContent>
                   <motion.div
-                    className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
+                    className="w-14 h-14 rounded-2xl bg-transparent backdrop-blur-[2px] border border-white/15 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
                     whileHover={{ rotate: 5 }}
                   >
                     <Icon className="w-7 h-7 text-purple-400" />

@@ -76,7 +76,7 @@ const pipelineSteps = [
 export function PipelineSection() {
   return (
     <SectionWrapper id="pipeline">
-      <ScrollReveal direction="up" className="text-center mb-16">
+      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
         <Badge variant="default" className="mb-4">
           Multi-Agent Architecture
         </Badge>
@@ -89,7 +89,7 @@ export function PipelineSection() {
         </p>
       </ScrollReveal>
 
-      <div className="relative max-w-3xl mx-auto">
+      <div className="relative w-full max-w-4xl mx-auto">
         {pipelineSteps.map((step, index) => {
           const isLast = index === pipelineSteps.length - 1;
 
@@ -99,15 +99,15 @@ export function PipelineSection() {
               direction="up"
               delay={index * 0.08}
             >
-              <div className="relative flex items-start gap-6 mb-2">
+              <div className="relative flex items-start gap-3 sm:gap-6 mb-2">
                 {/* Step number + icon column */}
-                <div className="flex flex-col items-center shrink-0 w-16">
+                <div className="flex flex-col items-center shrink-0 w-12 sm:w-16">
                   <motion.div
-                    className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${step.color} flex items-center justify-center shadow-lg`}
+                    className="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-transparent backdrop-blur-[2px] border border-white/15 flex items-center justify-center shadow-lg shadow-black/20"
                     whileHover={{ scale: 1.15, rotate: 5 }}
                     transition={{ type: "spring", stiffness: 300 }}
                   >
-                    <step.icon className="w-7 h-7 text-white" />
+                    <step.icon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                   </motion.div>
 
                   {!isLast && (

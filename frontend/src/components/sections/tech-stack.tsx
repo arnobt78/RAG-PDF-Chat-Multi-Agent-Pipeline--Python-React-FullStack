@@ -64,7 +64,7 @@ export function TechStackSection() {
   return (
     <SectionWrapper id="tech-stack">
       {/* Section Header */}
-      <ScrollReveal direction="up" className="text-center mb-16">
+      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
         <h2 className="heading-2 text-white mb-4">
           Built With <span className="gradient-text">Modern Tech</span>
         </h2>
@@ -74,7 +74,7 @@ export function TechStackSection() {
       </ScrollReveal>
 
       {/* Tech Categories Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         {techCategories.map((category, categoryIndex) => (
           <ScrollReveal
             key={category.name}
@@ -86,7 +86,7 @@ export function TechStackSection() {
                 {/* Category Header */}
                 <div className="flex items-center gap-4 mb-6">
                   <motion.div
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.color} flex items-center justify-center`}
+                    className="w-12 h-12 rounded-xl bg-transparent backdrop-blur-[2px] border border-white/15 flex items-center justify-center"
                     whileHover={{ scale: 1.1, rotate: 5 }}
                   >
                     <category.icon className="w-6 h-6 text-white" />
@@ -97,7 +97,7 @@ export function TechStackSection() {
                 </div>
 
                 {/* Technologies */}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 min-w-0">
                   {category.techs.map((tech, techIndex) => (
                     <motion.div
                       key={tech.name}
@@ -108,7 +108,7 @@ export function TechStackSection() {
                     >
                       <Badge
                         variant="outline"
-                        className="hover:bg-white/10 transition-colors cursor-default"
+                        className="hover:bg-transparent transition-colors cursor-default"
                       >
                         <span className="font-medium">{tech.name}</span>
                         <span className="ml-1 text-slate-500">

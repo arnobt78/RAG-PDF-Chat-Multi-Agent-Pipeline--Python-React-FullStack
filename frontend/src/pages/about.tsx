@@ -63,7 +63,7 @@ const architectureHighlights = [
 
 export function AboutPage() {
   return (
-    <PageWrapper showBackground showFooter>
+    <PageWrapper showBackground showFooter className="w-full overflow-x-clip">
       <SectionWrapper>
         {/* Header */}
         <ScrollReveal direction="up" className="text-center mb-16">
@@ -81,7 +81,7 @@ export function AboutPage() {
         </ScrollReveal>
 
         {/* Architecture Highlights */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-10 md:mb-12 xl:mb-16">
           {architectureHighlights.map((item, index) => (
             <ScrollReveal key={item.title} direction="up" delay={index * 0.08}>
               <GlassCard variant="hover" padding="lg" className="h-full">

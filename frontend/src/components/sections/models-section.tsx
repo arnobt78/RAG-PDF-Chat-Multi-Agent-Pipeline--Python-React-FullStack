@@ -48,7 +48,7 @@ const providers = [
 export function ModelsSection() {
   return (
     <SectionWrapper id="models">
-      <ScrollReveal direction="up" className="text-center mb-16">
+      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
         <Badge variant="info" className="mb-4" icon={<Server className="w-3 h-3" />}>
           Multi-Provider Support
         </Badge>
@@ -61,14 +61,14 @@ export function ModelsSection() {
         </p>
       </ScrollReveal>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
         {providers.map((provider, index) => (
           <ScrollReveal key={provider.name} direction="up" delay={index * 0.12}>
             <GlassCard variant="hover" padding="lg" className="h-full">
               <GlassCardContent>
-                <div className="flex items-center gap-4 mb-6">
+                <div className="flex items-start gap-4 mb-6">
                   <motion.div
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${provider.color} flex items-center justify-center`}
+                    className="w-12 h-12 rounded-xl bg-transparent backdrop-blur-[2px] border border-white/15 flex items-center justify-center"
                     whileHover={{ scale: 1.1, rotate: 5 }}
                   >
                     <provider.icon className="w-6 h-6 text-white" />
@@ -87,11 +87,11 @@ export function ModelsSection() {
                   {provider.description}
                 </p>
 
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 min-w-0">
                   {provider.models.map((model) => (
                     <div
                       key={model}
-                      className="flex items-center gap-2 text-sm text-slate-300"
+                      className="flex items-center gap-2 text-sm text-slate-300 break-words"
                     >
                       <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
                       {model}

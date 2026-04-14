@@ -24,13 +24,13 @@ import { cn } from "@/lib/utils";
 // Card variant styles
 const glassCardVariants = cva(
   // Base glassmorphism styles
-  "relative bg-white/10 backdrop-blur-md border border-white/20 overflow-hidden",
+  "relative bg-transparent backdrop-blur-[2px] border border-white/10 overflow-hidden",
   {
     variants: {
       variant: {
         default: "shadow-glass",
         hover:
-          "shadow-glass transition-all duration-300 hover:bg-white/15 hover:border-white/30 hover:shadow-glass-lg hover:scale-[1.02]",
+          "shadow-glass transition-all duration-300 hover:border-white/20 hover:shadow-glass-lg hover:scale-[1.02]",
         glow: "shadow-glow animate-pulse-glow",
         outline: "bg-transparent border-2",
       },
