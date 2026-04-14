@@ -201,7 +201,7 @@ export function ChatContainer() {
   }, []);
 
   return (
-    <div className="flex flex-col h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)]">
+    <div className="flex w-full flex-col">
       {/* Device-local data banner */}
       <AnimatePresence>
         {showBanner && (
@@ -381,11 +381,11 @@ export function ChatContainer() {
       </ScrollReveal>
 
       {/* Chat Messages Area */}
-      <ScrollReveal direction="up" delay={0.2} className="flex-1 min-h-0">
+      <ScrollReveal direction="up" delay={0.2} className="w-full">
         <GlassCard
           variant="default"
           padding="none"
-          className="h-full flex flex-col"
+          className="flex min-h-[16rem] max-h-[min(36rem,72dvh)] flex-col sm:max-h-[min(40rem,75dvh)]"
         >
           {/* Toolbar */}
           {chatHistory.length > 0 && (
@@ -435,7 +435,7 @@ export function ChatContainer() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="h-full flex flex-col items-center justify-center text-center py-10 px-2"
+                  className="flex min-h-[14rem] flex-col items-center justify-center px-2 py-10 text-center"
                 >
                   <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/10 mb-5">
                     <MessageSquare className="w-10 h-10 text-purple-300/90" />

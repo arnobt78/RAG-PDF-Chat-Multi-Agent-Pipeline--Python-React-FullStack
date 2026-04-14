@@ -17,6 +17,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { PageWrapper, SectionWrapper } from "@/components/layout/page-wrapper";
+import { CTASection } from "@/components/sections";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
@@ -133,6 +134,8 @@ export function AboutPage() {
           </GlassCard>
         </ScrollReveal>
       </SectionWrapper>
+
+      <CTASection />
     </PageWrapper>
   );
 }

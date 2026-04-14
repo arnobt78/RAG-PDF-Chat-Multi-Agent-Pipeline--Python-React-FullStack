@@ -210,10 +210,10 @@ export function PDFUpload({
                   <>
                     <motion.div
                       className={cn(
-                        "p-4 rounded-2xl mb-4 transition-colors",
+                        "p-4 rounded-3xl mb-4 transition-colors",
                         isDragOver ? "bg-purple-500/30" : "bg-white/10",
                       )}
-                      animate={isDragOver ? { scale: 1.1 } : { scale: 1 }}
+                      animate={isDragOver ? { scale: 1.02 } : { scale: 1 }}
                     >
                       {isDragOver ? (
                         <File className="w-10 h-10 text-purple-400" />
@@ -235,7 +235,7 @@ export function PDFUpload({
                       Select PDF File
                     </Button>
 
-                    <p className="mt-4 text-xs text-slate-500">
+                    <p className="mt-4 text-xs text-white/80">
                       Supports PDF files up to {formatFileSize(MAX_FILE_SIZE)}
                     </p>
                   </>
