@@ -12,6 +12,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { Sentry } from "@/lib/sentry";
 import { ChatProvider } from "@/context/chat-context";
+import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { HomePage } from "@/pages/home";
 import { ChatPage } from "@/pages/chat";
 import { AboutPage } from "@/pages/about";
@@ -40,6 +41,7 @@ function App() {
   return (
     <Sentry.ErrorBoundary fallback={<AppFallback />} showDialog>
       <BrowserRouter>
+        <ScrollToTop />
         <ChatProvider>
           <AnimatePresence mode="wait">
             <Routes>

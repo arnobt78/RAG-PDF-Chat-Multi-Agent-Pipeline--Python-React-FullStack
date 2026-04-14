@@ -190,6 +190,64 @@
     border-radius: 1rem 1rem 1rem 0.25rem;
     padding: 0.75rem 1rem;
   }
+
+  /* Pets-style stagger lines and trust badges adapted for hero */
+  .hero-stair-line {
+    text-shadow: 0 2px 18px rgba(15, 23, 42, 0.45);
+    will-change: transform, opacity;
+  }
+
+  .hero-stair-copy-line {
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 1px 12px rgba(15, 23, 42, 0.35);
+    will-change: transform, opacity;
+  }
+
+  .hero-pet-badge {
+    --badge-teal: #7dd3fc;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.55rem;
+    padding: 0.55rem 1.05rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    line-height: 1.15;
+    color: #e2e8f0;
+    border: 1.5px dashed rgba(125, 211, 252, 0.55);
+    background: transparent;
+    box-shadow:
+      0 8px 28px rgba(37, 99, 235, 0.18),
+      0 0 30px rgba(168, 85, 247, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.24);
+  }
+
+  .hero-stat-card {
+    border: 1px solid rgba(125, 211, 252, 0.28);
+    border-radius: 16px;
+    background: linear-gradient(
+      140deg,
+      rgba(30, 41, 59, 0.35) 0%,
+      rgba(37, 99, 235, 0.12) 42%,
+      rgba(15, 23, 42, 0.26) 100%
+    );
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    box-shadow:
+      0 10px 28px rgba(2, 6, 23, 0.34),
+      0 0 22px rgba(56, 189, 248, 0.12),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    padding: 0.65rem 0.45rem;
+  }
+
+  .hero-stat-value {
+    text-shadow: 0 2px 10px rgba(15, 23, 42, 0.4);
+  }
+
+  .hero-stat-label {
+    opacity: 0.92;
+  }
 }
 
 /* ============================================================================
@@ -298,7 +356,7 @@
     transparent 70%
   );
   transform: translateX(-180%);
-  animation: shineDebugSweep 4.2s linear infinite;
+  animation: shineDebugSweep 4.8s linear infinite;
 }
 
 .shine-debug > * {

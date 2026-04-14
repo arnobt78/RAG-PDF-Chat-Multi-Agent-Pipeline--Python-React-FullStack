@@ -41,7 +41,7 @@ export interface ScrollRevealProps {
  * Get animation variants based on direction
  */
 function getVariants(direction: AnimationDirection, duration: number): Variants {
-  const distance = 50;
+  const distance = 20;
 
   const directions: Record<AnimationDirection, { x?: number; y?: number }> = {
     up: { y: distance },
@@ -55,7 +55,7 @@ function getVariants(direction: AnimationDirection, duration: number): Variants 
 
   return {
     hidden: {
-      opacity: 0,
+      opacity: 1,
       ...offset,
     },
     visible: {
@@ -64,7 +64,7 @@ function getVariants(direction: AnimationDirection, duration: number): Variants 
       y: 0,
       transition: {
         duration,
-        ease: [0.25, 0.1, 0.25, 1], // Cubic bezier for smooth easing
+        ease: [0.22, 1, 0.36, 1],
       },
     },
   };
@@ -76,10 +76,10 @@ const ScrollReveal = React.forwardRef<HTMLDivElement, ScrollRevealProps>(
       children,
       direction = "up",
       delay = 0,
-      duration = 0.6,
+      duration = 0.65,
       className,
-      once = true,
-      margin = "-100px" as const,
+      once = false,
+      margin = "0px 0px -8% 0px" as const,
     },
     ref
   ) => {

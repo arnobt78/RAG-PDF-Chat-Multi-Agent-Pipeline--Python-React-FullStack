@@ -106,6 +106,7 @@ export interface AIModel {
  * Static model catalogue used as a client-side fallback before the backend
  * /models endpoint responds.  The ModelSelector also fetches live models.
  */
+/** Aligned with `backend/app/config.py` `AI_PROVIDERS` model IDs */
 export const AI_MODELS: AIModel[] = [
   {
     id: "openai/gpt-4o-mini",
@@ -127,10 +128,22 @@ export const AI_MODELS: AIModel[] = [
     description: "Fast and cost-effective",
   },
   {
+    id: "anthropic/claude-3.7-sonnet",
+    name: "Claude 3.7 Sonnet",
+    provider: "openrouter",
+    description: "Strong reasoning and long context",
+  },
+  {
     id: "meta-llama/llama-3.3-70b-instruct",
     name: "Llama 3.3 70B",
     provider: "openrouter",
     description: "Open source, high quality",
+  },
+  {
+    id: "google/gemini-2.0-flash-001",
+    name: "Gemini 2.0 Flash",
+    provider: "openrouter",
+    description: "Google Gemini via OpenRouter",
   },
   {
     id: "llama-3.3-70b-versatile",
@@ -145,6 +158,30 @@ export const AI_MODELS: AIModel[] = [
     description: "Instant responses, great for simple Q&A",
   },
   {
+    id: "mixtral-8x7b-32768",
+    name: "Mixtral 8x7B (Groq)",
+    provider: "groq",
+    description: "Mixture-of-experts, strong generalist",
+  },
+  {
+    id: "gpt-4o-mini",
+    name: "GPT-4o Mini (direct)",
+    provider: "openai",
+    description: "Direct OpenAI API",
+  },
+  {
+    id: "gpt-4o",
+    name: "GPT-4o (direct)",
+    provider: "openai",
+    description: "Direct OpenAI API",
+  },
+  {
+    id: "gpt-4-turbo",
+    name: "GPT-4 Turbo (direct)",
+    provider: "openai",
+    description: "Direct OpenAI API",
+  },
+  {
     id: "gemini-2.5-flash",
     name: "Gemini 2.5 Flash",
     provider: "gemini",
@@ -157,6 +194,24 @@ export const AI_MODELS: AIModel[] = [
     description: "Fastest and most budget-friendly 2.5",
   },
   {
+    id: "gemini-2.5-pro",
+    name: "Gemini 2.5 Pro",
+    provider: "gemini",
+    description: "Highest quality Gemini 2.5",
+  },
+  {
+    id: "gemini-flash-latest",
+    name: "Gemini Flash (latest)",
+    provider: "gemini",
+    description: "Rolling latest Flash",
+  },
+  {
+    id: "gemini-2.0-flash",
+    name: "Gemini 2.0 Flash",
+    provider: "gemini",
+    description: "Stable 2.0 generation",
+  },
+  {
     id: "mistralai/Mistral-7B-Instruct-v0.3",
     name: "Mistral 7B (HF)",
     provider: "huggingface",
@@ -167,6 +222,12 @@ export const AI_MODELS: AIModel[] = [
     name: "Zephyr 7B (HF)",
     provider: "huggingface",
     description: "HuggingFace fine-tuned assistant",
+  },
+  {
+    id: "meta-llama/Meta-Llama-3-8B-Instruct",
+    name: "Llama 3 8B Instruct (HF)",
+    provider: "huggingface",
+    description: "Meta Llama 3 via HuggingFace router",
   },
 ];
 

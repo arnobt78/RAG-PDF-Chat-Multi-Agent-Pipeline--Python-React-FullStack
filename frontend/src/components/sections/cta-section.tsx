@@ -33,26 +33,45 @@ export function CTASection() {
 
           {/* Content */}
           <div className="relative z-10 text-center">
-            <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-transparent backdrop-blur-[2px] border border-white/15 text-sm text-purple-300 mb-6"
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-            >
-              <Sparkles className="w-4 h-4" />
-              Ready to get started?
-            </motion.div>
+            <ScrollReveal direction="up">
+              <motion.div
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-transparent backdrop-blur-[2px] border border-white/15 text-sm text-purple-300 mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.7 }}
+              >
+                <Sparkles className="w-4 h-4" />
+                Ready to get started?
+              </motion.div>
+            </ScrollReveal>
 
             <h2 className="heading-2 text-white mb-4 text-balance">
-              Start Chatting with Your
-              <br />
-              <span className="gradient-text">Documents Today</span>
+              <motion.span
+                className="block"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.7 }}
+                transition={{ duration: 0.5, delay: 0.06, ease: [0.22, 1, 0.36, 1] }}
+              >
+                Start Chatting with Your
+              </motion.span>
+              <motion.span
+                className="block gradient-text"
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.7 }}
+                transition={{ duration: 0.5, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
+              >
+                Documents Today
+              </motion.span>
             </h2>
 
-            <p className="body-large max-w-xl mx-auto mb-8 text-pretty">
-              Upload your first PDF and experience the power of AI-driven
-              document analysis. No signup required.
-            </p>
+            <ScrollReveal direction="up" delay={0.16}>
+              <p className="body-large max-w-xl mx-auto mb-8 text-pretty">
+                Upload your first PDF and experience the power of AI-driven
+                document analysis. No signup required.
+              </p>
+            </ScrollReveal>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
@@ -70,15 +89,15 @@ export function CTASection() {
 
             {/* Trust indicators */}
             <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-white/90">
-              <span className="flex items-center gap-2">
-                ✓ No signup required
-              </span>
-              <span className="flex items-center gap-2">
-                ✓ 100% open source
-              </span>
-              <span className="flex items-center gap-2">
-                ✓ Your data stays private
-              </span>
+              {[
+                "No signup required",
+                "100% open source",
+                "Your data stays private",
+              ].map((item, index) => (
+                <ScrollReveal key={item} direction="up" delay={index * 0.08}>
+                  <span className="flex items-center gap-2">✓ {item}</span>
+                </ScrollReveal>
+              ))}
             </div>
           </div>
         </div>
