@@ -1,6 +1,6 @@
 /**
  * TechStackSection Component
- * 
+ *
  * Showcase of technologies used in the project.
  * Organized by category: Frontend, Backend, AI, Database
  */
@@ -64,12 +64,16 @@ export function TechStackSection() {
   return (
     <SectionWrapper id="tech-stack">
       {/* Section Header */}
-      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
+      <ScrollReveal
+        direction="up"
+        className="text-center mb-8 md:mb-10 xl:mb-12"
+      >
         <h2 className="heading-2 text-white mb-4">
           Built With <span className="gradient-text">Modern Tech</span>
         </h2>
         <p className="body-large max-w-2xl mx-auto">
-          A carefully selected stack for performance, developer experience, and scalability
+          A carefully selected stack for performance, developer experience, and
+          scalability
         </p>
       </ScrollReveal>
 
@@ -127,8 +131,9 @@ export function TechStackSection() {
       {/* Architecture diagram hint */}
       <ScrollReveal direction="up" delay={0.4}>
         <div className="mt-12 text-center">
-          <p className="text-slate-400 text-sm">
-            Full RAG pipeline: PDF → Chunks → Embeddings → Vector Store → Retrieval → LLM → Response
+          <p className="text-white/90 text-sm">
+            Full RAG pipeline: PDF → Chunks → Embeddings → Vector Store →
+            Retrieval → LLM → Response
           </p>
         </div>
       </ScrollReveal>

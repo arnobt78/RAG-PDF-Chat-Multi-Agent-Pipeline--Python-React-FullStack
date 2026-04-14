@@ -24,49 +24,56 @@ import { SectionWrapper } from "@/components/layout/page-wrapper";
 const pipelineSteps = [
   {
     name: "Extractor",
-    description: "Retrieves the most relevant document chunks from the FAISS vector store using similarity search.",
+    description:
+      "Retrieves the most relevant document chunks from the FAISS vector store using similarity search.",
     icon: Download,
     color: "from-blue-500 to-cyan-500",
     badge: "Retrieval",
   },
   {
     name: "Analyzer",
-    description: "Filters out low-quality and duplicate chunks; scores remaining chunks for relevance.",
+    description:
+      "Filters out low-quality and duplicate chunks; scores remaining chunks for relevance.",
     icon: Filter,
     color: "from-cyan-500 to-teal-500",
     badge: "Quality",
   },
   {
     name: "Preprocessor",
-    description: "Normalizes unicode, collapses whitespace, and trims excessively long chunks for consistency.",
+    description:
+      "Normalizes unicode, collapses whitespace, and trims excessively long chunks for consistency.",
     icon: Sparkles,
     color: "from-teal-500 to-emerald-500",
     badge: "Clean",
   },
   {
     name: "Optimizer",
-    description: "Reorders chunks by estimated relevance and trims context to fit the token budget.",
+    description:
+      "Reorders chunks by estimated relevance and trims context to fit the token budget.",
     icon: SlidersHorizontal,
     color: "from-emerald-500 to-green-500",
     badge: "Optimize",
   },
   {
     name: "Synthesizer",
-    description: "Generates a comprehensive answer using the LLM based on optimized context and question.",
+    description:
+      "Generates a comprehensive answer using the LLM based on optimized context and question.",
     icon: Brain,
     color: "from-purple-500 to-violet-500",
     badge: "Generate",
   },
   {
     name: "Validator",
-    description: "Quality-checks the generated answer for length, coherence, and uncertainty markers.",
+    description:
+      "Quality-checks the generated answer for length, coherence, and uncertainty markers.",
     icon: ShieldCheck,
     color: "from-violet-500 to-pink-500",
     badge: "Verify",
   },
   {
     name: "Assembler",
-    description: "Packages the final answer with source citations, model metadata, and pipeline telemetry.",
+    description:
+      "Packages the final answer with source citations, model metadata, and pipeline telemetry.",
     icon: Package,
     color: "from-pink-500 to-rose-500",
     badge: "Output",
@@ -76,7 +83,10 @@ const pipelineSteps = [
 export function PipelineSection() {
   return (
     <SectionWrapper id="pipeline">
-      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
+      <ScrollReveal
+        direction="up"
+        className="text-center mb-8 md:mb-10 xl:mb-12"
+      >
         <Badge variant="default" className="mb-4">
           Multi-Agent Architecture
         </Badge>
@@ -94,11 +104,7 @@ export function PipelineSection() {
           const isLast = index === pipelineSteps.length - 1;
 
           return (
-            <ScrollReveal
-              key={step.name}
-              direction="up"
-              delay={index * 0.08}
-            >
+            <ScrollReveal key={step.name} direction="up" delay={index * 0.08}>
               <div className="relative flex items-start gap-3 sm:gap-6 mb-2">
                 {/* Step number + icon column */}
                 <div className="flex flex-col items-center shrink-0 w-12 sm:w-16">
@@ -136,7 +142,7 @@ export function PipelineSection() {
                         {step.badge}
                       </Badge>
                     </div>
-                    <p className="text-sm text-slate-400 leading-relaxed">
+                    <p className="text-sm text-white/90 leading-relaxed">
                       {step.description}
                     </p>
                   </GlassCardContent>

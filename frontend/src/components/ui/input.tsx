@@ -1,14 +1,14 @@
 /**
  * Input Component
- * 
+ *
  * A styled input field with glassmorphism design.
- * 
+ *
  * Features:
  * - Focus ring animation
  * - Error state styling
  * - Optional icon prefix/suffix
  * - Disabled state
- * 
+ *
  * Usage:
  * <Input placeholder="Enter text..." />
  * <Input error icon={<SearchIcon />} />
@@ -17,8 +17,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export interface InputProps
-  extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   /** Show error state styling */
   error?: boolean;
   /** Icon to display at the start */
@@ -41,19 +40,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       disabled,
       ...props
     },
-    ref
+    ref,
   ) => {
     // If icons are provided, wrap input with container
     if (startIcon || endIcon) {
       return (
-        <div
-          className={cn(
-            "relative flex items-center",
-            wrapperClassName
-          )}
-        >
+        <div className={cn("relative flex items-center", wrapperClassName)}>
           {startIcon && (
-            <span className="absolute left-3 text-slate-400 pointer-events-none">
+            <span className="absolute left-3 text-white/90 pointer-events-none">
               {startIcon}
             </span>
           )}
@@ -75,14 +69,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               // Icon padding
               startIcon && "pl-10",
               endIcon && "pr-10",
-              className
+              className,
             )}
             ref={ref}
             disabled={disabled}
             {...props}
           />
           {endIcon && (
-            <span className="absolute right-3 text-slate-400 pointer-events-none">
+            <span className="absolute right-3 text-white/90 pointer-events-none">
               {endIcon}
             </span>
           )}
@@ -107,14 +101,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           error
             ? "border-red-500/50 focus:ring-red-500/50 focus:border-red-500/50"
             : "border-white/20",
-          className
+          className,
         )}
         ref={ref}
         disabled={disabled}
         {...props}
       />
     );
-  }
+  },
 );
 
 Input.displayName = "Input";

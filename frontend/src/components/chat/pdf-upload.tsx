@@ -1,12 +1,12 @@
 /**
  * PDFUpload Component
- * 
+ *
  * Drag-and-drop PDF upload component with:
  * - File validation
  * - Upload progress indication
  * - Error handling
  * - Visual feedback for drag state
- * 
+ *
  * Usage:
  * <PDFUpload onUpload={handleUpload} isUploading={false} />
  */
@@ -54,7 +54,9 @@ export function PDFUpload({
   onReset,
 }: PDFUploadProps) {
   const [isDragOver, setIsDragOver] = React.useState(false);
-  const [validationError, setValidationError] = React.useState<string | null>(null);
+  const [validationError, setValidationError] = React.useState<string | null>(
+    null,
+  );
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   // Handle file validation and upload
@@ -69,7 +71,9 @@ export function PDFUpload({
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      setValidationError(`File size exceeds ${formatFileSize(MAX_FILE_SIZE)} limit`);
+      setValidationError(
+        `File size exceeds ${formatFileSize(MAX_FILE_SIZE)} limit`,
+      );
       return;
     }
 
@@ -100,7 +104,7 @@ export function PDFUpload({
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     const file = e.dataTransfer.files[0];
     if (file) {
       handleFile(file);
@@ -147,10 +151,10 @@ export function PDFUpload({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-slate-400" />
+                      <FileText className="w-4 h-4 text-white/90" />
                       <span className="text-white font-medium">{fileName}</span>
                     </div>
-                    <p className="text-sm text-slate-400 mt-1">
+                    <p className="text-sm text-white/90 mt-1">
                       {chunksCreated} chunks created • Ready for questions
                     </p>
                   </div>
@@ -160,7 +164,7 @@ export function PDFUpload({
                     variant="ghost"
                     size="icon"
                     onClick={onReset}
-                    className="text-slate-400 hover:text-white"
+                    className="text-white/90 hover:text-white"
                   >
                     <X className="w-5 h-5" />
                   </Button>
@@ -182,7 +186,7 @@ export function PDFUpload({
               className={cn(
                 "cursor-pointer transition-all duration-300",
                 isDragOver && "border-purple-500/50 scale-[1.02]",
-                displayError && "border-red-500/50"
+                displayError && "border-red-500/50",
               )}
               onClick={!isUploading ? handleClick : undefined}
               onDragOver={handleDragOver}
@@ -197,7 +201,7 @@ export function PDFUpload({
                     <p className="mt-4 text-white font-medium">
                       Processing PDF...
                     </p>
-                    <p className="mt-2 text-sm text-slate-400">
+                    <p className="mt-2 text-sm text-white/90">
                       Creating embeddings and vector store
                     </p>
                   </>
@@ -207,14 +211,14 @@ export function PDFUpload({
                     <motion.div
                       className={cn(
                         "p-4 rounded-2xl mb-4 transition-colors",
-                        isDragOver ? "bg-purple-500/30" : "bg-white/10"
+                        isDragOver ? "bg-purple-500/30" : "bg-white/10",
                       )}
                       animate={isDragOver ? { scale: 1.1 } : { scale: 1 }}
                     >
                       {isDragOver ? (
                         <File className="w-10 h-10 text-purple-400" />
                       ) : (
-                        <Upload className="w-10 h-10 text-slate-400" />
+                        <Upload className="w-10 h-10 text-white/90" />
                       )}
                     </motion.div>
 
@@ -222,7 +226,7 @@ export function PDFUpload({
                       {isDragOver ? "Drop your PDF here" : "Upload your PDF"}
                     </h3>
 
-                    <p className="text-sm text-slate-400 mb-4">
+                    <p className="text-sm text-white/90 mb-4">
                       Drag and drop or click to browse
                     </p>
 

@@ -1,15 +1,15 @@
 /**
  * GlassCard Component
- * 
+ *
  * A glassmorphism-styled card component with backdrop blur effect.
  * Perfect for creating modern, translucent UI elements.
- * 
+ *
  * Features:
  * - Backdrop blur effect
  * - Multiple variants (default, hover, glow)
  * - Customizable padding and border radius
  * - Optional header and footer sections
- * 
+ *
  * Usage:
  * <GlassCard variant="hover">
  *   <GlassCardHeader>Title</GlassCardHeader>
@@ -52,11 +52,12 @@ const glassCardVariants = cva(
       radius: "default",
       padding: "default",
     },
-  }
+  },
 );
 
 export interface GlassCardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends
+    React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof glassCardVariants> {}
 
 const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
@@ -66,7 +67,7 @@ const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
       className={cn(glassCardVariants({ variant, radius, padding }), className)}
       {...props}
     />
-  )
+  ),
 );
 GlassCard.displayName = "GlassCard";
 
@@ -96,7 +97,7 @@ const GlassCardTitle = React.forwardRef<
     ref={ref}
     className={cn(
       "text-xl font-semibold leading-none tracking-tight text-white",
-      className
+      className,
     )}
     {...props}
   />
@@ -110,11 +111,7 @@ const GlassCardDescription = React.forwardRef<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn("text-sm text-slate-400", className)}
-    {...props}
-  />
+  <p ref={ref} className={cn("text-sm text-white/90", className)} {...props} />
 ));
 GlassCardDescription.displayName = "GlassCardDescription";
 

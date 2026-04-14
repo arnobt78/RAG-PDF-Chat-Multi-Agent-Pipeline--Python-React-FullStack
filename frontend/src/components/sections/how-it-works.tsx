@@ -1,6 +1,6 @@
 /**
  * HowItWorksSection Component
- * 
+ *
  * Step-by-step explanation of the RAG process:
  * 1. Upload PDF
  * 2. AI Processing
@@ -27,7 +27,10 @@ export function HowItWorksSection() {
 
       <div className="relative z-10 w-full">
         {/* Section Header */}
-        <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
+        <ScrollReveal
+          direction="up"
+          className="text-center mb-8 md:mb-10 xl:mb-12"
+        >
           <h2 className="heading-2 text-white mb-4">
             How It <span className="gradient-text">Works</span>
           </h2>
@@ -74,9 +77,7 @@ export function HowItWorksSection() {
                         </h3>
 
                         {/* Description */}
-                        <p className="text-slate-400">
-                          {step.description}
-                        </p>
+                        <p className="text-white/90">{step.description}</p>
                       </GlassCardContent>
                     </GlassCard>
 
@@ -95,21 +96,23 @@ export function HowItWorksSection() {
 
         {/* Technical details */}
         <ScrollReveal direction="up" delay={0.6}>
-          <GlassCard variant="default" className="mt-8 md:mt-10 xl:mt-12" padding="lg">
+          <GlassCard
+            variant="default"
+            className="mt-8 md:mt-10 xl:mt-12"
+            padding="lg"
+          >
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
               <div>
                 <div className="text-2xl font-bold text-white mb-1">
                   LangChain
                 </div>
-                <div className="text-sm text-slate-400">
+                <div className="text-sm text-white/90">
                   Document processing & RAG pipeline
                 </div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-white mb-1">
-                  FAISS
-                </div>
-                <div className="text-sm text-slate-400">
+                <div className="text-2xl font-bold text-white mb-1">FAISS</div>
+                <div className="text-sm text-white/90">
                   Vector similarity search
                 </div>
               </div>
@@ -117,9 +120,7 @@ export function HowItWorksSection() {
                 <div className="text-2xl font-bold text-white mb-1">
                   GPT-4o Mini
                 </div>
-                <div className="text-sm text-slate-400">
-                  Answer generation
-                </div>
+                <div className="text-sm text-white/90">Answer generation</div>
               </div>
             </div>
           </GlassCard>

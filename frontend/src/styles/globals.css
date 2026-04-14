@@ -129,23 +129,32 @@
     z-index: 1;
   }
 
+  .cta-shine-button {
+    position: relative;
+    isolation: isolate;
+  }
+
   .cta-shine-wrap::after {
     content: "";
     position: absolute;
-    top: 0;
+    top: -35%;
     left: -100%;
-    height: 100%;
-    width: 85%;
+    height: 170%;
+    width: 42%;
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.42),
+      rgba(255, 255, 255, 0),
+      rgba(255, 255, 255, 0.98),
+      rgba(255, 255, 255, 0),
       transparent
     );
-    transform: skewX(-8deg);
+    transform: skewX(-14deg);
+    filter: blur(0.2px);
+    opacity: 0.95;
     z-index: 2;
     pointer-events: none;
-    animation: ctaShine 4.5s cubic-bezier(0.35, 0, 0.15, 1) infinite;
+    animation: ctaShine 1.9s linear infinite;
   }
 
   /* Primary button with glow */
@@ -245,7 +254,7 @@
   content: none;
 }
 
-.bg-pattern > * {
+.bg-pattern > :not(header) {
   position: relative;
   z-index: 1;
 }
@@ -266,7 +275,35 @@
   pointer-events: none;
   transform: scale(0);
   z-index: 3;
-  animation: ripple 0.6s linear forwards;
+  animation: ripple 0.7s ease-out forwards;
+}
+
+/* Explicit, self-contained shine test button */
+.shine-debug {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.shine-debug::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 20%,
+    rgba(255, 255, 255, 0.55) 45%,
+    transparent 70%
+  );
+  transform: translateX(-180%);
+  animation: shineDebugSweep 4.2s linear infinite;
+}
+
+.shine-debug > * {
+  position: relative;
+  z-index: 2;
 }
 
 /* ============================================================================
@@ -277,9 +314,8 @@
   0% {
     left: -100%;
   }
-  50%,
   100% {
-    left: 100%;
+    left: 220%;
   }
 }
 
@@ -291,6 +327,15 @@
   100% {
     transform: scale(4);
     opacity: 0;
+  }
+}
+
+@keyframes shineDebugSweep {
+  0% {
+    transform: translateX(-180%);
+  }
+  100% {
+    transform: translateX(180%);
   }
 }
 

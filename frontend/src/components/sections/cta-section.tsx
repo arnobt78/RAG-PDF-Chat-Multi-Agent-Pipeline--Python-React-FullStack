@@ -1,6 +1,6 @@
 /**
  * CTASection Component
- * 
+ *
  * Call-to-action section encouraging users to try the app.
  */
 
@@ -50,24 +50,26 @@ export function CTASection() {
             </h2>
 
             <p className="body-large max-w-xl mx-auto mb-8 text-pretty">
-              Upload your first PDF and experience the power of AI-driven document analysis.
-              No signup required.
+              Upload your first PDF and experience the power of AI-driven
+              document analysis. No signup required.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button
                 size="lg"
                 withShine
-                className="w-full sm:w-auto sm:min-w-[200px]"
-                icon={<ArrowRight className="w-5 h-5" />}
+                className="w-full sm:w-auto sm:min-w-[200px] rounded-[8rem] border border-white/30 font-medium"
                 asChild
               >
-                <Link to="/chat">Try It Now - Free</Link>
+                <span className="inline-flex items-center gap-2">
+                  <Link to="/chat">Try It Now - Free</Link>
+                  <ArrowRight className="w-5 h-5" />
+                </span>
               </Button>
             </div>
 
             {/* Trust indicators */}
-            <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-slate-400">
+            <div className="mt-10 flex flex-wrap items-center justify-center gap-6 text-sm text-white/90">
               <span className="flex items-center gap-2">
                 ✓ No signup required
               </span>

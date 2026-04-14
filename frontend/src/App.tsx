@@ -21,8 +21,9 @@ function AppFallback() {
     <div className="min-h-screen flex items-center justify-center bg-slate-950 text-white">
       <div className="text-center max-w-md px-6">
         <h1 className="text-2xl font-bold mb-3">Something went wrong</h1>
-        <p className="text-slate-400 mb-6">
-          An unexpected error occurred. The issue has been reported automatically.
+        <p className="text-white/90 mb-6">
+          An unexpected error occurred. The issue has been reported
+          automatically.
         </p>
         <button
           onClick={() => window.location.reload()}

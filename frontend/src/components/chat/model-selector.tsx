@@ -26,7 +26,11 @@ const providerColor: Record<string, string> = {
   huggingface: "text-yellow-400",
 };
 
-export function ModelSelector({ value, onChange, disabled = false }: ModelSelectorProps) {
+export function ModelSelector({
+  value,
+  onChange,
+  disabled = false,
+}: ModelSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [models, setModels] = React.useState<AIModel[]>(AI_MODELS);
   const ref = React.useRef<HTMLDivElement>(null);
@@ -39,9 +43,18 @@ export function ModelSelector({ value, onChange, disabled = false }: ModelSelect
         const res = await fetch(`${API_BASE_URL}${API_ENDPOINTS.MODELS}`);
         if (!res.ok) return;
         const data = await res.json();
-        if (!cancelled && Array.isArray(data.models) && data.models.length > 0) {
+        if (
+          !cancelled &&
+          Array.isArray(data.models) &&
+          data.models.length > 0
+        ) {
           const live: AIModel[] = data.models.map(
-            (m: { id: string; name: string; provider: string; is_default: boolean }) => ({
+            (m: {
+              id: string;
+              name: string;
+              provider: string;
+              is_default: boolean;
+            }) => ({
               id: m.id,
               name: m.name,
               provider: m.provider,
@@ -79,15 +92,20 @@ export function ModelSelector({ value, onChange, disabled = false }: ModelSelect
         onClick={() => setIsOpen((prev) => !prev)}
         className={cn(
           "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm",
-          "bg-white/5 border border-white/10 text-slate-300",
+          "bg-white/5 border border-white/10 text-white/90",
           "hover:bg-white/10 hover:border-white/20 transition-all",
           "disabled:opacity-50 disabled:cursor-not-allowed",
         )}
       >
         <Cpu className="w-3.5 h-3.5 text-purple-400" />
-        <span className="hidden sm:inline max-w-[120px] truncate">{selected?.name ?? "Select model"}</span>
+        <span className="hidden sm:inline max-w-[120px] truncate">
+          {selected?.name ?? "Select model"}
+        </span>
         <ChevronDown
-          className={cn("w-3.5 h-3.5 transition-transform", isOpen && "rotate-180")}
+          className={cn(
+            "w-3.5 h-3.5 transition-transform",
+            isOpen && "rotate-180",
+          )}
         />
       </button>
 
@@ -123,7 +141,7 @@ export function ModelSelector({ value, onChange, disabled = false }: ModelSelect
                       <span
                         className={cn(
                           "text-[10px] px-1.5 py-0.5 rounded-full bg-white/5",
-                          providerColor[model.provider] ?? "text-slate-400",
+                          providerColor[model.provider] ?? "text-white/90",
                         )}
                       >
                         {model.provider}

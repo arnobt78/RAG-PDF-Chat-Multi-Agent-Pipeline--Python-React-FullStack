@@ -6,13 +6,7 @@
  */
 
 import { motion } from "framer-motion";
-import {
-  Cpu,
-  Globe,
-  Zap,
-  Server,
-  RefreshCw,
-} from "lucide-react";
+import { Cpu, Globe, Zap, Server, RefreshCw } from "lucide-react";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
@@ -23,7 +17,8 @@ const providers = [
     name: "OpenRouter",
     icon: Globe,
     color: "from-blue-500 to-purple-500",
-    description: "Unified gateway to hundreds of AI models via a single API endpoint.",
+    description:
+      "Unified gateway to hundreds of AI models via a single API endpoint.",
     models: ["GPT-4o", "GPT-4o Mini", "Claude 3.5 Sonnet", "Llama 3.1 70B"],
     badge: "Primary",
   },
@@ -31,7 +26,8 @@ const providers = [
     name: "Groq",
     icon: Zap,
     color: "from-amber-500 to-orange-500",
-    description: "Ultra-fast inference on LPU hardware with sub-second latency.",
+    description:
+      "Ultra-fast inference on LPU hardware with sub-second latency.",
     models: ["Llama 3.1 70B", "Llama 3.1 8B", "Mixtral 8x7B"],
     badge: "Fallback",
   },
@@ -48,16 +44,23 @@ const providers = [
 export function ModelsSection() {
   return (
     <SectionWrapper id="models">
-      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
-        <Badge variant="info" className="mb-4" icon={<Server className="w-3 h-3" />}>
+      <ScrollReveal
+        direction="up"
+        className="text-center mb-8 md:mb-10 xl:mb-12"
+      >
+        <Badge
+          variant="info"
+          className="mb-4"
+          icon={<Server className="w-3 h-3" />}
+        >
           Multi-Provider Support
         </Badge>
         <h2 className="heading-2 text-white mb-4">
           Powered by <span className="gradient-text">Multiple AI Models</span>
         </h2>
         <p className="body-large max-w-2xl mx-auto">
-          Automatic fallback across providers ensures your questions always
-          get answered — even when one provider is unavailable.
+          Automatic fallback across providers ensures your questions always get
+          answered — even when one provider is unavailable.
         </p>
       </ScrollReveal>
 
@@ -83,7 +86,7 @@ export function ModelsSection() {
                   </div>
                 </div>
 
-                <p className="text-sm text-slate-400 mb-4 leading-relaxed">
+                <p className="text-sm text-white/90 mb-4 leading-relaxed">
                   {provider.description}
                 </p>
 
@@ -91,7 +94,7 @@ export function ModelsSection() {
                   {provider.models.map((model) => (
                     <div
                       key={model}
-                      className="flex items-center gap-2 text-sm text-slate-300 break-words"
+                      className="flex items-center gap-2 text-sm text-white/90 break-words"
                     >
                       <div className="w-1.5 h-1.5 rounded-full bg-purple-400" />
                       {model}
@@ -105,7 +108,7 @@ export function ModelsSection() {
       </div>
 
       <ScrollReveal direction="up" delay={0.4}>
-        <div className="mt-10 flex items-center justify-center gap-3 text-sm text-slate-400">
+        <div className="mt-10 flex items-center justify-center gap-3 text-sm text-white/90">
           <RefreshCw className="w-4 h-4 text-purple-400" />
           Automatic failover between providers for maximum reliability
         </div>

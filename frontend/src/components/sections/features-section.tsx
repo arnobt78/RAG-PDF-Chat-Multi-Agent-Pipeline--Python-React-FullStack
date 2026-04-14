@@ -42,7 +42,10 @@ export function FeaturesSection() {
   return (
     <SectionWrapper id="features">
       {/* Section Header */}
-      <ScrollReveal direction="up" className="text-center mb-8 md:mb-10 xl:mb-12">
+      <ScrollReveal
+        direction="up"
+        className="text-center mb-8 md:mb-10 xl:mb-12"
+      >
         <h2 className="heading-2 text-white mb-4">
           Powerful <span className="gradient-text">Features</span>
         </h2>
@@ -62,11 +65,7 @@ export function FeaturesSection() {
               direction="up"
               delay={index * 0.1}
             >
-              <GlassCard
-                variant="hover"
-                className="h-full group"
-                padding="lg"
-              >
+              <GlassCard variant="hover" className="h-full group" padding="lg">
                 <GlassCardContent>
                   <motion.div
                     className="w-14 h-14 rounded-2xl bg-transparent backdrop-blur-[2px] border border-white/15 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform"
@@ -79,7 +78,7 @@ export function FeaturesSection() {
                     {feature.title}
                   </h3>
 
-                  <p className="text-slate-400 leading-relaxed">
+                  <p className="text-white/90 leading-relaxed">
                     {feature.description}
                   </p>
                 </GlassCardContent>

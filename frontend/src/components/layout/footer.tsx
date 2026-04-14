@@ -23,11 +23,11 @@ export function Footer() {
           <div className="md:col-span-2">
             <Link to="/" className="flex items-center gap-3 mb-4">
               <img src="/logo.svg" alt="RAG PDF Chat" className="h-10 w-10" />
-              <span className="text-xl font-bold text-white">
+              <span className="text-xl font-medium text-white">
                 {APP_CONFIG.name}
               </span>
             </Link>
-            <p className="text-slate-400 text-sm mb-4 max-w-md">
+            <p className="text-white/80 text-sm mb-4 max-w-md">
               {APP_CONFIG.description}
             </p>
 
@@ -37,7 +37,7 @@ export function Footer() {
                 href={SOCIAL_LINKS.github}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-white/80 hover:text-white transition-colors"
                 aria-label="GitHub"
               >
                 <Github className="w-5 h-5" />
@@ -46,7 +46,7 @@ export function Footer() {
                 href={SOCIAL_LINKS.linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-white/80 hover:text-white transition-colors"
                 aria-label="LinkedIn"
               >
                 <Linkedin className="w-5 h-5" />
@@ -55,7 +55,7 @@ export function Footer() {
                 href={SOCIAL_LINKS.twitter}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-slate-400 hover:text-white transition-colors"
+                className="text-white/80 hover:text-white transition-colors"
                 aria-label="Twitter"
               >
                 <Twitter className="w-5 h-5" />
@@ -65,13 +65,13 @@ export function Footer() {
 
           {/* Navigation Links */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Navigation</h3>
+            <h3 className="text-white font-medium mb-4">Navigation</h3>
             <ul className="space-y-2">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
                   <Link
                     to={link.href}
-                    className="text-slate-400 hover:text-white text-sm transition-colors"
+                    className="text-white/80 hover:text-white text-sm transition-colors"
                   >
                     {link.label}
                   </Link>
@@ -82,13 +82,13 @@ export function Footer() {
 
           {/* Tech Stack */}
           <div>
-            <h3 className="text-white font-semibold mb-4">Built With</h3>
+            <h3 className="text-white font-medium mb-4">Built With</h3>
             <ul className="space-y-2">
               {TECH_STACK.slice(0, 5).map((tech) => (
                 <li key={tech.name}>
-                  <span className="text-slate-400 text-sm flex items-center gap-2">
+                  <span className="text-white/80 text-sm flex items-center gap-2">
                     {tech.name}
-                    <span className="text-xs text-purple-400 capitalize">
+                    <span className="text-xs text-sky-500 capitalize">
                       ({tech.category})
                     </span>
                   </span>
@@ -111,7 +111,7 @@ export function Footer() {
 
         {/* Bottom Bar */}
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-center">
-          <span className="text-slate-400 text-sm text-center">
+          <span className="text-white/70 text-sm text-center">
             &copy; {new Date().getFullYear()}. All rights reserved.
           </span>
         </div>

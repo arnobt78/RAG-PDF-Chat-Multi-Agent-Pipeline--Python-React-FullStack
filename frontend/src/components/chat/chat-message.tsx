@@ -53,13 +53,20 @@ export function ChatMessage({
       opacity: 1,
       x: 0,
       y: 0,
-      transition: { duration: 0.4, delay: isLatest ? 0 : index * 0.05, ease: "easeOut" },
+      transition: {
+        duration: 0.4,
+        delay: isLatest ? 0 : index * 0.05,
+        ease: "easeOut",
+      },
     },
   };
 
   return (
     <motion.div
-      className={cn("flex gap-3 group", isUser ? "flex-row-reverse" : "flex-row")}
+      className={cn(
+        "flex gap-3 group",
+        isUser ? "flex-row-reverse" : "flex-row",
+      )}
       variants={messageVariants}
       initial="hidden"
       animate="visible"
@@ -81,14 +88,23 @@ export function ChatMessage({
       </div>
 
       {/* Message Content */}
-      <div className={cn("relative max-w-[80%] sm:max-w-[70%]", isUser ? "items-end" : "items-start")}>
+      <div
+        className={cn(
+          "relative max-w-[80%] sm:max-w-[70%]",
+          isUser ? "items-end" : "items-start",
+        )}
+      >
         <div
           className={cn(
             "px-4 py-3 rounded-2xl",
-            isUser ? "message-user rounded-br-md" : "message-assistant rounded-bl-md",
+            isUser
+              ? "message-user rounded-br-md"
+              : "message-assistant rounded-bl-md",
           )}
         >
-          <p className="text-sm sm:text-base whitespace-pre-wrap break-words">{content}</p>
+          <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
+            {content}
+          </p>
         </div>
 
         {/* Source citations collapsible */}
@@ -112,7 +128,7 @@ export function ChatMessage({
                 {sources.map((src, i) => (
                   <div
                     key={i}
-                    className="text-xs text-slate-400 bg-white/5 rounded-lg px-3 py-1.5 border border-white/5"
+                    className="text-xs text-white/90 bg-white/5 rounded-lg px-3 py-1.5 border border-white/5"
                   >
                     {src}
                   </div>
@@ -130,7 +146,9 @@ export function ChatMessage({
           )}
         >
           {timestamp && (
-            <span className="text-xs text-slate-500">{formatRelativeTime(timestamp)}</span>
+            <span className="text-xs text-slate-500">
+              {formatRelativeTime(timestamp)}
+            </span>
           )}
 
           {!isUser && modelUsed && (
@@ -197,7 +215,11 @@ export const TypingIndicator = React.forwardRef<
                 key={i}
                 className="w-2 h-2 bg-purple-400 rounded-full"
                 animate={{ y: [0, -6, 0] }}
-                transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.15 }}
+                transition={{
+                  duration: 0.6,
+                  repeat: Infinity,
+                  delay: i * 0.15,
+                }}
               />
             ))}
           </div>

@@ -31,7 +31,12 @@ export function Header() {
         : "bg-yellow-400 animate-pulse";
 
   return (
-    <header className="sticky top-0 z-50 bg-transparent backdrop-blur-[2px] border-b border-transparent">
+    <motion.header
+      initial={{ y: -36, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.45, ease: "easeOut" }}
+      className="sticky top-0 z-50 backdrop-blur-[2px]"
+    >
       <div className="max-w-9xl mx-auto px-4 sm:px-6 lg:px-8">
         <nav className="flex items-center justify-between h-16 sm:h-20">
           {/* Logo */}
@@ -70,7 +75,7 @@ export function Header() {
                     "flex items-center gap-2 text-sm font-medium transition-colors",
                     isActive
                       ? "text-sky-300"
-                      : "text-slate-300 hover:text-white",
+                      : "text-white/80 hover:text-white",
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -98,7 +103,7 @@ export function Header() {
               href={SOCIAL_LINKS.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-slate-300 hover:text-white transition-colors"
+              className="text-white/90 hover:text-white transition-colors"
             >
               <Github className="w-5 h-5" />
             </a>
@@ -151,7 +156,7 @@ export function Header() {
                       "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
                       isActive
                         ? "bg-purple-500/20 text-purple-400"
-                        : "text-slate-300 hover:bg-white/10 hover:text-white",
+                        : "text-white/90 hover:bg-white/10 hover:text-white",
                     )}
                   >
                     <Icon className="w-5 h-5" />
@@ -163,7 +168,7 @@ export function Header() {
               {/* Health status in mobile menu */}
               <div className="flex items-center gap-2 px-4 py-2">
                 <span className={cn("w-2 h-2 rounded-full", healthColor)} />
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-white/90">
                   Backend{" "}
                   {status === "connected"
                     ? "online"
@@ -182,6 +187,6 @@ export function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-    </header>
+    </motion.header>
   );
 }

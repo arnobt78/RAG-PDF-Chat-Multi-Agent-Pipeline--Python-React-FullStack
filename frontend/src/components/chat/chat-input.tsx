@@ -1,16 +1,16 @@
 /**
  * ChatInput Component
- * 
+ *
  * Chat input area with:
  * - Auto-resizing textarea
  * - Send button with keyboard shortcut
  * - Disabled state when no PDF loaded
- * 
+ *
  * Usage:
- * <ChatInput 
- *   onSend={handleSend} 
- *   disabled={!pdfLoaded} 
- *   isLoading={false} 
+ * <ChatInput
+ *   onSend={handleSend}
+ *   disabled={!pdfLoaded}
+ *   isLoading={false}
  * />
  */
 
@@ -81,7 +81,7 @@ export function ChatInput({
           "relative flex items-end gap-3 p-3 rounded-2xl",
           "bg-white/5 backdrop-blur-sm border border-white/10",
           "transition-all duration-300",
-          "focus-within:border-purple-500/50 focus-within:bg-white/10"
+          "focus-within:border-purple-500/50 focus-within:bg-white/10",
         )}
       >
         {/* Textarea */}
@@ -96,7 +96,7 @@ export function ChatInput({
           className={cn(
             "flex-1 min-h-[44px] max-h-[200px] resize-none",
             "bg-transparent border-none focus:ring-0",
-            "text-white placeholder:text-slate-500"
+            "text-white placeholder:text-slate-500",
           )}
           rows={1}
         />
@@ -114,7 +114,7 @@ export function ChatInput({
               "shrink-0 w-11 h-11 rounded-xl transition-all",
               canSend
                 ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg shadow-purple-500/30"
-                : "bg-white/10 text-slate-500"
+                : "bg-white/10 text-slate-500",
             )}
           >
             {isLoading ? (
@@ -134,8 +134,15 @@ export function ChatInput({
       {/* Keyboard hint */}
       <div className="mt-2 flex items-center justify-between px-1">
         <p className="text-xs text-slate-500">
-          Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-slate-400">Enter</kbd> to send,{" "}
-          <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-slate-400">Shift + Enter</kbd> for new line
+          Press{" "}
+          <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/90">
+            Enter
+          </kbd>{" "}
+          to send,{" "}
+          <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/90">
+            Shift + Enter
+          </kbd>{" "}
+          for new line
         </p>
       </div>
     </div>

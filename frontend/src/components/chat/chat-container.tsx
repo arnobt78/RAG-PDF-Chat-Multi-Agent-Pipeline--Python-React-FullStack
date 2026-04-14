@@ -144,7 +144,13 @@ export function ChatContainer() {
         sendMessage(message, selectedModel, includeSources);
       }
     },
-    [sendMessage, sendMessageStreaming, selectedModel, includeSources, useStreaming],
+    [
+      sendMessage,
+      sendMessageStreaming,
+      selectedModel,
+      includeSources,
+      useStreaming,
+    ],
   );
 
   const handleExport = React.useCallback(() => {
@@ -189,13 +195,10 @@ export function ChatContainer() {
     [setChatHistory],
   );
 
-  const handleDeleteSession = React.useCallback(
-    async (pdfName: string) => {
-      await deleteChatSession(pdfName);
-      setSessions((prev) => prev.filter((s) => s.pdfName !== pdfName));
-    },
-    [],
-  );
+  const handleDeleteSession = React.useCallback(async (pdfName: string) => {
+    await deleteChatSession(pdfName);
+    setSessions((prev) => prev.filter((s) => s.pdfName !== pdfName));
+  }, []);
 
   return (
     <div className="flex flex-col h-[calc(100vh-8rem)] sm:h-[calc(100vh-10rem)]">
@@ -211,8 +214,9 @@ export function ChatContainer() {
             <div className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-amber-500/10 border border-amber-500/20">
               <HardDrive className="w-4 h-4 text-amber-400 shrink-0" />
               <p className="text-xs text-amber-300 flex-1">
-                Your chat history and preferences are stored locally in this browser.
-                Clearing site data or switching devices will reset everything.
+                Your chat history and preferences are stored locally in this
+                browser. Clearing site data or switching devices will reset
+                everything.
               </p>
               <button
                 onClick={dismissBanner}
@@ -234,7 +238,7 @@ export function ChatContainer() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white">Chat with PDF</h1>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-white/90">
                 Upload a document and start asking questions
               </p>
             </div>
@@ -254,7 +258,7 @@ export function ChatContainer() {
             <button
               type="button"
               onClick={() => setShowSessions((p) => !p)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border bg-white/5 border-white/10 text-slate-400 hover:bg-white/10 transition-all"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border bg-white/5 border-white/10 text-white/90 hover:bg-white/10 transition-all"
               title="View saved chat sessions"
             >
               <History className="w-3 h-3" />
@@ -268,7 +272,7 @@ export function ChatContainer() {
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border transition-all ${
                 includeSources
                   ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
-                  : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10"
+                  : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10"
               }`}
               title="Include source citations in answers"
             >
@@ -283,7 +287,7 @@ export function ChatContainer() {
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border transition-all ${
                 useStreaming
                   ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
-                  : "bg-white/5 border-white/10 text-slate-400 hover:bg-white/10"
+                  : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10"
               }`}
               title="Toggle streaming mode"
             >
@@ -317,13 +321,16 @@ export function ChatContainer() {
                 </h3>
                 <button
                   onClick={() => setShowSessions(false)}
-                  className="text-slate-400 hover:text-white transition-colors"
+                  className="text-white/90 hover:text-white transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
               {sessions.length === 0 ? (
-                <p className="text-xs text-slate-500">No saved sessions yet. Chat with a PDF and your history will be saved here.</p>
+                <p className="text-xs text-slate-500">
+                  No saved sessions yet. Chat with a PDF and your history will
+                  be saved here.
+                </p>
               ) : (
                 <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-hide">
                   {sessions.map((s) => (
@@ -335,9 +342,12 @@ export function ChatContainer() {
                         onClick={() => handleRestoreSession(s)}
                         className="flex-1 text-left min-w-0"
                       >
-                        <p className="text-sm text-white truncate">{s.pdfName}</p>
+                        <p className="text-sm text-white truncate">
+                          {s.pdfName}
+                        </p>
                         <p className="text-xs text-slate-500">
-                          {s.entries.length} message{s.entries.length !== 1 ? "s" : ""} &middot;{" "}
+                          {s.entries.length} message
+                          {s.entries.length !== 1 ? "s" : ""} &middot;{" "}
                           {new Date(s.updatedAt).toLocaleDateString()}
                         </p>
                       </button>
@@ -372,18 +382,23 @@ export function ChatContainer() {
 
       {/* Chat Messages Area */}
       <ScrollReveal direction="up" delay={0.2} className="flex-1 min-h-0">
-        <GlassCard variant="default" padding="none" className="h-full flex flex-col">
+        <GlassCard
+          variant="default"
+          padding="none"
+          className="h-full flex flex-col"
+        >
           {/* Toolbar */}
           {chatHistory.length > 0 && (
             <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-white/10">
               <span className="text-xs text-slate-500">
-                {chatHistory.length} message{chatHistory.length !== 1 ? "s" : ""}
+                {chatHistory.length} message
+                {chatHistory.length !== 1 ? "s" : ""}
               </span>
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs text-slate-400 hover:text-white h-7 px-2"
+                  className="text-xs text-white/90 hover:text-white h-7 px-2"
                   onClick={handleExport}
                   icon={<Download className="w-3 h-3" />}
                 >
@@ -392,7 +407,7 @@ export function ChatContainer() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs text-slate-400 hover:text-white h-7 px-2"
+                  className="text-xs text-white/90 hover:text-white h-7 px-2"
                   onClick={clearHistory}
                   icon={<Trash2 className="w-3 h-3" />}
                 >
@@ -401,7 +416,7 @@ export function ChatContainer() {
                 <Button
                   variant="ghost"
                   size="sm"
-                  className="text-xs text-slate-400 hover:text-white h-7 px-2"
+                  className="text-xs text-white/90 hover:text-white h-7 px-2"
                   onClick={resetUpload}
                   icon={<RotateCcw className="w-3 h-3" />}
                 >
@@ -428,7 +443,7 @@ export function ChatContainer() {
                   <h3 className="text-base sm:text-lg font-semibold text-white/95 mb-2 tracking-tight">
                     {isLoaded ? "Ready to chat!" : "No PDF uploaded yet"}
                   </h3>
-                  <p className="text-xs sm:text-sm text-slate-400/95 max-w-md leading-relaxed">
+                  <p className="text-xs sm:text-sm text-white/90/95 max-w-md leading-relaxed">
                     {isLoaded
                       ? "Ask anything about your document. The pipeline retrieves context, then your chosen model answers—with automatic fallback if a provider is unavailable."
                       : "Upload a PDF document to start asking questions about its content."}
@@ -445,7 +460,7 @@ export function ChatContainer() {
                           type="button"
                           key={suggestion}
                           onClick={() => handleSend(suggestion)}
-                          className="px-3 py-2 rounded-xl bg-white/[0.06] border border-purple-500/20 text-xs text-slate-200 hover:bg-white/10 hover:border-purple-400/35 active:scale-[0.98] transition-colors duration-200 text-left leading-snug max-w-[11rem] sm:max-w-none"
+                          className="px-3 py-2 rounded-xl bg-white/[0.06] border border-purple-500/20 text-xs text-white/90 hover:bg-white/10 hover:border-purple-400/35 active:scale-[0.98] transition-colors duration-200 text-left leading-snug max-w-[11rem] sm:max-w-none"
                         >
                           {suggestion}
                         </button>

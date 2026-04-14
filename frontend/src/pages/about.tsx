@@ -67,7 +67,11 @@ export function AboutPage() {
       <SectionWrapper>
         {/* Header */}
         <ScrollReveal direction="up" className="text-center mb-16">
-          <Badge variant="default" className="mb-4" icon={<BookOpen className="w-3 h-3" />}>
+          <Badge
+            variant="default"
+            className="mb-4"
+            icon={<BookOpen className="w-3 h-3" />}
+          >
             Project Deep Dive
           </Badge>
           <h1 className="heading-1 text-white mb-6">
@@ -95,7 +99,7 @@ export function AboutPage() {
                   <h3 className="text-lg font-semibold text-white mb-2">
                     {item.title}
                   </h3>
-                  <p className="text-sm text-slate-400 leading-relaxed">
+                  <p className="text-sm text-white/90 leading-relaxed">
                     {item.description}
                   </p>
                 </GlassCardContent>
@@ -112,8 +116,9 @@ export function AboutPage() {
               <h2 className="text-xl font-semibold text-white mb-2">
                 Open Source
               </h2>
-              <p className="text-slate-400 text-sm mb-4 max-w-md mx-auto">
-                Explore the full source code, file an issue, or contribute on GitHub.
+              <p className="text-white/90 text-sm mb-4 max-w-md mx-auto">
+                Explore the full source code, file an issue, or contribute on
+                GitHub.
               </p>
               <a
                 href={SOCIAL_LINKS.github}

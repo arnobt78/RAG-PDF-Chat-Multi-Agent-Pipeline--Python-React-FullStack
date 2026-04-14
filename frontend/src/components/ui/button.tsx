@@ -119,6 +119,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const buttonClasses = cn(
       buttonVariants({ variant, size }),
       withRipple && !asChild && "ripple-container",
+      withShine && variant === "default" && "cta-shine-button",
       className,
     );
 
