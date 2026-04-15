@@ -31,7 +31,7 @@ export const APP_CONFIG = {
     "Chat with your PDF documents using AI-powered Retrieval Augmented Generation",
   author: "Arnob Mahmud",
   version: "1.0.0",
-  github: "https://github.com/arnobmahmud",
+  github: "https://github.com/arnobt78",
 } as const;
 
 /**
@@ -92,6 +92,8 @@ export const NAV_LINKS = [
  */
 export const SOCIAL_LINKS = {
   github: "https://github.com/arnobt78",
+  repository:
+    "https://github.com/arnobt78/RAG-PDF-Chat-Multi-Agent-Pipeline--Python-React-FullStack",
   linkedin: "https://www.linkedin.com/in/arnob-mahmud-05839655",
   twitter: "https://x.com/arnob_t78",
 } as const;

@@ -100,10 +100,10 @@ export function Header() {
             </div>
 
             <a
-              href={SOCIAL_LINKS.github}
+              href={SOCIAL_LINKS.repository}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-white/90 hover:text-white transition-colors"
+              className="text-white/80 hover:text-white transition-colors"
             >
               <Github className="w-5 h-5" />
             </a>
