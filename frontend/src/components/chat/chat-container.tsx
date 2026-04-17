@@ -54,6 +54,8 @@ import {
   clearAllSessions,
   type ChatSession,
 } from "@/lib/storage";
+import { appToast } from "@/lib/app-toast";
+import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog";
 
 export function ChatContainer() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -75,6 +77,14 @@ export function ChatContainer() {
   // Previous sessions list
   const [sessions, setSessions] = React.useState<ChatSession[]>([]);
   const [showSessions, setShowSessions] = React.useState(false);
+  const [clearAllOpen, setClearAllOpen] = React.useState(false);
+  const [sessionToDelete, setSessionToDelete] = React.useState<string | null>(
+    null,
+  );
+
+  const prevUploading = React.useRef(false);
+  const prevChatLoading = React.useRef(false);
+  const chatLenWhenRequestStarted = React.useRef(0);
 
   const {
     isUploading,
@@ -131,6 +141,43 @@ export function ChatContainer() {
     listChatSessions().then(setSessions);
   }, [chatHistory, fileName, showSessions]);
 
+  React.useEffect(() => {
+    const was = prevUploading.current;
+    if (isUploading && !was) {
+      appToast.pdfUploading();
+    }
+    if (!isUploading && was) {
+      if (uploadError) {
+        appToast.pdfError(uploadError);
+      } else if (isLoaded && fileName) {
+        appToast.pdfReady(fileName, chunksCreated ?? undefined);
+      }
+    }
+    prevUploading.current = isUploading;
+  }, [isUploading, uploadError, isLoaded, fileName, chunksCreated]);
+
+  React.useEffect(() => {
+    const was = prevChatLoading.current;
+    if (isLoading && !was) {
+      chatLenWhenRequestStarted.current = chatHistory.length;
+    }
+    if (!isLoading && was) {
+      if (chatError) {
+        appToast.chatError(chatError);
+      } else if (chatHistory.length > chatLenWhenRequestStarted.current) {
+        const last = chatHistory[chatHistory.length - 1];
+        const preview =
+          last.question.length > 72
+            ? `${last.question.slice(0, 72)}…`
+            : last.question;
+        appToast.replyReady(preview, last.modelUsed);
+      } else {
+        appToast.generationStopped();
+      }
+    }
+    prevChatLoading.current = isLoading;
+  }, [isLoading, chatError, chatHistory]);
+
   // -- Auto-scroll --
   React.useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -169,6 +216,7 @@ export function ChatContainer() {
     a.download = `chat-export-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
+    appToast.chatExported();
   }, [chatHistory]);
 
   React.useEffect(() => {
@@ -191,6 +239,7 @@ export function ChatContainer() {
     (session: ChatSession) => {
       setChatHistory(session.entries);
       setShowSessions(false);
+      appToast.sessionRestored(session.pdfName, session.entries.length);
     },
     [setChatHistory],
   );
@@ -198,17 +247,26 @@ export function ChatContainer() {
   const handleDeleteSession = React.useCallback(async (pdfName: string) => {
     await deleteChatSession(pdfName);
     setSessions((prev) => prev.filter((s) => s.pdfName !== pdfName));
+    appToast.sessionDeleted(pdfName);
   }, []);
 
-  const handleClearAllSessions = React.useCallback(async () => {
-    if (sessions.length === 0) return;
-    const ok = window.confirm(
-      "Delete all saved chat sessions from this browser?",
-    );
-    if (!ok) return;
+  const handleClearAllConfirmed = React.useCallback(async () => {
+    const n = sessions.length;
+    if (n === 0) return;
     await clearAllSessions();
     setSessions([]);
+    appToast.allSessionsCleared(n);
   }, [sessions.length]);
+
+  const handleClearToolbarChat = React.useCallback(() => {
+    clearHistory();
+    appToast.chatCleared();
+  }, [clearHistory]);
+
+  const handleResetUpload = React.useCallback(() => {
+    resetUpload();
+    appToast.uploadReset();
+  }, [resetUpload]);
 
   return (
     <div className="flex w-full min-w-0 flex-col overflow-x-visible">
@@ -260,11 +318,13 @@ export function ChatContainer() {
       <ScrollReveal direction="down" once={false} className="mb-6">
         <div className="flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-purple-500/20">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-purple-400/30 bg-purple-500/15">
               <MessageSquare className="w-6 h-6 text-purple-400" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-white">Chat with PDF</h1>
+              <h1 className="text-2xl font-semibold text-white">
+                Chat with PDF
+              </h1>
               <p className="text-sm text-white/90">
                 Upload a document and start asking questions
               </p>
@@ -359,15 +419,15 @@ export function ChatContainer() {
                     </span>
                   </h3>
                   <p className="text-xs leading-relaxed text-slate-400">
-                    Sessions live in this browser (IndexedDB). Clearing site data
-                    removes them; other devices won't see these threads.
+                    Sessions live in this browser (IndexedDB). Clearing site
+                    data removes them; other devices won't see these threads.
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3 sm:pt-0.5">
                   {sessions.length > 0 && (
                     <button
                       type="button"
-                      onClick={handleClearAllSessions}
+                      onClick={() => setClearAllOpen(true)}
                       className="text-xs text-white/75 decoration-white/50 underline-offset-2 transition-colors hover:text-white hover:underline"
                     >
                       Clear all
@@ -398,48 +458,51 @@ export function ChatContainer() {
                         ?.sources?.length ?? 0;
                     const updated = new Date(s.updatedAt);
                     return (
-                    <div
-                      key={s.pdfName}
-                      className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
-                    >
-                      <button
-                        onClick={() => handleRestoreSession(s)}
-                        className="flex-1 text-left min-w-0"
+                      <div
+                        key={s.pdfName}
+                        className="flex items-center justify-between gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
                       >
-                        <p className="text-sm text-white truncate">
-                          {s.pdfName}
-                        </p>
-                        <p className="text-xs text-slate-300">
-                          {s.entries.length} message
-                          {s.entries.length !== 1 ? "s" : ""}
-                          {" · "}
-                          {updated.toLocaleString(undefined, {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })}
-                        </p>
-                        {(lastWithModel?.modelUsed || lastSources > 0) && (
-                          <p className="mt-0.5 truncate text-[11px] text-slate-400">
-                            {lastWithModel?.modelUsed && (
-                              <span>Model: {lastWithModel.modelUsed}</span>
-                            )}
-                            {lastWithModel?.modelUsed && lastSources > 0
-                              ? " · "
-                              : ""}
-                            {lastSources > 0 && (
-                              <span>{lastSources} cited source{lastSources !== 1 ? "s" : ""}</span>
-                            )}
+                        <button
+                          onClick={() => handleRestoreSession(s)}
+                          className="flex-1 text-left min-w-0"
+                        >
+                          <p className="text-sm text-white truncate">
+                            {s.pdfName}
                           </p>
-                        )}
-                      </button>
-                      <button
-                        onClick={() => handleDeleteSession(s.pdfName)}
-                        className="text-slate-300 hover:text-red-400 transition-colors shrink-0 p-1"
-                        title="Delete session"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
+                          <p className="text-xs text-slate-300">
+                            {s.entries.length} message
+                            {s.entries.length !== 1 ? "s" : ""}
+                            {" · "}
+                            {updated.toLocaleString(undefined, {
+                              dateStyle: "medium",
+                              timeStyle: "short",
+                            })}
+                          </p>
+                          {(lastWithModel?.modelUsed || lastSources > 0) && (
+                            <p className="mt-0.5 truncate text-[11px] text-slate-400">
+                              {lastWithModel?.modelUsed && (
+                                <span>Model: {lastWithModel.modelUsed}</span>
+                              )}
+                              {lastWithModel?.modelUsed && lastSources > 0
+                                ? " · "
+                                : ""}
+                              {lastSources > 0 && (
+                                <span>
+                                  {lastSources} cited source
+                                  {lastSources !== 1 ? "s" : ""}
+                                </span>
+                              )}
+                            </p>
+                          )}
+                        </button>
+                        <button
+                          onClick={() => setSessionToDelete(s.pdfName)}
+                          className="text-slate-300 hover:text-red-400 transition-colors shrink-0 p-1"
+                          title="Delete session"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     );
                   })}
                 </div>
@@ -458,7 +521,7 @@ export function ChatContainer() {
           fileName={fileName ?? undefined}
           chunksCreated={chunksCreated ?? undefined}
           error={uploadError}
-          onReset={resetUpload}
+          onReset={handleResetUpload}
         />
       </div>
 
@@ -491,7 +554,7 @@ export function ChatContainer() {
                     variant="ghost"
                     size="sm"
                     className="text-xs text-white/90 hover:text-white h-7 px-2"
-                    onClick={clearHistory}
+                    onClick={handleClearToolbarChat}
                     icon={<Trash2 className="w-3 h-3" />}
                   >
                     Clear
@@ -500,7 +563,7 @@ export function ChatContainer() {
                     variant="ghost"
                     size="sm"
                     className="text-xs text-white/90 hover:text-white h-7 px-2"
-                    onClick={resetUpload}
+                    onClick={handleResetUpload}
                     icon={<RotateCcw className="w-3 h-3" />}
                   >
                     New PDF
@@ -619,6 +682,48 @@ export function ChatContainer() {
           </GlassCard>
         </div>
       </div>
+
+      <ConfirmAlertDialog
+        open={clearAllOpen}
+        onOpenChange={setClearAllOpen}
+        title="Clear all saved sessions?"
+        description={
+          <>
+            This permanently deletes{" "}
+            <strong className="text-white">{sessions.length}</strong> saved chat
+            session{sessions.length === 1 ? "" : "s"} from IndexedDB in this
+            browser. Exports on disk are not changed.
+          </>
+        }
+        confirmLabel="Clear all"
+        destructive
+        onConfirm={handleClearAllConfirmed}
+      />
+      <ConfirmAlertDialog
+        open={!!sessionToDelete}
+        onOpenChange={(open) => {
+          if (!open) setSessionToDelete(null);
+        }}
+        title="Delete this saved session?"
+        description={
+          sessionToDelete ? (
+            <>
+              Remove saved messages for{" "}
+              <span className="font-medium text-white">{sessionToDelete}</span>.
+              It disappears from the saved list; the current chat view only
+              changes if this PDF is the one you have open.
+            </>
+          ) : (
+            ""
+          )
+        }
+        confirmLabel="Delete"
+        destructive
+        onConfirm={async () => {
+          const key = sessionToDelete;
+          if (key) await handleDeleteSession(key);
+        }}
+      />
     </div>
   );
 }

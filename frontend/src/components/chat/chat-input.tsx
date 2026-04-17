@@ -36,7 +36,7 @@ export function ChatInput({
   onSend,
   disabled = false,
   isLoading = false,
-  placeholder = "Ask a question about your PDF...",
+  placeholder = "Ask a question about the PDF...",
 }: ChatInputProps) {
   const [message, setMessage] = React.useState("");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -93,8 +93,9 @@ export function ChatInput({
           placeholder={disabled ? "Upload a PDF first..." : placeholder}
           disabled={disabled || isLoading}
           autoResize
+          wrapperClassName="min-w-0 flex-1 self-stretch"
           className={cn(
-            "min-w-0 flex-1 min-h-[44px] max-h-[200px] resize-none",
+            "w-full min-h-[44px] max-h-[200px] resize-none",
             "bg-transparent border-none focus:ring-0",
             "text-white placeholder:text-slate-300",
           )}
@@ -103,7 +104,7 @@ export function ChatInput({
 
         {/* Send button */}
         <motion.div
-          className="ml-auto shrink-0"
+          className="shrink-0 self-end"
           whileHover={canSend ? { scale: 1.05 } : {}}
           whileTap={canSend ? { scale: 0.95 } : {}}
         >

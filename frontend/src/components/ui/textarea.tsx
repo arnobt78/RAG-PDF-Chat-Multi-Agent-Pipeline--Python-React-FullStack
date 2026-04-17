@@ -74,12 +74,12 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     }, [value, showCount]);
 
     return (
-      <div className={cn("relative", wrapperClassName)}>
+      <div className={cn("relative min-w-0", wrapperClassName)}>
         <textarea
           ref={textareaRef}
           className={cn(
             // Base styles
-            "flex min-h-[100px] w-full rounded-xl border bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-300",
+            "block min-h-[100px] w-full max-w-full rounded-xl border bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-300",
             // Focus styles
             "focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50",
             // Transition

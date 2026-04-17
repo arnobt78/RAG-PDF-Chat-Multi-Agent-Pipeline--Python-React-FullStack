@@ -16,6 +16,7 @@ import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { HomePage } from "@/pages/home";
 import { ChatPage } from "@/pages/chat";
 import { AboutPage } from "@/pages/about";
+import { Toaster } from "@/components/ui/sonner";
 
 function AppFallback() {
   return (
@@ -41,6 +42,7 @@ function App() {
   return (
     <Sentry.ErrorBoundary fallback={<AppFallback />} showDialog>
       <BrowserRouter>
+        <Toaster />
         <ScrollToTop />
         <ChatProvider>
           <AnimatePresence mode="wait">

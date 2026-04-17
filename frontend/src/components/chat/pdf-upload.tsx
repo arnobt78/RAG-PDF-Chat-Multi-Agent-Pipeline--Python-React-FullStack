@@ -193,7 +193,7 @@ export function PDFUpload({
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-xl bg-emerald-500/20">
+                  <div className="p-3 rounded-xl bg-emerald-500/20 border border-emerald-500/30">
                     <CheckCircle className="w-6 h-6 text-emerald-400" />
                   </div>
                   <div>
@@ -232,158 +232,154 @@ export function PDFUpload({
                 : "drop-shadow(0 0 18px rgba(139,92,246,0.45))",
             }}
           >
-                <GlassCard
-                  variant="default"
-                  padding="lg"
-                  className={cn(
-                    "border-violet-500/35 transition-[border-color] duration-300",
-                    isDragOver && "border-violet-400/55",
-                    displayError && "border-red-500/45",
-                  )}
-                >
-                  <div className="flex flex-col items-stretch py-4">
-                    {isUploading ? (
-                      <div className="space-y-4 px-1">
-                        <div className="flex items-center gap-3">
-                          <Spinner size="lg" color="purple" />
-                          <div>
-                            <p className="text-sm font-medium text-white">
-                              Processing PDF on server…
-                            </p>
-                            <p className="text-xs text-white/90">
-                              Ingest pipeline (live-style progress)
-                            </p>
-                          </div>
-                        </div>
-                        <div className="rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-[11px] leading-relaxed shadow-inner">
-                          <div className="mb-2 flex items-center gap-2 border-b border-white/10 pb-2 text-[10px] uppercase tracking-wide text-slate-300">
-                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                            ingest.log
-                          </div>
-                          <ul className="space-y-2">
-                            {PIPELINE_STEPS.map((s, i) => {
-                              const done = i < completedSteps;
-                              const active =
-                                i === completedSteps &&
-                                completedSteps < PIPELINE_STEPS.length;
-                              return (
-                                <li
-                                  key={s.id}
-                                  className={cn(
-                                    "flex gap-2 rounded-lg px-2 py-1.5 transition-colors",
-                                    active && "bg-purple-500/10",
-                                  )}
-                                >
-                                  <span className="mt-0.5 shrink-0">
-                                    {done ? (
-                                      <span className="flex h-4 w-4 items-center justify-center rounded border border-emerald-500/50 bg-emerald-500/20">
-                                        <Check className="h-2.5 w-2.5 text-emerald-300" />
-                                      </span>
-                                    ) : active ? (
-                                      <span className="flex h-4 w-4 items-center justify-center">
-                                        <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-300" />
-                                      </span>
-                                    ) : (
-                                      <span className="flex h-4 w-4 items-center justify-center rounded border border-white/15 bg-white/5">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-white/20" />
-                                      </span>
-                                    )}
+            <GlassCard
+              variant="default"
+              padding="lg"
+              className={cn(
+                "border-violet-500/35 transition-[border-color] duration-300",
+                isDragOver && "border-violet-400/55",
+                displayError && "border-red-500/45",
+              )}
+            >
+              <div className="flex flex-col items-stretch py-4">
+                {isUploading ? (
+                  <div className="space-y-4 px-1">
+                    <div className="flex items-center gap-3">
+                      <Spinner size="lg" color="purple" />
+                      <div>
+                        <p className="text-sm font-medium text-white">
+                          Processing PDF on server…
+                        </p>
+                        <p className="text-xs text-white/90">
+                          Ingest pipeline (live-style progress)
+                        </p>
+                      </div>
+                    </div>
+                    <div className="rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-[11px] leading-relaxed shadow-inner">
+                      <div className="mb-2 flex items-center gap-2 border-b border-white/10 pb-2 text-[10px] uppercase tracking-wide text-slate-300">
+                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                        ingest.log
+                      </div>
+                      <ul className="space-y-2">
+                        {PIPELINE_STEPS.map((s, i) => {
+                          const done = i < completedSteps;
+                          const active =
+                            i === completedSteps &&
+                            completedSteps < PIPELINE_STEPS.length;
+                          return (
+                            <li
+                              key={s.id}
+                              className={cn(
+                                "flex gap-2 rounded-lg px-2 py-1.5 transition-colors",
+                                active && "bg-purple-500/10",
+                              )}
+                            >
+                              <span className="mt-0.5 shrink-0">
+                                {done ? (
+                                  <span className="flex h-4 w-4 items-center justify-center rounded border border-emerald-500/50 bg-emerald-500/20">
+                                    <Check className="h-2.5 w-2.5 text-emerald-300" />
                                   </span>
-                                  <div className="min-w-0 flex-1">
-                                    <p className="text-white/90">
-                                      <span className="text-slate-300">
-                                        [{String(s.id).padStart(2, "0")}]
-                                      </span>{" "}
-                                      {s.label}
-                                    </p>
-                                    <p className="text-[10px] text-slate-300">
-                                      {s.detail}
-                                    </p>
-                                  </div>
-                                </li>
-                              );
-                            })}
-                          </ul>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ") {
-                            e.preventDefault();
-                            handleClick();
-                          }
-                        }}
-                        onClick={handleClick}
-                        onDragOver={handleDragOver}
-                        onDragLeave={handleDragLeave}
-                        onDrop={handleDrop}
-                        className={cn(
-                          "mx-auto flex w-full max-w-5xl cursor-pointer flex-col items-center rounded-3xl border border-dashed px-6 py-10 text-center transition-colors",
-                          isDragOver
-                            ? "border-purple-400/60 bg-purple-500/10"
-                            : "border-white/25 bg-white/[0.03] hover:border-white/40 hover:bg-white/[0.05]",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "mb-4 rounded-3xl p-4 transition-colors",
-                            isDragOver ? "bg-purple-500/25" : "bg-white/10",
-                          )}
-                        >
-                          {isDragOver ? (
-                            <File className="h-10 w-10 text-purple-300" />
-                          ) : (
-                            <Upload className="h-10 w-10 text-white/90" />
-                          )}
-                        </div>
-
-                        <h3 className="mb-2 text-lg font-semibold text-white">
-                          {isDragOver
-                            ? "Drop your PDF here"
-                            : "Upload your PDF"}
-                        </h3>
-
-                        <p className="mb-4 text-sm text-white/90">
-                          Drag and drop inside the dashed area, or click to
-                          browse
-                        </p>
-
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleClick();
-                          }}
-                        >
-                          <FileText className="mr-2 h-4 w-4" />
-                          Select PDF File
-                        </Button>
-
-                        <p className="mt-4 text-xs text-white/80">
-                          Supports PDF files up to{" "}
-                          {formatFileSize(MAX_FILE_SIZE)}
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Error display */}
-                    {displayError && !isUploading && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mt-4 flex items-center justify-center gap-2 px-2 text-center text-sm text-red-400"
-                      >
-                        <AlertCircle className="h-4 w-4 shrink-0" />
-                        {displayError}
-                      </motion.div>
-                    )}
+                                ) : active ? (
+                                  <span className="flex h-4 w-4 items-center justify-center">
+                                    <Loader2 className="h-3.5 w-3.5 animate-spin text-purple-300" />
+                                  </span>
+                                ) : (
+                                  <span className="flex h-4 w-4 items-center justify-center rounded border border-white/15 bg-white/5">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-white/20" />
+                                  </span>
+                                )}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-white/90">
+                                  <span className="text-slate-300">
+                                    [{String(s.id).padStart(2, "0")}]
+                                  </span>{" "}
+                                  {s.label}
+                                </p>
+                                <p className="text-[10px] text-slate-300">
+                                  {s.detail}
+                                </p>
+                              </div>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
                   </div>
-                </GlassCard>
+                ) : (
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        handleClick();
+                      }
+                    }}
+                    onClick={handleClick}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    className={cn(
+                      "mx-auto flex w-full max-w-5xl cursor-pointer flex-col items-center rounded-3xl border border-dashed px-6 py-10 text-center transition-colors",
+                      isDragOver
+                        ? "border-purple-400/60 bg-purple-500/10"
+                        : "border-white/25 bg-white/[0.03] hover:border-white/40 hover:bg-white/[0.05]",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "mb-4 rounded-3xl p-4 transition-colors",
+                        isDragOver ? "bg-purple-500/25" : "bg-white/10",
+                      )}
+                    >
+                      {isDragOver ? (
+                        <File className="h-10 w-10 text-purple-300" />
+                      ) : (
+                        <Upload className="h-10 w-10 text-white/90" />
+                      )}
+                    </div>
+
+                    <h3 className="mb-2 text-lg font-semibold text-white">
+                      {isDragOver ? "Drop your PDF here" : "Upload your PDF"}
+                    </h3>
+
+                    <p className="mb-4 text-sm text-white/90">
+                      Drag and drop inside the dashed area, or click to browse
+                    </p>
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleClick();
+                      }}
+                    >
+                      <FileText className="mr-2 h-4 w-4" />
+                      Select PDF File
+                    </Button>
+
+                    <p className="mt-4 text-xs text-white/80">
+                      Supports PDF files up to {formatFileSize(MAX_FILE_SIZE)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Error display */}
+                {displayError && !isUploading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-4 flex items-center justify-center gap-2 px-2 text-center text-sm text-red-400"
+                  >
+                    <AlertCircle className="h-4 w-4 shrink-0" />
+                    {displayError}
+                  </motion.div>
+                )}
+              </div>
+            </GlassCard>
           </motion.div>
         )}
       </AnimatePresence>
