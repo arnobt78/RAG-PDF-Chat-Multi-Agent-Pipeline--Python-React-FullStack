@@ -240,3 +240,7 @@ user_data/
 *.key
 *.crt
 .cache/
+
+# Documents
+docs/HETZNER_VPS_MIGRATION_GUIDE.md
+docs/SUBDOMAIN_ARNOBMAHMUD_SETUP.md

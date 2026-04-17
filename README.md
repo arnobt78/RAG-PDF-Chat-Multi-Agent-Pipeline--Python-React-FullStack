@@ -335,7 +335,9 @@ Read the Python modules under `backend/app/agents/` for implementation details �
 ```bash
 cd backend
 docker build -t rag-pdf-chat-api .
-docker run -p 8000:8000 --env-file .env rag-pdf-chat-api
+# Image defaults PORT=3000 (Coolify / docs/DOCKER_VPS_BACKEND_PLAYBOOK.md). Map host→container accordingly:
+docker run -p 3000:3000 --env-file .env rag-pdf-chat-api
+# Optional: host 8000 → container 3000 → docker run -p 8000:3000 --env-file .env rag-pdf-chat-api
 ```
 
 - Image runs as **non-root**; writable dirs include **`faiss_index/`** and **`.cache/`** for model downloads.
