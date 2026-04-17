@@ -183,8 +183,16 @@ class Settings(BaseSettings):
     chunk_overlap: int = 200
     retrieval_k: int = 4
 
-    # FAISS persistence
+    # FAISS persistence (per X-Chat-Session-Id under faiss_index/sessions/<uuid>/)
     faiss_persist_dir: str = "faiss_index"
+    max_vector_sessions: int = Field(default=64, ge=4, le=10_000)
+    # 0 = disabled. Default 3 (demo): on each API startup remove session dirs older than N days
+    # (orphans after redeploys) and non-UUID junk under sessions/. Set 0 to skip.
+    faiss_session_max_age_days: int = Field(default=3, ge=0, le=365)
+
+    # Per-IP sliding window (60s). 0 = disabled. Mitigates upload / ask spam and LRU flooding.
+    rate_limit_upload_per_minute: int = Field(default=8, ge=0, le=500)
+    rate_limit_ask_per_minute: int = Field(default=90, ge=0, le=5000)
 
     # CORS — comma-separated (avoids pydantic-settings JSON parsing for List fields)
     cors_origins_csv: str | None = Field(

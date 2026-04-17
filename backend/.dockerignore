@@ -1,4 +1,5 @@
 .git
+faiss_index/
 .env
 .env.*
 !.env.example

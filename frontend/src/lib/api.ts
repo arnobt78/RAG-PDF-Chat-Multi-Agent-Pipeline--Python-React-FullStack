@@ -6,6 +6,7 @@
  */
 
 import { API_BASE_URL, API_ENDPOINTS } from "./constants";
+import { getChatApiSessionId, isValidChatApiSessionId } from "./chat-session";
 import type {
   AskQuestionRequest,
   AskQuestionResponse,
@@ -29,6 +30,31 @@ export class ApiError extends Error {
   }
 }
 
+function withSessionHeaders(init?: RequestInit): RequestInit {
+  const sid = getChatApiSessionId();
+  if (!isValidChatApiSessionId(sid)) {
+    throw new ApiError(
+      "Chat session id is missing or invalid. Use a modern browser with Web Crypto enabled.",
+      400,
+      "missing_session_id",
+    );
+  }
+  const merged: Record<string, string> = { "X-Chat-Session-Id": sid };
+  const inHeaders = init?.headers;
+  if (inHeaders instanceof Headers) {
+    inHeaders.forEach((v, k) => {
+      if (k.toLowerCase() !== "x-chat-session-id") merged[k] = v;
+    });
+  } else if (inHeaders && typeof inHeaders === "object") {
+    for (const [k, v] of Object.entries(inHeaders as Record<string, string>)) {
+      if (k.toLowerCase() !== "x-chat-session-id" && v !== undefined) {
+        merged[k] = String(v);
+      }
+    }
+  }
+  return { ...init, headers: merged };
+}
+
 /**
  * Base fetch wrapper with error handling
  */
@@ -37,12 +63,7 @@ async function fetchWithErrorHandling<T>(
   options?: RequestInit,
 ): Promise<T> {
   try {
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        ...options?.headers,
-      },
-    });
+    const response = await fetch(url, withSessionHeaders(options));
 
     if (!response.ok) {
       const errorData: APIError = await response.json().catch(() => ({
@@ -95,12 +116,12 @@ export function streamQuestion(
     try {
       const response = await fetch(
         `${API_BASE_URL}${API_ENDPOINTS.ASK_STREAM}`,
-        {
+        withSessionHeaders({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(request),
           signal: controller.signal,
-        },
+        }),
       );
 
       if (!response.ok || !response.body) {

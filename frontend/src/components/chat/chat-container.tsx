@@ -56,6 +56,7 @@ import {
 } from "@/lib/storage";
 import { appToast } from "@/lib/app-toast";
 import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog";
+import { SESSION_INDEX_RETENTION_DAYS } from "@/lib/session-retention";
 
 export function ChatContainer() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -293,11 +294,20 @@ export function ChatContainer() {
                   <h2 className="text-sm font-semibold tracking-tight text-amber-50">
                     Stored only on this device
                   </h2>
-                  <p className="text-xs leading-relaxed text-amber-100/95 ">
-                    Your chat history &amp; preferences are stored locally in
-                    this browser using IndexedDB &amp; localStorage. Clearing
-                    site data or switching devices will reset everything. The
-                    saved data might not work always as expected.
+                  <p className="text-xs leading-relaxed text-amber-100/95">
+                    Chat transcripts and preferences stay in this browser
+                    (IndexedDB and localStorage). Clearing site data or
+                    switching devices resets them; saved data may not always
+                    behave as expected.
+                  </p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-amber-100/95">
+                    This site sends an anonymous session id so the API can keep
+                    a separate PDF search index per browser—other visitors'
+                    uploads are not mixed with yours. Those server indexes are
+                    capped and may be removed after about{" "}
+                    {SESSION_INDEX_RETENTION_DAYS} days without use or when the
+                    server runs cleanup on start; if answers no
+                    longer match your document, upload the PDF again.
                   </p>
                 </div>
                 <button
@@ -419,8 +429,13 @@ export function ChatContainer() {
                     </span>
                   </h3>
                   <p className="text-xs leading-relaxed text-slate-300">
-                    Sessions live in this browser (IndexedDB). Clearing site
-                    data removes them; other devices won't see these threads.
+                    Saved rows are chat history in IndexedDB on this device
+                    only. Clearing site data removes them; other devices won't
+                    see these threads. The list does not include the server-side
+                    PDF index (anonymous session); that index can be removed
+                    after about {SESSION_INDEX_RETENTION_DAYS} days without use
+                    (and on server cleanup)—re-upload the PDF if retrieval feels
+                    off.
                   </p>
                 </div>
                 <div className="flex shrink-0 items-center gap-3 sm:pt-0.5">

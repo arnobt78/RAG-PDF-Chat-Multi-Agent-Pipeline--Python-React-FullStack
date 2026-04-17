@@ -30,16 +30,38 @@ class VectorStoreService:
     - Building and querying FAISS index
     - Similarity search for retrieval
     - Saving / loading FAISS index to / from disk
+
+    Each ``session_id`` (UUID from ``X-Chat-Session-Id``) uses a separate
+    directory under ``faiss_index/sessions/<id>/`` so demo users do not
+    overwrite each other's indexes.
     """
 
-    def __init__(self):
+    def __init__(self, session_id: str) -> None:
         self.settings = get_settings()
+        self._session_id = session_id.strip()
         self.vectorstore: FAISS | None = None
         self.embeddings: Embeddings | None = None
-        self._persist_dir = self.settings.faiss_persist_dir
 
-        # Attempt to load a previously persisted index at startup
+        # Attempt to load a previously persisted index for this session
         self._try_load_from_disk()
+
+    @staticmethod
+    def sessions_directory() -> str:
+        """``<backend>/<faiss_persist_dir>/sessions`` (each UUID is a subfolder)."""
+        settings = get_settings()
+        return os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+            settings.faiss_persist_dir,
+            "sessions",
+        )
+
+    @staticmethod
+    def disk_path_for_session(session_id: str) -> str:
+        """Absolute path to the on-disk FAISS directory for a browser session."""
+        return os.path.join(
+            VectorStoreService.sessions_directory(),
+            session_id.strip(),
+        )
 
     def _resolve_api_key(self, provider: AIProvider) -> str | None:
         if provider.name == "openrouter":
@@ -100,10 +122,7 @@ class VectorStoreService:
     # ------------------------------------------------------------------
 
     def _persist_path(self) -> str:
-        return os.path.join(
-            os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
-            self._persist_dir,
-        )
+        return self.disk_path_for_session(self._session_id)
 
     def _try_load_from_disk(self) -> None:
         """Load a persisted FAISS index if one exists (try each embedding backend)."""

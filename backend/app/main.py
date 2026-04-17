@@ -10,7 +10,6 @@ Main application module that:
 Run with: uvicorn app.main:app --reload
 """
 
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -20,46 +19,52 @@ from .config import get_settings
 from .routes import chat_router, health_router, tunnel_router, upload_router
 from .routes.chat import set_llm_service
 from .routes.upload import set_services as set_upload_services
+from .services.faiss_session_cleanup import prune_stale_session_indexes
 from .services.llm_service import LLMService
 from .services.pdf_processor import PDFProcessor
-from .services.vector_store import VectorStoreService
+from .services.session_vector_registry import SessionVectorRegistry
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """
     Application lifespan manager.
-    
+
     Handles startup and shutdown events:
-    - Startup: Initialize services, load default PDF if exists
+    - Startup: Initialize services and per-session vector registry
     - Shutdown: Cleanup resources
     """
     # Startup
     print("🚀 Starting RAG PDF Chat API...")
-    
-    # Initialize services
+
+    settings = get_settings()
     pdf_processor = PDFProcessor()
-    vector_service = VectorStoreService()
+    stale, junk = prune_stale_session_indexes()
+    if settings.faiss_session_max_age_days > 0:
+        print(
+            f"   FAISS session disk cleanup (>{settings.faiss_session_max_age_days}d mtime): "
+            f"{stale} stale, {junk} junk dirs removed"
+        )
+    else:
+        print("   FAISS session disk cleanup: disabled (FAISS_SESSION_MAX_AGE_DAYS=0)")
+    vector_registry = SessionVectorRegistry(settings.max_vector_sessions)
     llm_service = LLMService()
-    
-    # Inject services into routes
-    set_upload_services(pdf_processor, vector_service)
+
+    set_upload_services(pdf_processor, vector_registry)
     set_llm_service(llm_service)
-    
-    # Try to load default PDF if exists
-    default_pdf = os.path.join(
-        os.path.dirname(os.path.dirname(__file__)),
-        "documents",
-        "document.pdf"
+
+    print(
+        f"   Vector sessions: max {settings.max_vector_sessions} "
+        f"(LRU evict + delete oldest on-disk index under {settings.faiss_persist_dir}/sessions/)"
     )
-    if os.path.exists(default_pdf):
-        try:
-            result = pdf_processor.process_file(default_pdf)
-            vector_service.create_from_documents(result.chunks)
-            print(f"📄 Loaded default PDF: {result.file_name} ({result.total_chunks} chunks)")
-        except Exception as e:
-            print(f"⚠️ Could not load default PDF: {e}")
-    
+    if settings.rate_limit_upload_per_minute > 0 or settings.rate_limit_ask_per_minute > 0:
+        print(
+            "   Rate limits (per IP / 60s): "
+            f"upload={settings.rate_limit_upload_per_minute or 'off'}, "
+            f"ask={settings.rate_limit_ask_per_minute or 'off'}"
+        )
+    else:
+        print("   Rate limits: disabled (per-IP upload/ask limits set to 0)")
     print("✅ API ready!")
     
     yield

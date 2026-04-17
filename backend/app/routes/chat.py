@@ -15,6 +15,7 @@ from fastapi.responses import StreamingResponse
 
 from ..agents.pipeline import AgentPipeline
 from ..models import AnswerResponse, QuestionRequest
+from ..services.ip_rate_limit import check_ask_rate_limit
 from ..services.llm_service import LLMService
 from ..services.vector_store import VectorStoreService
 from .upload import get_vector_service
@@ -44,6 +45,7 @@ def set_llm_service(llm_service: LLMService):
 @router.post("/ask", response_model=AnswerResponse)
 async def ask_question(
     request: QuestionRequest,
+    _: None = Depends(check_ask_rate_limit),
     vector_service: VectorStoreService = Depends(get_vector_service),
     llm_service: LLMService = Depends(get_llm_service),
 ):
@@ -151,6 +153,7 @@ async def _stream_pipeline(
 @router.post("/ask/stream")
 async def ask_question_stream(
     request: QuestionRequest,
+    _: None = Depends(check_ask_rate_limit),
     vector_service: VectorStoreService = Depends(get_vector_service),
     llm_service: LLMService = Depends(get_llm_service),
 ):
