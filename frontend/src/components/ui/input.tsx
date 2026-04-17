@@ -55,7 +55,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             type={type}
             className={cn(
               // Base styles
-              "flex h-11 w-full rounded-xl border bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-500",
+              "flex h-11 w-full rounded-xl border bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-300",
               // Focus styles
               "focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50",
               // Transition
@@ -90,7 +90,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         type={type}
         className={cn(
           // Base styles
-          "flex h-11 w-full rounded-xl border bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-500",
+          "flex h-11 w-full rounded-xl border bg-white/5 px-4 py-2 text-sm text-white placeholder:text-slate-300",
           // Focus styles
           "focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50",
           // Transition

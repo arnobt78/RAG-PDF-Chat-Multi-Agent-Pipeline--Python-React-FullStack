@@ -146,13 +146,13 @@ export function ChatMessage({
           )}
         >
           {timestamp && (
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-300">
               {formatRelativeTime(timestamp)}
             </span>
           )}
 
           {!isUser && modelUsed && (
-            <span className="inline-flex items-center gap-1 text-[10px] text-slate-500 bg-white/5 rounded-full px-2 py-0.5">
+            <span className="inline-flex items-center gap-1 text-[10px] text-slate-300 bg-white/5 rounded-full px-2 py-0.5">
               <Cpu className="w-2.5 h-2.5" />
               {modelUsed.split("/").pop()}
             </span>
@@ -167,7 +167,7 @@ export function ChatMessage({
               {copied ? (
                 <Check className="w-3.5 h-3.5 text-emerald-400" />
               ) : (
-                <Copy className="w-3.5 h-3.5 text-slate-500 hover:text-white" />
+                <Copy className="w-3.5 h-3.5 text-slate-300 hover:text-white" />
               )}
             </button>
           )}

@@ -55,7 +55,7 @@ function getVariants(direction: AnimationDirection, duration: number): Variants 
 
   return {
     hidden: {
-      opacity: 1,
+      opacity: 0,
       ...offset,
     },
     visible: {

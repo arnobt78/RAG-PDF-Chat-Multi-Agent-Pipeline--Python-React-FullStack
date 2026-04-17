@@ -74,11 +74,11 @@ export function ChatInput({
   const canSend = message.trim().length > 0 && !disabled && !isLoading;
 
   return (
-    <div className="relative">
+    <div className="relative w-full min-w-0">
       {/* Input container with glassmorphism */}
       <div
         className={cn(
-          "relative flex items-end gap-3 p-3 rounded-2xl",
+          "relative flex w-full min-w-0 items-end gap-3 p-3 rounded-2xl",
           "bg-white/5 backdrop-blur-sm border border-white/10",
           "transition-all duration-300",
           "focus-within:border-purple-500/50 focus-within:bg-white/10",
@@ -94,15 +94,16 @@ export function ChatInput({
           disabled={disabled || isLoading}
           autoResize
           className={cn(
-            "flex-1 min-h-[44px] max-h-[200px] resize-none",
+            "min-w-0 flex-1 min-h-[44px] max-h-[200px] resize-none",
             "bg-transparent border-none focus:ring-0",
-            "text-white placeholder:text-slate-500",
+            "text-white placeholder:text-slate-300",
           )}
           rows={1}
         />
 
         {/* Send button */}
         <motion.div
+          className="ml-auto shrink-0"
           whileHover={canSend ? { scale: 1.05 } : {}}
           whileTap={canSend ? { scale: 0.95 } : {}}
         >
@@ -114,7 +115,7 @@ export function ChatInput({
               "shrink-0 w-11 h-11 rounded-xl transition-all",
               canSend
                 ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg shadow-purple-500/30"
-                : "bg-white/10 text-slate-500",
+                : "bg-white/10 text-slate-300",
             )}
           >
             {isLoading ? (
@@ -133,7 +134,7 @@ export function ChatInput({
 
       {/* Keyboard hint */}
       <div className="mt-2 flex items-center justify-between px-1">
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-300">
           Press{" "}
           <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white/90">
             Enter

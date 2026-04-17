@@ -90,7 +90,7 @@ export function Header() {
               title={`Backend: ${status}`}
             >
               <span className={cn("w-2 h-2 rounded-full", healthColor)} />
-              <span className="hidden lg:inline text-xs text-slate-500 w-[44px]">
+              <span className="hidden lg:inline text-xs text-slate-300 w-[44px]">
                 {status === "connected"
                   ? "Online"
                   : status === "disconnected"

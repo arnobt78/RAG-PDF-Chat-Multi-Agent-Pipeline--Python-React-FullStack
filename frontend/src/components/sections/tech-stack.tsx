@@ -177,7 +177,9 @@ function TechCategoryCard({
                 <category.icon className="h-6 w-6 text-white" />
               </div>
             </motion.div>
-            <h3 className="text-xl font-semibold text-white">{category.name}</h3>
+            <h3 className="text-xl font-semibold text-white">
+              {category.name}
+            </h3>
           </div>
 
           <motion.div
@@ -194,7 +196,9 @@ function TechCategoryCard({
                   className="cursor-default transition-colors hover:bg-transparent"
                 >
                   <span className="font-medium">{tech.name}</span>
-                  <span className="ml-1 text-slate-500">• {tech.description}</span>
+                  <span className="ml-1 text-slate-300">
+                    • {tech.description}
+                  </span>
                 </Badge>
               </motion.div>
             ))}

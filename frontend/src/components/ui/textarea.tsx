@@ -1,14 +1,14 @@
 /**
  * Textarea Component
- * 
+ *
  * A styled multi-line text input with glassmorphism design.
- * 
+ *
  * Features:
  * - Auto-resize option
  * - Focus ring animation
  * - Error state styling
  * - Character count option
- * 
+ *
  * Usage:
  * <Textarea placeholder="Enter message..." rows={4} />
  * <Textarea autoResize maxLength={500} showCount />
@@ -17,8 +17,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
-export interface TextareaProps
-  extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+export interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   /** Show error state styling */
   error?: boolean;
   /** Auto-resize based on content */
@@ -43,7 +42,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
       value,
       ...props
     },
-    ref
+    ref,
   ) => {
     const [charCount, setCharCount] = React.useState(0);
     const textareaRef = React.useRef<HTMLTextAreaElement>(null);
@@ -80,7 +79,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           ref={textareaRef}
           className={cn(
             // Base styles
-            "flex min-h-[100px] w-full rounded-xl border bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-500",
+            "flex min-h-[100px] w-full rounded-xl border bg-white/5 px-4 py-3 text-sm text-white placeholder:text-slate-300",
             // Focus styles
             "focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50",
             // Transition
@@ -95,7 +94,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
             autoResize ? "resize-none overflow-hidden" : "resize-y",
             // Bottom padding for character count
             showCount && "pb-8",
-            className
+            className,
           )}
           disabled={disabled}
           onChange={handleChange}
@@ -111,7 +110,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
               "absolute bottom-2 right-3 text-xs",
               maxLength && charCount >= maxLength
                 ? "text-red-400"
-                : "text-slate-500"
+                : "text-slate-300",
             )}
           >
             {charCount}
@@ -120,7 +119,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
         )}
       </div>
     );
-  }
+  },
 );
 
 Textarea.displayName = "Textarea";

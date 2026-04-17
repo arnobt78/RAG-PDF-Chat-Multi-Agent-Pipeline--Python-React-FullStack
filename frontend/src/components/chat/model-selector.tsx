@@ -153,7 +153,7 @@ export function ModelSelector({
                       )}
                     </div>
                     {model.description && (
-                      <p className="text-xs text-slate-500 mt-0.5 truncate">
+                      <p className="text-xs text-slate-300 mt-0.5 truncate">
                         {model.description}
                       </p>
                     )}

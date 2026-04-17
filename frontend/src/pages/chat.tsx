@@ -10,8 +10,13 @@ import { ChatContainer } from "@/components/chat/chat-container";
 
 export function ChatPage() {
   return (
-    <PageWrapper showBackground showFooter className="w-full overflow-x-clip">
-      <SectionWrapper className="w-full">
+    <PageWrapper
+      showBackground
+      showFooter
+      clipHorizontal={false}
+      className="w-full min-w-0"
+    >
+      <SectionWrapper className="w-full overflow-x-visible">
         <ChatContainer />
       </SectionWrapper>
     </PageWrapper>

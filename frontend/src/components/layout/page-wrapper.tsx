@@ -29,6 +29,11 @@ export interface PageWrapperProps {
   className?: string;
   /** Disable page transition animation */
   noAnimation?: boolean;
+  /**
+   * When true (default), root uses overflow-x-clip to avoid horizontal scroll bleed.
+   * Set false on pages with large outer box-shadows (e.g. chat) so glows are not clipped.
+   */
+  clipHorizontal?: boolean;
 }
 
 // Page transition variants
@@ -60,13 +65,15 @@ export function PageWrapper({
   showFooter = true,
   className,
   noAnimation = false,
+  clipHorizontal = true,
 }: PageWrapperProps) {
   const content = <main className={cn("flex-1", className)}>{children}</main>;
 
   return (
     <div
       className={cn(
-        "min-h-screen w-full overflow-x-clip flex flex-col relative",
+        "min-h-screen w-full flex flex-col relative",
+        clipHorizontal ? "overflow-x-clip" : "overflow-x-visible",
         showBackground && "bg-pattern",
       )}
     >
