@@ -14,6 +14,10 @@ import { motion } from "framer-motion";
 import { User, Bot, Copy, Check, FileText, Cpu } from "lucide-react";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
+/** Soft halo (not edge lines): dark forest green, diffuse box-shadow */
+const assistantBubbleGlowClass =
+  "shadow-[0_18px_48px_0_rgba(2,44,38,0.5),0_10px_36px_0_rgba(4,60,48,0.28),0_0_56px_0_rgba(6,95,70,0.18)]";
+
 export interface ChatMessageProps {
   role: "user" | "assistant";
   content: string;
@@ -98,8 +102,8 @@ export function ChatMessage({
           className={cn(
             "px-4 py-3 rounded-3xl",
             isUser
-              ? "message-user rounded-br-sm"
-              : "message-assistant rounded-bl-sm",
+              ? "message-user rounded-br-sm drop-shadow-[0_10px_32px_rgba(56,189,248,0.55)]"
+              : "message-assistant rounded-bl-sm shadow-[0_8px_36px_-4px_rgba(16,185,129,0.5),0_0_32px_-8px_rgba(16,185,129,0.35)]",
           )}
         >
           <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
@@ -198,7 +202,12 @@ export const TypingIndicator = React.forwardRef<
         <Bot className="w-4 h-4 text-purple-400" />
       </div>
 
-      <div className="message-assistant rounded-2xl rounded-bl-md px-4 py-3 max-w-[80%] sm:max-w-[70%]">
+      <div
+        className={cn(
+          "message-assistant rounded-2xl rounded-bl-md px-4 py-3 max-w-[80%] sm:max-w-[70%]",
+          assistantBubbleGlowClass,
+        )}
+      >
         {streamingText ? (
           <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
             {streamingText}

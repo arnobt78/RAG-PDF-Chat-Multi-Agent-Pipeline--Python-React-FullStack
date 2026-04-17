@@ -294,10 +294,10 @@ export function ChatContainer() {
                     Stored only on this device
                   </h2>
                   <p className="text-xs leading-relaxed text-amber-100/95 ">
-                    Your chat history and preferences are stored locally in this
-                    browser using IndexedDB and localStorage. Clearing site data
-                    or switching devices will reset everything. The saved data
-                    might not work always as expected.
+                    Your chat history &amp; preferences are stored locally in
+                    this browser using IndexedDB &amp; localStorage. Clearing
+                    site data or switching devices will reset everything. The
+                    saved data might not work always as expected.
                   </p>
                 </div>
                 <button
@@ -418,7 +418,7 @@ export function ChatContainer() {
                       ({sessions.length})
                     </span>
                   </h3>
-                  <p className="text-xs leading-relaxed text-slate-400">
+                  <p className="text-xs leading-relaxed text-slate-300">
                     Sessions live in this browser (IndexedDB). Clearing site
                     data removes them; other devices won't see these threads.
                   </p>
@@ -448,7 +448,7 @@ export function ChatContainer() {
                   be saved here.
                 </p>
               ) : (
-                <div className="space-y-2 max-h-48 overflow-y-auto scrollbar-hide">
+                <div className="max-h-[min(22rem,50vh)] space-y-2 overflow-y-auto scrollbar-hide">
                   {sessions.map((s) => {
                     const lastWithModel = [...s.entries]
                       .reverse()
@@ -527,160 +527,156 @@ export function ChatContainer() {
 
       {/* Chat Messages Area */}
       <div className="w-full min-w-0">
-        <div style={{ filter: "drop-shadow(0 0 18px rgba(16,185,129,0.5))" }}>
-          <GlassCard
-            variant="default"
-            padding="none"
-            className="flex min-h-[16rem] max-h-[min(36rem,72dvh)] flex-col border-emerald-600/40 sm:max-h-[min(40rem,75dvh)]"
-          >
-            {/* Toolbar */}
-            {chatHistory.length > 0 && (
-              <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-white/10">
-                <span className="text-xs text-slate-300">
-                  {chatHistory.length} message
-                  {chatHistory.length !== 1 ? "s" : ""}
-                </span>
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-white/90 hover:text-white h-7 px-2"
-                    onClick={handleExport}
-                    icon={<Download className="w-3 h-3" />}
-                  >
-                    Export
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-white/90 hover:text-white h-7 px-2"
-                    onClick={handleClearToolbarChat}
-                    icon={<Trash2 className="w-3 h-3" />}
-                  >
-                    Clear
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs text-white/90 hover:text-white h-7 px-2"
-                    onClick={handleResetUpload}
-                    icon={<RotateCcw className="w-3 h-3" />}
-                  >
-                    New PDF
-                  </Button>
-                </div>
+        <GlassCard
+          variant="default"
+          padding="none"
+          className="flex min-h-[16rem] max-h-[min(36rem,72dvh)] flex-col border-emerald-600/40 sm:max-h-[min(40rem,75dvh)]"
+        >
+          {/* Toolbar */}
+          {chatHistory.length > 0 && (
+            <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-white/10">
+              <span className="text-xs text-slate-300">
+                {chatHistory.length} message
+                {chatHistory.length !== 1 ? "s" : ""}
+              </span>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-white/90 hover:text-white h-7 px-2"
+                  onClick={handleExport}
+                  icon={<Download className="w-3 h-3" />}
+                >
+                  Export
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-white/90 hover:text-white h-7 px-2"
+                  onClick={handleClearToolbarChat}
+                  icon={<Trash2 className="w-3 h-3" />}
+                >
+                  Clear
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-white/90 hover:text-white h-7 px-2"
+                  onClick={handleResetUpload}
+                  icon={<RotateCcw className="w-3 h-3" />}
+                >
+                  New PDF
+                </Button>
               </div>
-            )}
-
-            {/* Messages scrollable area */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-hide">
-              <AnimatePresence mode="popLayout">
-                {chatHistory.length === 0 && !streamingAnswer ? (
-                  <motion.div
-                    key="empty"
-                    initial={false}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="flex min-h-[14rem] flex-col items-center justify-center px-2 py-10 text-center"
-                  >
-                    <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/10 mb-5">
-                      <MessageSquare className="w-10 h-10 text-purple-300/90" />
-                    </div>
-                    <h3 className="text-base sm:text-lg font-semibold text-white/95 mb-2 tracking-tight">
-                      {isLoaded ? "Ready to chat!" : "No PDF uploaded yet"}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-white/90/95 max-w-7xl leading-relaxed">
-                      {isLoaded
-                        ? "Ask anything about your document. The pipeline retrieves context, then your chosen model answers—with automatic fallback if a provider is unavailable."
-                        : "Upload a PDF document to start asking questions about its content."}
-                    </p>
-                    {isLoaded && (
-                      <div className="mt-5 flex flex-wrap justify-center gap-2 max-w-7xl">
-                        {[
-                          "Summarize this document",
-                          "What are the key points?",
-                          "Explain the main topic",
-                          "List all important sections",
-                        ].map((suggestion) => (
-                          <button
-                            type="button"
-                            key={suggestion}
-                            onClick={() => handleSend(suggestion)}
-                            className="px-3 py-2 rounded-2xl bg-white/[0.06] border border-purple-500/20 text-xs text-white/90 hover:bg-white/10 hover:border-purple-400/35 active:scale-[0.98] transition-colors duration-200 text-left leading-snug max-w-[11rem] sm:max-w-none"
-                          >
-                            {suggestion}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </motion.div>
-                ) : (
-                  chatHistory.map((entry: ChatEntry, index: number) => (
-                    <React.Fragment key={index}>
-                      <ChatMessage
-                        role="user"
-                        content={entry.question}
-                        timestamp={entry.timestamp}
-                        index={index * 2}
-                      />
-                      <ChatMessage
-                        role="assistant"
-                        content={entry.answer}
-                        timestamp={entry.timestamp}
-                        index={index * 2 + 1}
-                        isLatest={
-                          index === chatHistory.length - 1 && !isLoading
-                        }
-                        sources={entry.sources}
-                        modelUsed={entry.modelUsed}
-                      />
-                    </React.Fragment>
-                  ))
-                )}
-
-                {isLoading && (
-                  <TypingIndicator
-                    key="typing-indicator"
-                    streamingText={streamingAnswer}
-                  />
-                )}
-              </AnimatePresence>
-
-              <div ref={messagesEndRef} />
             </div>
+          )}
 
-            {/* Chat error display */}
-            {chatError && (
-              <div className="px-4 sm:px-6 pb-3">
-                <div className="rounded-xl bg-rose-950/40 border border-rose-500/25 px-3 py-2.5 text-rose-100/90 text-xs sm:text-sm leading-relaxed max-h-36 overflow-y-auto scrollbar-hide">
-                  {chatError}
-                </div>
-              </div>
-            )}
-
-            {/* Input area */}
-            <div className="w-full min-w-0 p-4 sm:p-6 border-t border-white/10">
-              {isLoading && useStreaming ? (
-                <div className="flex w-full justify-center">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={cancelStream}
-                    icon={<StopCircle className="w-4 h-4" />}
-                  >
-                    Stop generating
-                  </Button>
-                </div>
+          {/* Messages scrollable area */}
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-hide">
+            <AnimatePresence mode="popLayout">
+              {chatHistory.length === 0 && !streamingAnswer ? (
+                <motion.div
+                  key="empty"
+                  initial={false}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex min-h-[14rem] flex-col items-center justify-center px-2 py-10 text-center"
+                >
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/10 mb-5">
+                    <MessageSquare className="w-10 h-10 text-purple-300/90" />
+                  </div>
+                  <h3 className="text-base sm:text-lg font-semibold text-white/95 mb-2 tracking-tight">
+                    {isLoaded ? "Ready to chat!" : "No PDF uploaded yet"}
+                  </h3>
+                  <p className="text-xs sm:text-sm text-white/90/95 max-w-7xl leading-relaxed">
+                    {isLoaded
+                      ? "Ask anything about your document. The pipeline retrieves context, then your chosen model answers—with automatic fallback if a provider is unavailable."
+                      : "Upload a PDF document to start asking questions about its content."}
+                  </p>
+                  {isLoaded && (
+                    <div className="mt-5 flex flex-wrap justify-center gap-2 max-w-7xl">
+                      {[
+                        "Summarize this document",
+                        "What are the key points?",
+                        "Explain the main topic",
+                        "List all important sections",
+                      ].map((suggestion) => (
+                        <button
+                          type="button"
+                          key={suggestion}
+                          onClick={() => handleSend(suggestion)}
+                          className="px-3 py-2 rounded-2xl bg-white/[0.06] border border-purple-500/20 text-xs text-white/90 hover:bg-white/10 hover:border-purple-400/35 active:scale-[0.98] transition-colors duration-200 text-left leading-snug max-w-[11rem] sm:max-w-none"
+                        >
+                          {suggestion}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
               ) : (
-                <ChatInput
-                  onSend={handleSend}
-                  disabled={!isLoaded}
-                  isLoading={isLoading}
+                chatHistory.map((entry: ChatEntry, index: number) => (
+                  <React.Fragment key={index}>
+                    <ChatMessage
+                      role="user"
+                      content={entry.question}
+                      timestamp={entry.timestamp}
+                      index={index * 2}
+                    />
+                    <ChatMessage
+                      role="assistant"
+                      content={entry.answer}
+                      timestamp={entry.timestamp}
+                      index={index * 2 + 1}
+                      isLatest={index === chatHistory.length - 1 && !isLoading}
+                      sources={entry.sources}
+                      modelUsed={entry.modelUsed}
+                    />
+                  </React.Fragment>
+                ))
+              )}
+
+              {isLoading && (
+                <TypingIndicator
+                  key="typing-indicator"
+                  streamingText={streamingAnswer}
                 />
               )}
+            </AnimatePresence>
+
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* Chat error display */}
+          {chatError && (
+            <div className="px-4 sm:px-6 pb-3">
+              <div className="rounded-xl bg-rose-950/40 border border-rose-500/25 px-3 py-2.5 text-rose-100/90 text-xs sm:text-sm leading-relaxed max-h-36 overflow-y-auto scrollbar-hide">
+                {chatError}
+              </div>
             </div>
-          </GlassCard>
-        </div>
+          )}
+
+          {/* Input area */}
+          <div className="w-full min-w-0 p-4 sm:p-6 border-t border-white/10">
+            {isLoading && useStreaming ? (
+              <div className="flex w-full justify-center">
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={cancelStream}
+                  icon={<StopCircle className="w-4 h-4" />}
+                >
+                  Stop generating
+                </Button>
+              </div>
+            ) : (
+              <ChatInput
+                onSend={handleSend}
+                disabled={!isLoaded}
+                isLoading={isLoading}
+              />
+            )}
+          </div>
+        </GlassCard>
       </div>
 
       <ConfirmAlertDialog
