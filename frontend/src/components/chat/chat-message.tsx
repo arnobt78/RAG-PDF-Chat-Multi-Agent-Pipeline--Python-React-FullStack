@@ -96,10 +96,10 @@ export function ChatMessage({
       >
         <div
           className={cn(
-            "px-4 py-3 rounded-2xl",
+            "px-4 py-3 rounded-3xl",
             isUser
-              ? "message-user rounded-br-md"
-              : "message-assistant rounded-bl-md",
+              ? "message-user rounded-br-sm"
+              : "message-assistant rounded-bl-sm",
           )}
         >
           <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
