@@ -5,6 +5,9 @@
  * - Local (direct to FastAPI): http://localhost:8000
  * - Local (via Vite proxy):    /api   → proxy strips prefix to backend
  * - Production:                https://api.your-coolify-domain.com  (no trailing slash)
+ *
+ * ``resolveSentryTunnelUrl`` always targets the backend ``POST /api/oversight``
+ * route so the browser never talks to ``*.ingest.sentry.io`` directly (fewer adblock issues).
  */
 
 function trimTrailingSlashes(s: string): string {

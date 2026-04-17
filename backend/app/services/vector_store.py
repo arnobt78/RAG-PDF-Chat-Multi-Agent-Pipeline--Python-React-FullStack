@@ -34,6 +34,10 @@ class VectorStoreService:
     Each ``session_id`` (UUID from ``X-Chat-Session-Id``) uses a separate
     directory under ``faiss_index/sessions/<id>/`` so demo users do not
     overwrite each other's indexes.
+
+    ``create_from_documents`` tries cloud embedding providers in order, then
+    falls back to local MiniLM — useful when learning how resilient RAG ingestion
+    should behave when keys are missing or rate-limited.
     """
 
     def __init__(self, session_id: str) -> None:
@@ -202,6 +206,7 @@ class VectorStoreService:
             )
 
         last_error: Exception | None = None
+        # Try each (provider, embedding_model) pair until FAISS.from_documents succeeds.
         for provider, model in candidates:
             try:
                 emb = self._make_embeddings(provider, model)

@@ -6,6 +6,9 @@
  * 
  * Usage:
  * const { isUploading, isLoaded, uploadPDF, reset } = usePDFUpload();
+ *
+ * ``reset`` clears client state only — it does not delete server FAISS files;
+ * use a new browser session id if you need a fresh server index.
  */
 
 import * as React from "react";

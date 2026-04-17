@@ -70,4 +70,5 @@ async def sentry_tunnel(request: Request) -> Response:
 
     except Exception as exc:
         logger.warning("Sentry tunnel error: %s", exc)
+        # Return 200 so misbehaving clients do not retry storms; Sentry already lost this envelope.
         return Response(status_code=200, content="ok")

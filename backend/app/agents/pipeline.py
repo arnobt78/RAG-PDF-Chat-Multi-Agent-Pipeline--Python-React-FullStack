@@ -7,6 +7,10 @@ Orchestrates the full 7-agent RAG pipeline in sequence:
        → Synthesizer → Validator → Assembler
 
 Each agent receives the previous agent's output plus a shared context dict.
+
+Teaching tip: trace ``run()`` top-to-bottom — each ``_step`` passes the *output*
+of agent N as the *input* to agent N+1, while ``context`` accumulates shared
+metadata (question text, model id, flags) every agent may read.
 """
 
 from dataclasses import dataclass, field

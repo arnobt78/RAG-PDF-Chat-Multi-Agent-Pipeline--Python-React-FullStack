@@ -2,6 +2,8 @@
  * ModelInfoToggle
  *
  * Collapsible panel summarizing AI models, active selection, and backend API key hints.
+ *
+ * ``providerEnv`` maps UI provider slug → typical env var name (documentation only, not read from env in the browser).
  */
 
 import * as React from "react";

@@ -2,6 +2,8 @@
  * Application Entry Point
  *
  * Initializes Sentry (before anything else), then mounts the React app.
+ *
+ * StrictMode double-invokes certain effects in dev only — helps catch unsafe side effects.
  */
 
 import React from "react";

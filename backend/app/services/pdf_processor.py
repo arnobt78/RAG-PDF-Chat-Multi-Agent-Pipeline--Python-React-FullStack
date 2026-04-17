@@ -63,7 +63,7 @@ class PDFProcessor:
         self.chunk_size = chunk_size or settings.chunk_size
         self.chunk_overlap = chunk_overlap or settings.chunk_overlap
         
-        # Initialize text splitter with semantic chunking
+        # Overlap preserves context across chunk boundaries (important for legal/technical PDFs).
         self.text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,

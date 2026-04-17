@@ -12,6 +12,8 @@
  *   disabled={!pdfLoaded}
  *   isLoading={false}
  * />
+ *
+ * Enter submits; Shift+Enter inserts newline — common chat UX pattern.
  */
 
 import * as React from "react";

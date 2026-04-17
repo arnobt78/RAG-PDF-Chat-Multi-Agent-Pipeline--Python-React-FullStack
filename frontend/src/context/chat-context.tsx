@@ -80,6 +80,7 @@ interface ChatProviderProps {
   children: React.ReactNode;
 }
 
+/** Global provider: exposes upload + chat + streaming via ``useChatContext`` (optional for pages outside the new chat hooks). */
 export function ChatProvider({ children }: ChatProviderProps) {
   const [state, setState] = React.useState<ChatContextState>(initialState);
   const abortRef = React.useRef<AbortController | null>(null);

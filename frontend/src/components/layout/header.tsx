@@ -3,6 +3,8 @@
  *
  * Main navigation header with logo, navigation links, mobile menu,
  * and live backend health indicator.
+ *
+ * ``useHealth`` drives the colored dot — purely UX, not security gating.
  */
 
 import * as React from "react";

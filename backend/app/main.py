@@ -8,6 +8,15 @@ Main application module that:
 - Initializes services
 
 Run with: uvicorn app.main:app --reload
+
+Educational walkthrough (read in order):
+    1. ``lifespan`` runs once at process start: prunes old FAISS session folders,
+       builds the in-memory ``SessionVectorRegistry`` (LRU of vector stores),
+       and wires dependencies into the upload/chat route modules.
+    2. ``create_app`` builds the FastAPI instance, attaches CORS (browser origins
+       from settings), and mounts routers — order does not imply URL prefix;
+       all routes live at the root of this app (e.g. ``/upload``, ``/ask``).
+    3. The module-level ``app`` is what Uvicorn imports: ``uvicorn app.main:app``.
 """
 
 from contextlib import asynccontextmanager
@@ -39,6 +48,7 @@ async def lifespan(app: FastAPI):
 
     settings = get_settings()
     pdf_processor = PDFProcessor()
+    # Disk hygiene: remove stale session index dirs before accepting traffic (see faiss_session_cleanup).
     stale, junk = prune_stale_session_indexes()
     if settings.faiss_session_max_age_days > 0:
         print(
@@ -47,9 +57,11 @@ async def lifespan(app: FastAPI):
         )
     else:
         print("   FAISS session disk cleanup: disabled (FAISS_SESSION_MAX_AGE_DAYS=0)")
+    # Bounded LRU map: session_id -> VectorStoreService (eviction deletes on-disk index for that id).
     vector_registry = SessionVectorRegistry(settings.max_vector_sessions)
     llm_service = LLMService()
 
+    # Inject singletons into route modules (FastAPI Depends() reads these globals).
     set_upload_services(pdf_processor, vector_registry)
     set_llm_service(llm_service)
 
@@ -104,7 +116,7 @@ def create_app() -> FastAPI:
         lifespan=lifespan,
     )
     
-    # Configure CORS
+    # Browsers send a preflight OPTIONS unless origin is allowed — list comes from CORS_ORIGINS env.
     app.add_middleware(
         CORSMiddleware,
         allow_origins=settings.cors_origins,

@@ -34,6 +34,13 @@ def is_valid_session_id(session_id: str) -> bool:
 
 
 class SessionVectorRegistry:
+    """
+    In-process registry: maps browser ``session_id`` -> ``VectorStoreService``.
+
+    ``OrderedDict`` + ``move_to_end`` implements LRU: when at capacity, the
+    least-recently-used session is popped, cleared, and its folder removed from disk.
+    """
+
     def __init__(self, max_sessions: int) -> None:
         self._max = max(4, min(int(max_sessions), 10_000))
         self._stores: OrderedDict[str, VectorStoreService] = OrderedDict()

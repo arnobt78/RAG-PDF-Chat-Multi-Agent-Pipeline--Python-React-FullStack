@@ -3,6 +3,11 @@
  *
  * Centralized API client for all backend communication.
  * Handles requests, responses, error handling, and SSE streaming.
+ *
+ * Walkthrough:
+ *   1. ``withSessionHeaders`` injects ``X-Chat-Session-Id`` (see ``chat-session.ts``).
+ *   2. JSON helpers use ``fetchWithErrorHandling``; streaming uses manual ``fetch`` + ReadableStream.
+ *   3. ``api`` object groups REST calls used by hooks and components.
  */
 
 import { API_BASE_URL, API_ENDPOINTS } from "./constants";
@@ -183,6 +188,7 @@ export function streamQuestion(
 // ---------------------------------------------------------------------------
 // REST API Client
 // ---------------------------------------------------------------------------
+// Grouped methods keep components free of raw URL strings and duplicate header logic.
 
 export const api = {
   async checkHealth(): Promise<StatusResponse> {

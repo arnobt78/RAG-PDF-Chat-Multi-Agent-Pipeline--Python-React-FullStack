@@ -3,6 +3,8 @@ Pydantic Schemas
 
 Request and response models for the API.
 These ensure type safety and automatic validation.
+
+FastAPI uses these models to build OpenAPI ``components.schemas`` — compare with ``/docs`` while learning.
 """
 
 

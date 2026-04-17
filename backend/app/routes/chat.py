@@ -3,6 +3,15 @@ Chat Routes
 
 Endpoints for asking questions and getting AI-generated answers.
 Includes both a standard JSON endpoint and an SSE streaming endpoint.
+
+Learning notes:
+    - Both routes depend on ``get_vector_service`` (from upload routes), so every
+      ask is scoped to the same ``X-Chat-Session-Id`` as the user's upload.
+    - ``check_ask_rate_limit`` runs first (Depends order) to cap abuse per IP.
+    - ``/ask`` waits for the full pipeline then returns JSON; ``/ask/stream``
+      runs the same pipeline but then *simulates* token streaming by slicing
+      the final answer (see ``_stream_pipeline``) — the LLM call itself is not
+      token-streamed from the provider in this implementation.
 """
 
 import json
@@ -45,7 +54,7 @@ def set_llm_service(llm_service: LLMService):
 @router.post("/ask", response_model=AnswerResponse)
 async def ask_question(
     request: QuestionRequest,
-    _: None = Depends(check_ask_rate_limit),
+    _: None = Depends(check_ask_rate_limit),  # underscore = "fire-and-forget" dependency side effect only
     vector_service: VectorStoreService = Depends(get_vector_service),
     llm_service: LLMService = Depends(get_llm_service),
 ):

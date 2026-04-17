@@ -7,6 +7,8 @@
  * - Timestamp display
  * - Copy functionality
  * - Optional source citations & model badge
+ *
+ * ``sources`` are page hints from the pipeline — surfaced when the user enables "include sources".
  */
 
 import * as React from "react";

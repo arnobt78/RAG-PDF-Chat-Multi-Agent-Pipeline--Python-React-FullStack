@@ -1,6 +1,8 @@
 /**
  * User-facing copy for server-side vector index retention.
  * Set `VITE_FAISS_SESSION_MAX_AGE_DAYS` to match backend `FAISS_SESSION_MAX_AGE_DAYS`.
+ *
+ * This module exists so marketing copy does not silently diverge from disk prune policy.
  */
 const raw = import.meta.env.VITE_FAISS_SESSION_MAX_AGE_DAYS;
 const parsed =

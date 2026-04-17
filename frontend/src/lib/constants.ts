@@ -3,6 +3,8 @@
  *
  * Centralized configuration values used throughout the application.
  * Modify these values to customize the application behavior.
+ *
+ * ``API_ENDPOINTS`` must stay in sync with FastAPI routes under ``backend/app/routes/``.
  */
 
 /**

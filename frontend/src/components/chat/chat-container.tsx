@@ -13,6 +13,12 @@
  * - Previous sessions sidebar
  * - Device-local data banner
  * - Empty states
+ *
+ * Learning path inside this file:
+ *   1. Hooks ``usePDFUpload`` / ``useChat`` encapsulate server I/O; this component wires UI state.
+ *   2. Effects persist chat to IndexedDB whenever history or filename changes (device-local backup).
+ *   3. Banner + copy reference ``SESSION_INDEX_RETENTION_DAYS`` — keep aligned with backend env.
+ *   4. Streaming vs non-streaming is a user toggle; both hit the same pipeline on the server.
  */
 
 import * as React from "react";

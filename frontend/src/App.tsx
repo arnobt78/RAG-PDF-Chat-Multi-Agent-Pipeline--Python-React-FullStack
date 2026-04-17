@@ -6,6 +6,9 @@
  * - React Router for navigation
  * - Global providers (ChatProvider)
  * - Route definitions
+ *
+ * Route map: ``/`` marketing shell, ``/chat`` interactive RAG UI, ``/about`` deeper copy.
+ * Unknown paths fall back to Home (SPA-friendly).
  */
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";

@@ -4,6 +4,8 @@ Optional on-disk cleanup for ``faiss_index/sessions/<uuid>/``.
 When ``faiss_session_max_age_days`` > 0 (default 3 in Settings), each API startup removes:
 - Session folders whose mtime is older than that many days (redeploy orphans).
 - Subdirectories whose names are not valid UUID v4 (junk).
+
+Why mtime: cheap heuristic for "not touched recently"; active users keep files fresh.
 """
 
 from __future__ import annotations

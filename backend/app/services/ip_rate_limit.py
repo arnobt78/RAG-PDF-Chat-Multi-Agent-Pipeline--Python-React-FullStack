@@ -5,6 +5,10 @@ Mitigates abuse such as spamming new X-Chat-Session-Id values to fill the LRU
 or hammering PDF indexing. Each limit is per client IP (not one global cap for
 the server). Limits are in-memory (per API process); combine with a reverse
 proxy for defense in depth when running multiple workers.
+
+Implementation sketch: each key keeps a deque of monotonic timestamps; before
+allowing a new hit, timestamps older than 60s are dropped, then length is
+compared to the configured max — classic sliding window counter.
 """
 
 from __future__ import annotations

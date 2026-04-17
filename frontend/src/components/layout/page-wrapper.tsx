@@ -11,6 +11,8 @@
  * <PageWrapper>
  *   <YourPageContent />
  * </PageWrapper>
+ *
+ * ``clipHorizontal`` exists so marketing pages stay tidy while chat can opt out for shadows.
  */
 
 import * as React from "react";

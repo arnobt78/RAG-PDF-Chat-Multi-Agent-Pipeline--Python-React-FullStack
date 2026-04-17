@@ -1,3 +1,4 @@
+// One stable UUID per browser profile — ties all API calls to the same server-side FAISS folder.
 const STORAGE_KEY = "rag-pdf-chat-api-session-id";
 
 const UUID_V4_RE =

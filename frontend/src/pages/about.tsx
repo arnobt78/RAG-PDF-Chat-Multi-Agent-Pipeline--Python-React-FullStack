@@ -3,6 +3,8 @@
  *
  * Detailed information about the project architecture, the multi-agent
  * pipeline, and the technologies used.
+ *
+ * Mostly static educational JSX — good place for readers to understand design decisions.
  */
 
 import * as React from "react";

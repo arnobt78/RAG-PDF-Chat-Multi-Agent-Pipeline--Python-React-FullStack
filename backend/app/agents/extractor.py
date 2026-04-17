@@ -52,9 +52,9 @@ class ExtractorAgent(BaseAgent):
             List of relevant document chunks
         """
         question = input_data
-        k = context.get("retrieval_k", self.k)
+        k = context.get("retrieval_k", self.k)  # pipeline may override k per request
         
-        # Perform similarity search
+        # Embed the question with the *same* embedding model as the index, then FAISS nearest neighbors.
         chunks = self.vector_service.similarity_search(question, k=k)
         
         # Store metadata in context for later agents

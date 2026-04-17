@@ -4,6 +4,9 @@ LLM Service
 Manages language model interactions with multi-provider support.
 Implements ordered failover logic across OpenRouter, Groq, Gemini,
 Hugging Face, and direct OpenAI for maximum reliability.
+
+``generate_answer`` builds a small LCEL chain (prompt | llm | parser) each call;
+``get_available_models`` aggregates static model lists from providers that have keys.
 """
 
 import logging

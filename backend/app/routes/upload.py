@@ -2,6 +2,12 @@
 Upload Routes
 
 Endpoints for PDF upload and processing.
+
+Learning notes:
+    - ``require_session_id`` validates the ``X-Chat-Session-Id`` header (UUID v4).
+      Without it, the API cannot know which on-disk FAISS folder to use.
+    - ``check_upload_rate_limit`` protects expensive embedding + index work.
+    - ``GET /status`` shares the same session dependency so the UI can poll readiness.
 """
 
 
@@ -54,6 +60,7 @@ def require_session_id(
 def get_vector_service(
     session_id: Annotated[str, Depends(require_session_id)],
 ) -> VectorStoreService:
+    # Registry returns a cached VectorStoreService or constructs + loads from disk for this UUID.
     return get_vector_registry().get_or_create(session_id)
 
 

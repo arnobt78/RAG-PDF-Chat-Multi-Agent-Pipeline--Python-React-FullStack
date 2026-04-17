@@ -8,6 +8,8 @@
  * - Log forwarding
  *
  * Must be called **before** ReactDOM.createRoot().
+ *
+ * Replace inline default DSN with your own via ``VITE_SENTRY_DSN`` for forks.
  */
 
 import * as Sentry from "@sentry/react";

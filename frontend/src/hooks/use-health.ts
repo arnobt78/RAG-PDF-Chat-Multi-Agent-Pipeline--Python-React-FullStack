@@ -3,6 +3,8 @@
  *
  * Periodically polls the backend /health endpoint and exposes
  * the connection status so the UI can show a live indicator.
+ *
+ * Uses plain ``fetch`` (no session header) because ``/health`` is intentionally public.
  */
 
 import * as React from "react";

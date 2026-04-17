@@ -2,6 +2,9 @@
 Health Check Routes
 
 Endpoints for system health, status monitoring, and pipeline info.
+
+These routes intentionally do **not** require ``X-Chat-Session-Id`` so load
+balancers, Docker HEALTHCHECK, and the model dropdown can call them freely.
 """
 
 

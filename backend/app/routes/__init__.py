@@ -2,6 +2,9 @@
 API Routes
 
 FastAPI route definitions organized by functionality.
+
+Each submodule exposes an ``APIRouter`` instance; ``app.main`` includes them without
+a URL prefix, so paths are exactly ``/upload``, ``/ask``, etc.
 """
 
 from .chat import router as chat_router

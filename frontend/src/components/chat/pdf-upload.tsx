@@ -9,6 +9,8 @@
  *
  * Usage:
  * <PDFUpload onUpload={handleUpload} isUploading={false} />
+ *
+ * Client validates size/type before calling ``onUpload`` — server re-validates (never trust the browser alone).
  */
 
 import * as React from "react";

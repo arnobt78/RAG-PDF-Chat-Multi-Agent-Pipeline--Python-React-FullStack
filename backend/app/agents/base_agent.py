@@ -45,6 +45,9 @@ class BaseAgent(ABC):
     
     Each agent in the pipeline inherits from this class and implements
     the `process` method for its specific functionality.
+
+    External callers use ``execute`` (implemented on this base), which wraps
+    ``process`` with timing + uniform ``AgentResult`` — see ``execute`` below.
     
     Attributes:
         name: Unique identifier for the agent

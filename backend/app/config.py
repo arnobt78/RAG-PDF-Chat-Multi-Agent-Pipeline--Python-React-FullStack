@@ -4,6 +4,10 @@ Application Configuration
 Manages environment variables, API keys, and provider configurations.
 Uses pydantic-settings for validation and type safety.
 Supports OpenRouter, Groq, OpenAI, Google Gemini, and Hugging Face.
+
+``Settings`` is the single source of truth for env-backed knobs (CORS, FAISS
+paths, rate limits, chunk sizes). ``get_embedding_fallback_chain`` orders how
+upload-time embeddings are attempted when building a new index.
 """
 
 import os

@@ -6,6 +6,10 @@
  *
  * Usage:
  * const { chatHistory, isLoading, sendMessage, clearHistory } = useChat();
+ *
+ * Implementation note: ``sendMessageStreaming`` owns an ``AbortController`` in
+ * ``abortRef`` so the UI can cancel in-flight SSE when the user navigates away
+ * or hits Stop.
  */
 
 import * as React from "react";

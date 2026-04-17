@@ -3,6 +3,8 @@
  *
  * Dropdown for selecting which AI model to use for chat.
  * Fetches live models from backend on mount, falls back to static list.
+ *
+ * If ``/models`` fails (offline backend), the static ``AI_MODELS`` list still lets devs click around.
  */
 
 import * as React from "react";

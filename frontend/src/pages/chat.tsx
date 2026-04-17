@@ -3,6 +3,8 @@
  * 
  * Main chat interface for interacting with PDF documents.
  * Includes PDF upload and chat functionality.
+ *
+ * Thin page component: all behavior lives in ``ChatContainer`` so routing stays dumb.
  */
 
 import { PageWrapper, SectionWrapper } from "@/components/layout/page-wrapper";
