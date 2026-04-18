@@ -25,7 +25,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .config import get_settings
-from .routes import chat_router, health_router, tunnel_router, upload_router
+from .routes import chat_router, health_router, runtime_summary_router, tunnel_router, upload_router
 from .routes.chat import set_llm_service
 from .routes.upload import set_services as set_upload_services
 from .services.faiss_session_cleanup import prune_stale_session_indexes
@@ -127,6 +127,7 @@ def create_app() -> FastAPI:
     
     # Register routers
     app.include_router(health_router)
+    app.include_router(runtime_summary_router)
     app.include_router(upload_router)
     app.include_router(chat_router)
     app.include_router(tunnel_router)

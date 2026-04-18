@@ -106,6 +106,34 @@ class ModelsResponse(BaseModel):
     default_model: str
 
 
+class RuntimeProviderRow(BaseModel):
+    """One row in the public runtime / provider dashboard."""
+
+    id: str
+    display_name: str
+    llm_ready: bool
+    embedding_ready: bool
+    status: str
+
+
+class RuntimeSummaryResponse(BaseModel):
+    """Aggregated provider health for ``GET /runtime-summary`` (SPA dashboard)."""
+
+    status: str
+    providers: int
+    working: int
+    app_version: str
+    default_model: str
+    providers_detail: list[RuntimeProviderRow]
+    pipeline_agents: int = 7
+    embedding_chain_steps: int = 0
+    llm_providers_ready: int = 0
+    rate_limit_upload_per_minute: int = 0
+    rate_limit_ask_per_minute: int = 0
+    max_vector_sessions: int = 0
+    faiss_session_max_age_days: int = 0
+
+
 class ErrorResponse(BaseModel):
     """
     Standard error response.

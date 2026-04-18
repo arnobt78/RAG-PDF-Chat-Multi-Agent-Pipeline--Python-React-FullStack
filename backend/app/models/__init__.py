@@ -11,6 +11,8 @@ from .schemas import (
     ModelInfo,
     ModelsResponse,
     QuestionRequest,
+    RuntimeProviderRow,
+    RuntimeSummaryResponse,
     StatusResponse,
     UploadResponse,
 )
@@ -24,4 +26,6 @@ __all__ = [
     "ModelsResponse",
     "ErrorResponse",
     "AgentStepInfo",
+    "RuntimeProviderRow",
+    "RuntimeSummaryResponse",
 ]

@@ -18,6 +18,7 @@ import type {
   UploadResponse,
   StatusResponse,
   APIError,
+  RuntimeSummary,
 } from "@/types";
 
 /**
@@ -238,5 +239,20 @@ export const api = {
     );
   },
 };
+
+/** Public dashboard JSON — no ``X-Chat-Session-Id`` (not used by backend for this route). */
+export async function fetchRuntimeSummary(
+  options?: { signal?: AbortSignal },
+): Promise<RuntimeSummary> {
+  const response = await fetch(
+    `${API_BASE_URL}${API_ENDPOINTS.RUNTIME_SUMMARY}`,
+    { signal: options?.signal },
+  );
+  if (!response.ok) {
+    const text = await response.text().catch(() => "");
+    throw new ApiError(text || `HTTP ${response.status}`, response.status);
+  }
+  return response.json() as Promise<RuntimeSummary>;
+}
 
 export default api;

@@ -10,11 +10,23 @@
 import * as React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, FileText, MessageSquare, Info, Github } from "lucide-react";
+import {
+  Menu,
+  X,
+  FileText,
+  MessageSquare,
+  Info,
+  Github,
+  BookOpen,
+  LineChart,
+  ExternalLink,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/constants";
 import { useHealth } from "@/hooks/use-health";
+import { ApiNavDropdown } from "@/components/layout/api-nav-dropdown";
+import { API_BASE_URL } from "@/lib/constants";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -85,6 +97,8 @@ export function Header() {
                 </Link>
               );
             })}
+
+            <ApiNavDropdown />
 
             {/* Health dot */}
             <div
@@ -166,6 +180,32 @@ export function Header() {
                   </Link>
                 );
               })}
+
+              <div className="px-4 py-2 text-xs font-semibold uppercase tracking-wide text-white/40">
+                API
+              </div>
+              <a
+                href={`${API_BASE_URL}/docs`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/90 hover:bg-white/10"
+              >
+                <BookOpen className="w-5 h-5 text-sky-300" />
+                API Docs
+                <ExternalLink className="w-4 h-4 ml-auto text-white/40" />
+              </a>
+              <Link
+                to="/api-status"
+                className={cn(
+                  "flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors",
+                  location.pathname === "/api-status"
+                    ? "bg-purple-500/20 text-purple-400"
+                    : "text-white/90 hover:bg-white/10 hover:text-white",
+                )}
+              >
+                <LineChart className="w-5 h-5 text-emerald-300" />
+                API Status
+              </Link>
 
               {/* Health status in mobile menu */}
               <div className="flex items-center gap-2 px-4 py-2">

@@ -19,6 +19,7 @@ import { ScrollToTop } from "@/components/layout/scroll-to-top";
 import { HomePage } from "@/pages/home";
 import { ChatPage } from "@/pages/chat";
 import { AboutPage } from "@/pages/about";
+import { ApiStatusPage } from "@/pages/api-status";
 import { Toaster } from "@/components/ui/sonner";
 
 function AppFallback() {
@@ -53,6 +54,7 @@ function App() {
               <Route path="/" element={<HomePage />} />
               <Route path="/chat" element={<ChatPage />} />
               <Route path="/about" element={<AboutPage />} />
+              <Route path="/api-status" element={<ApiStatusPage />} />
               <Route path="*" element={<HomePage />} />
             </Routes>
           </AnimatePresence>

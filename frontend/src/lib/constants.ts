@@ -22,6 +22,8 @@ export const API_ENDPOINTS = {
   ASK: "/ask",
   ASK_STREAM: "/ask/stream",
   MODELS: "/models",
+  /** Public JSON for API Status page (no session header). */
+  RUNTIME_SUMMARY: "/runtime-summary",
 } as const;
 
 /**

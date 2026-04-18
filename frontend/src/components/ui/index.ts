@@ -16,3 +16,4 @@ export * from "./textarea";
 export * from "./safe-image";
 export * from "./scroll-reveal";
 export * from "./spinner";
+export * from "./dropdown-menu";

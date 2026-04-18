@@ -77,6 +77,30 @@ export interface StatusResponse {
   pdf_loaded?: boolean;
 }
 
+export interface RuntimeProviderRow {
+  id: string;
+  display_name: string;
+  llm_ready: boolean;
+  embedding_ready: boolean;
+  status: string;
+}
+
+export interface RuntimeSummary {
+  status: string;
+  providers: number;
+  working: number;
+  app_version: string;
+  default_model: string;
+  providers_detail: RuntimeProviderRow[];
+  pipeline_agents?: number;
+  embedding_chain_steps?: number;
+  llm_providers_ready?: number;
+  rate_limit_upload_per_minute?: number;
+  rate_limit_ask_per_minute?: number;
+  max_vector_sessions?: number;
+  faiss_session_max_age_days?: number;
+}
+
 export interface APIError {
   detail: string;
   status_code?: number;
