@@ -48,7 +48,7 @@ import { ModelSelector } from "./model-selector";
 import { ModelInfoToggle } from "./model-info-toggle";
 import { usePDFUpload } from "@/hooks/use-pdf-upload";
 import { useChat } from "@/hooks/use-chat";
-import type { ChatEntry } from "@/types";
+import { AI_MODELS, type AIModel, type ChatEntry } from "@/types";
 import {
   loadPreference,
   savePreference,
@@ -69,13 +69,23 @@ import {
 } from "@/components/ui/tooltip";
 import { SESSION_INDEX_RETENTION_DAYS } from "@/lib/session-retention";
 
+const DEFAULT_CHAT_MODEL_ID = "openai/gpt-4o-mini";
+
 export function ChatContainer() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
   // Persisted preferences (localStorage)
   const [selectedModel, setSelectedModel] = React.useState(() =>
-    loadPreference<string>(prefKeys.SELECTED_MODEL, "openai/gpt-4o-mini"),
+    loadPreference<string>(prefKeys.SELECTED_MODEL, DEFAULT_CHAT_MODEL_ID),
   );
+  const [modelMeta, setModelMeta] = React.useState(() => {
+    const id = loadPreference<string>(
+      prefKeys.SELECTED_MODEL,
+      DEFAULT_CHAT_MODEL_ID,
+    );
+    const m = AI_MODELS.find((x) => x.id === id) ?? AI_MODELS[0];
+    return { name: m.name, provider: m.provider };
+  });
   const [includeSources, setIncludeSources] = React.useState(() =>
     loadPreference<boolean>(prefKeys.INCLUDE_SOURCES, false),
   );
@@ -283,7 +293,11 @@ export function ChatContainer() {
   return (
     <div className="flex w-full min-w-0 flex-col overflow-x-visible">
       <ScrollReveal direction="down" once={false} className="mb-4">
-        <ModelInfoToggle selectedModel={selectedModel} />
+        <ModelInfoToggle
+          selectedModel={selectedModel}
+          activeModelName={modelMeta.name}
+          activeProvider={modelMeta.provider}
+        />
       </ScrollReveal>
 
       {/* Device-local data banner */}
@@ -476,7 +490,11 @@ export function ChatContainer() {
 
             <ModelSelector
               value={selectedModel}
-              onChange={setSelectedModel}
+              onChange={(model: AIModel) => {
+                setSelectedModel(model.id);
+                setModelMeta({ name: model.name, provider: model.provider });
+                appToast.modelSelected(model);
+              }}
               disabled={isLoading}
             />
           </div>

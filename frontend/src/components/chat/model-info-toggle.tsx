@@ -30,11 +30,17 @@ const providerBadge: Record<string, string> = {
 
 export interface ModelInfoToggleProps {
   selectedModel: string;
+  /** Label from the model picker (matches live /models when you’ve chosen one). */
+  activeModelName: string;
+  activeProvider: string;
 }
 
-export function ModelInfoToggle({ selectedModel }: ModelInfoToggleProps) {
+export function ModelInfoToggle({
+  selectedModel,
+  activeModelName,
+  activeProvider,
+}: ModelInfoToggleProps) {
   const [open, setOpen] = React.useState(false);
-  const selected = AI_MODELS.find((m) => m.id === selectedModel) ?? AI_MODELS[0];
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-sky-400/25 bg-gradient-to-r from-sky-500/15 via-sky-400/8 to-transparent px-4 shadow-[0_0_24px_-8px_rgba(56,189,248,0.38)] backdrop-blur-sm">
@@ -57,18 +63,24 @@ export function ModelInfoToggle({ selectedModel }: ModelInfoToggleProps) {
               <span
                 className={cn(
                   "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium",
-                  providerBadge[selected.provider] ?? "border-white/20 text-white/90",
+                  providerBadge[activeProvider] ?? "border-white/20 text-white/90",
                 )}
               >
                 <span className="relative flex h-1.5 w-1.5">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
                   <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 </span>
-                Active: {selected.name}
+                Active: {activeModelName}
               </span>
             </div>
-            <p className="mt-0.5 text-xs text-white/90">
-              See which provider each model uses and which env keys your backend needs.
+            <p className="mt-0.5 text-xs leading-relaxed text-white/85">
+              <span className="font-medium text-white/95">
+                {activeModelName}
+              </span>{" "}
+              ({activeProvider}) is sent on each question. With free-tier or
+              low-quota keys, that exact model may not always run—the backend can
+              fall back to another configured model so chat keeps working. Your
+              picker stays saved; open below for providers and env keys.
             </p>
           </div>
         </div>

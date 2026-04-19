@@ -21,7 +21,7 @@ import {
 
 export interface ModelSelectorProps {
   value: string;
-  onChange: (modelId: string) => void;
+  onChange: (model: AIModel) => void;
   disabled?: boolean;
 }
 
@@ -158,8 +158,8 @@ export function ModelSelector({
                   key={model.id}
                   type="button"
                   onClick={() => {
-                    onChange(model.id);
                     setIsOpen(false);
+                    if (model.id !== value) onChange(model);
                   }}
                   className={cn(
                     "w-full flex items-start gap-3 px-3 py-2.5 rounded-lg text-left",

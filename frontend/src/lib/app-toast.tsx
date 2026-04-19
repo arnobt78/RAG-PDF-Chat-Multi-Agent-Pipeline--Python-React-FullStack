@@ -12,7 +12,9 @@ import {
   Ban,
   BookOpen,
   Radio,
+  Cpu,
 } from "lucide-react";
+import type { AIModel } from "@/types";
 
 function wrapIcon(node: React.ReactNode) {
   return (
@@ -128,5 +130,12 @@ export const appToast = {
       description:
         "Each answer loads as one JSON response when the model finishes (no live tokens).",
       icon: wrapIcon(<Radio className="text-slate-400" />),
+    }),
+
+  modelSelected: (model: AIModel) =>
+    toast.message(`Using ${model.name}`, {
+      description: `${model.provider} · ${model.id}. Your choice is sent with each question. Free-tier or tight-quota keys sometimes mean the backend answers with a different configured model instead—that fallback is normal and keeps chat working.`,
+      icon: wrapIcon(<Cpu className="text-purple-400" />),
+      duration: 9000,
     }),
 };
