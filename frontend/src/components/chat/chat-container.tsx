@@ -323,19 +323,17 @@ export function ChatContainer() {
                       Stored only on this device
                     </h2>
                     <p className="text-xs leading-relaxed text-amber-100/95">
-                      Chat transcripts and preferences stay in this browser
-                      (IndexedDB and localStorage). Clearing site data or
-                      switching devices resets them; saved data may not always
-                      behave as expected.
-                    </p>
-                    <p className="mt-1.5 text-xs leading-relaxed text-amber-100/95">
-                      This site sends an anonymous session id so the API can keep
-                      a separate PDF search index per browser—other visitors'
-                      uploads are not mixed with yours. Those server indexes are
-                      capped and may be removed after about{" "}
-                      {SESSION_INDEX_RETENTION_DAYS} days without use or when the
-                      server runs cleanup on start; if answers no
-                      longer match your document, upload the PDF again.
+                      Chat history and UI preferences live only on this device
+                      (IndexedDB and localStorage): they do not sync elsewhere
+                      and disappear if you clear site data or use another
+                      browser or profile. The app sends an anonymous session id
+                      so the API can keep a separate PDF search index per
+                      browser—your uploads are not mixed with other visitors’
+                      documents.
+                      Those server indexes are capped and may be removed after
+                      about {SESSION_INDEX_RETENTION_DAYS} days without use or
+                      when the server runs cleanup; if answers stop matching your
+                      document, upload the PDF again.
                     </p>
                   </div>
                   <button
