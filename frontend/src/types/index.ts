@@ -99,6 +99,8 @@ export interface RuntimeSummary {
   rate_limit_ask_per_minute?: number;
   max_vector_sessions?: number;
   faiss_session_max_age_days?: number;
+  total_pdf_uploads?: number;
+  total_chat_completions?: number;
 }
 
 export interface APIError {

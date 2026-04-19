@@ -8,7 +8,7 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
 import { motion, useInView } from "framer-motion";
-import { Github, Linkedin, Twitter, ExternalLink } from "lucide-react";
+import { Github, Linkedin, Twitter } from "lucide-react";
 import {
   APP_CONFIG,
   NAV_LINKS,
@@ -131,17 +131,6 @@ export function Footer() {
                 </span>
               </li>
             ))}
-            <li>
-              <a
-                href={SOCIAL_LINKS.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-sm text-purple-400 transition-colors hover:text-purple-300"
-              >
-                View Source
-                <ExternalLink className="h-3 w-3" />
-              </a>
-            </li>
           </ul>
         </motion.div>
 

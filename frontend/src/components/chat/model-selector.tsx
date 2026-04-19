@@ -12,7 +12,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, Cpu, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AI_MODELS, type AIModel } from "@/types";
-import { API_BASE_URL, API_ENDPOINTS } from "@/lib/constants";
+import { API_ENDPOINTS, joinApiUrl } from "@/lib/constants";
 
 export interface ModelSelectorProps {
   value: string;
@@ -42,7 +42,7 @@ export function ModelSelector({
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}${API_ENDPOINTS.MODELS}`);
+        const res = await fetch(joinApiUrl(API_ENDPOINTS.MODELS));
         if (!res.ok) return;
         const data = await res.json();
         if (

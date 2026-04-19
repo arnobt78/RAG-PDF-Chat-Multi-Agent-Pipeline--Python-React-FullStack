@@ -25,7 +25,17 @@ export function resolveApiBaseUrl(): string {
 
   if (trimmed) {
     if (trimmed.startsWith("/")) {
-      return trimTrailingSlashes(trimmed) || "/";
+      const rel = trimTrailingSlashes(trimmed) || "/";
+      if (rel === "/") {
+        if (import.meta.env.DEV) {
+          return "http://localhost:8000";
+        }
+        console.warn(
+          "[rag-pdf-chat] VITE_API_BASE_URL=/ is not a valid API base; using http://localhost:8000.",
+        );
+        return "http://localhost:8000";
+      }
+      return rel;
     }
     return trimTrailingSlashes(trimmed);
   }
@@ -61,3 +71,13 @@ export function resolveSentryTunnelUrl(apiBaseUrl: string): string {
 
 export const API_BASE_URL = resolveApiBaseUrl();
 export const SENTRY_TUNNEL_URL = resolveSentryTunnelUrl(API_BASE_URL);
+
+/** Join API base (absolute URL or path like ``/api``) with an absolute path (must start with ``/``). */
+export function joinApiUrl(path: string): string {
+  const p = path.startsWith("/") ? path : `/${path}`;
+  const base = trimTrailingSlashes(API_BASE_URL);
+  if (!base || base === "/") {
+    return p;
+  }
+  return `${base}${p}`;
+}

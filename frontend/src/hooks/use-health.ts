@@ -8,7 +8,7 @@
  */
 
 import * as React from "react";
-import { API_BASE_URL } from "@/lib/constants";
+import { joinApiUrl } from "@/lib/constants";
 
 export type HealthStatus = "connected" | "disconnected" | "checking";
 
@@ -26,7 +26,9 @@ export function useHealth(): UseHealthReturn {
 
     const check = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/health`, { signal: AbortSignal.timeout(5000) });
+        const res = await fetch(joinApiUrl("/health"), {
+          signal: AbortSignal.timeout(5000),
+        });
         if (!cancelled) setStatus(res.ok ? "connected" : "disconnected");
       } catch {
         if (!cancelled) setStatus("disconnected");

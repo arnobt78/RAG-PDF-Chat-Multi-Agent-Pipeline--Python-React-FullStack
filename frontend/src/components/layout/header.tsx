@@ -26,7 +26,7 @@ import { Button } from "@/components/ui/button";
 import { NAV_LINKS, SOCIAL_LINKS } from "@/lib/constants";
 import { useHealth } from "@/hooks/use-health";
 import { ApiNavDropdown } from "@/components/layout/api-nav-dropdown";
-import { API_BASE_URL } from "@/lib/constants";
+import { joinApiUrl } from "@/lib/constants";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
@@ -185,7 +185,7 @@ export function Header() {
                 API
               </div>
               <a
-                href={`${API_BASE_URL}/docs`}
+                href={joinApiUrl("/docs")}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-white/90 hover:bg-white/10"

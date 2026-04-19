@@ -26,6 +26,7 @@ from ..agents.pipeline import AgentPipeline
 from ..models import AnswerResponse, QuestionRequest
 from ..services.ip_rate_limit import check_ask_rate_limit
 from ..services.llm_service import LLMService
+from ..services.usage_counters import increment_chat_completions
 from ..services.vector_store import VectorStoreService
 from .upload import get_vector_service
 
@@ -90,6 +91,8 @@ async def ask_question(
                 detail=result.error or "Failed to generate answer",
             )
 
+        increment_chat_completions()
+
         return AnswerResponse(
             answer=result.answer or "",
             model_used=result.model_used,
@@ -137,6 +140,8 @@ async def _stream_pipeline(
         if not result.success:
             yield sse("error", {"message": result.error or "Pipeline failed"})
             return
+
+        increment_chat_completions()
 
         # Stream the answer token-by-token for a typing effect
         answer = result.answer or ""

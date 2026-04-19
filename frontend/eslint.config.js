@@ -34,7 +34,8 @@ export default tseslint.config(
           allowExportNames: [
             "badgeVariants",
             "buttonVariants",
-            "glassCardVariants",
+            "glassCardShellVariants",
+            "glassCardInnerVariants",
             "useChatContext",
             "AI_MODELS",
             "TypingIndicator",

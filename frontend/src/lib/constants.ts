@@ -10,7 +10,7 @@
 /**
  * API base URL — from VITE_API_BASE_URL (see `src/lib/env.ts`)
  */
-export { API_BASE_URL } from "./env";
+export { API_BASE_URL, joinApiUrl } from "./env";
 
 /**
  * API Endpoints

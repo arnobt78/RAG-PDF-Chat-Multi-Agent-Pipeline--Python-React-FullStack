@@ -20,6 +20,7 @@ from ..models import StatusResponse, UploadResponse
 from ..services.ip_rate_limit import check_upload_rate_limit
 from ..services.pdf_processor import PDFProcessor
 from ..services.session_vector_registry import SessionVectorRegistry, is_valid_session_id
+from ..services.usage_counters import increment_pdf_uploads
 from ..services.vector_store import VectorStoreService
 
 router = APIRouter(tags=["Upload"])
@@ -110,6 +111,8 @@ async def upload_pdf(
 
         # Create vector store from chunks
         vector_service.create_from_documents(result.chunks)
+
+        increment_pdf_uploads()
 
         return UploadResponse(
             message=f"Successfully processed '{fname}'",

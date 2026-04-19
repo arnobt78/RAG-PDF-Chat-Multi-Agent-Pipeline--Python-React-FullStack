@@ -132,6 +132,8 @@ class RuntimeSummaryResponse(BaseModel):
     rate_limit_ask_per_minute: int = 0
     max_vector_sessions: int = 0
     faiss_session_max_age_days: int = 0
+    total_pdf_uploads: int = 0
+    total_chat_completions: int = 0
 
 
 class ErrorResponse(BaseModel):

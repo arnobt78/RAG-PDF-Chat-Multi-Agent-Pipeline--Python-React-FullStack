@@ -5,7 +5,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { BookOpen, ChevronDown, LineChart, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { API_BASE_URL } from "@/lib/constants";
+import { joinApiUrl } from "@/lib/constants";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,7 @@ import {
 
 export function ApiNavDropdown({ className }: { className?: string }) {
   const location = useLocation();
-  const docsUrl = `${API_BASE_URL}/docs`;
+  const docsUrl = joinApiUrl("/docs");
   const onApiStatus = location.pathname === "/api-status";
 
   return (

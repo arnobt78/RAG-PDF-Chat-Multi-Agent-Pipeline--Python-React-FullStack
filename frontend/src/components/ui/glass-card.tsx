@@ -21,19 +21,34 @@ import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
-// Card variant styles
-const glassCardVariants = cva(
-  // Base glassmorphism styles
-  "relative bg-transparent backdrop-blur-[2px] border border-white/10 overflow-hidden",
+// Outer shell: shadow and border must not sit on the same layer as overflow-hidden
+// (that clips box-shadow). Inner layer keeps blur + rounded clip.
+const glassCardShellVariants = cva("relative border border-white/10", {
+  variants: {
+    variant: {
+      default: "shadow-glass",
+      hover:
+        "shadow-glass transition-all duration-300 hover:border-white/20 hover:shadow-glass-lg hover:scale-[1.02]",
+      glow: "shadow-glow animate-pulse-glow",
+      outline: "bg-transparent border-2",
+    },
+    radius: {
+      default: "rounded-[20px]",
+      sm: "rounded-xl",
+      lg: "rounded-[28px]",
+      full: "rounded-full",
+    },
+  },
+  defaultVariants: {
+    variant: "default",
+    radius: "default",
+  },
+});
+
+const glassCardInnerVariants = cva(
+  "h-full min-h-0 w-full bg-transparent backdrop-blur-[2px] overflow-hidden",
   {
     variants: {
-      variant: {
-        default: "shadow-glass",
-        hover:
-          "shadow-glass transition-all duration-300 hover:border-white/20 hover:shadow-glass-lg hover:scale-[1.02]",
-        glow: "shadow-glow animate-pulse-glow",
-        outline: "bg-transparent border-2",
-      },
       radius: {
         default: "rounded-[20px]",
         sm: "rounded-xl",
@@ -48,7 +63,6 @@ const glassCardVariants = cva(
       },
     },
     defaultVariants: {
-      variant: "default",
       radius: "default",
       padding: "default",
     },
@@ -58,15 +72,20 @@ const glassCardVariants = cva(
 export interface GlassCardProps
   extends
     React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof glassCardVariants> {}
+    VariantProps<typeof glassCardShellVariants>,
+    VariantProps<typeof glassCardInnerVariants> {}
 
 const GlassCard = React.forwardRef<HTMLDivElement, GlassCardProps>(
-  ({ className, variant, radius, padding, ...props }, ref) => (
+  ({ className, variant, radius, padding, children, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn(glassCardVariants({ variant, radius, padding }), className)}
+      className={cn(glassCardShellVariants({ variant, radius }), className)}
       {...props}
-    />
+    >
+      <div className={glassCardInnerVariants({ radius, padding })}>
+        {children}
+      </div>
+    </div>
   ),
 );
 GlassCard.displayName = "GlassCard";
@@ -148,5 +167,6 @@ export {
   GlassCardDescription,
   GlassCardContent,
   GlassCardFooter,
-  glassCardVariants,
+  glassCardShellVariants,
+  glassCardInnerVariants,
 };

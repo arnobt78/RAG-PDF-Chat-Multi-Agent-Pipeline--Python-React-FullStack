@@ -16,6 +16,7 @@ from ..config import (
     provider_has_credentials,
 )
 from ..models.schemas import RuntimeProviderRow, RuntimeSummaryResponse
+from ..services.usage_counters import read_counters
 
 router = APIRouter(tags=["API"])
 
@@ -57,6 +58,7 @@ def runtime_summary() -> RuntimeSummaryResponse:
     if not any(r.llm_ready for r in rows):
         overall = "error"
     llm_ready_n = sum(1 for r in rows if r.llm_ready)
+    total_pdf, total_chats = read_counters()
     return RuntimeSummaryResponse(
         status=overall,
         providers=len(rows),
@@ -70,4 +72,6 @@ def runtime_summary() -> RuntimeSummaryResponse:
         rate_limit_ask_per_minute=settings.rate_limit_ask_per_minute,
         max_vector_sessions=settings.max_vector_sessions,
         faiss_session_max_age_days=settings.faiss_session_max_age_days,
+        total_pdf_uploads=total_pdf,
+        total_chat_completions=total_chats,
     )

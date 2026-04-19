@@ -10,7 +10,7 @@
  *   3. ``api`` object groups REST calls used by hooks and components.
  */
 
-import { API_BASE_URL, API_ENDPOINTS } from "./constants";
+import { API_ENDPOINTS, joinApiUrl } from "./constants";
 import { getChatApiSessionId, isValidChatApiSessionId } from "./chat-session";
 import type {
   AskQuestionRequest,
@@ -121,7 +121,7 @@ export function streamQuestion(
   (async () => {
     try {
       const response = await fetch(
-        `${API_BASE_URL}${API_ENDPOINTS.ASK_STREAM}`,
+        joinApiUrl(API_ENDPOINTS.ASK_STREAM),
         withSessionHeaders({
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -194,13 +194,13 @@ export function streamQuestion(
 export const api = {
   async checkHealth(): Promise<StatusResponse> {
     return fetchWithErrorHandling<StatusResponse>(
-      `${API_BASE_URL}${API_ENDPOINTS.HEALTH}`,
+      joinApiUrl(API_ENDPOINTS.HEALTH),
     );
   },
 
   async getStatus(): Promise<StatusResponse> {
     return fetchWithErrorHandling<StatusResponse>(
-      `${API_BASE_URL}${API_ENDPOINTS.STATUS}`,
+      joinApiUrl(API_ENDPOINTS.STATUS),
     );
   },
 
@@ -209,7 +209,7 @@ export const api = {
     formData.append("file", file);
 
     return fetchWithErrorHandling<UploadResponse>(
-      `${API_BASE_URL}${API_ENDPOINTS.UPLOAD}`,
+      joinApiUrl(API_ENDPOINTS.UPLOAD),
       {
         method: "POST",
         body: formData,
@@ -230,7 +230,7 @@ export const api = {
     if (includeSources) requestBody.include_sources = true;
 
     return fetchWithErrorHandling<AskQuestionResponse>(
-      `${API_BASE_URL}${API_ENDPOINTS.ASK}`,
+      joinApiUrl(API_ENDPOINTS.ASK),
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -244,10 +244,9 @@ export const api = {
 export async function fetchRuntimeSummary(
   options?: { signal?: AbortSignal },
 ): Promise<RuntimeSummary> {
-  const response = await fetch(
-    `${API_BASE_URL}${API_ENDPOINTS.RUNTIME_SUMMARY}`,
-    { signal: options?.signal },
-  );
+  const response = await fetch(joinApiUrl(API_ENDPOINTS.RUNTIME_SUMMARY), {
+    signal: options?.signal,
+  });
   if (!response.ok) {
     const text = await response.text().catch(() => "");
     throw new ApiError(text || `HTTP ${response.status}`, response.status);
