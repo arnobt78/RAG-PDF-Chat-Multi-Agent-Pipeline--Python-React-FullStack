@@ -7,14 +7,17 @@ import { motion } from "framer-motion";
 import {
   Activity,
   BookOpen,
+  Boxes,
   Cpu,
   ExternalLink,
   FileJson2,
   FileText,
+  KeyRound,
   MessageSquare,
   Network,
   RefreshCw,
   Settings2,
+  ShieldCheck,
 } from "lucide-react";
 import { PageWrapper, SectionWrapper } from "@/components/layout/page-wrapper";
 import { GlassCard, GlassCardContent } from "@/components/ui/glass-card";
@@ -290,8 +293,12 @@ export function ApiStatusPage() {
                     </motion.p>
                     <motion.p
                       variants={apiStairItem}
-                      className="text-sm text-white/80"
+                      className="text-sm text-white/80 flex items-center gap-2"
                     >
+                      <ShieldCheck
+                        className="h-4 w-4 shrink-0 text-emerald-300"
+                        aria-hidden
+                      />
                       Core provider check
                     </motion.p>
                     <motion.div
@@ -322,8 +329,12 @@ export function ApiStatusPage() {
                     </motion.p>
                     <motion.p
                       variants={apiStairItem}
-                      className="text-sm text-white/80"
+                      className="text-sm text-white/80 flex items-center gap-2"
                     >
+                      <Boxes
+                        className="h-4 w-4 shrink-0 text-cyan-300"
+                        aria-hidden
+                      />
                       Registered engines
                     </motion.p>
                     <motion.div
@@ -354,8 +365,12 @@ export function ApiStatusPage() {
                     </motion.p>
                     <motion.p
                       variants={apiStairItem}
-                      className="text-sm text-white/80"
+                      className="text-sm text-white/80 flex items-center gap-2"
                     >
+                      <KeyRound
+                        className="h-4 w-4 shrink-0 text-amber-300"
+                        aria-hidden
+                      />
                       Usable with keys or partial stack
                     </motion.p>
                     <motion.div
