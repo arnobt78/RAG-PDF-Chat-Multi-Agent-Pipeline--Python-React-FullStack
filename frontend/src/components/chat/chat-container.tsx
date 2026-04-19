@@ -62,6 +62,11 @@ import {
 } from "@/lib/storage";
 import { appToast } from "@/lib/app-toast";
 import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { SESSION_INDEX_RETENTION_DAYS } from "@/lib/session-retention";
 
 export function ChatContainer() {
@@ -282,53 +287,57 @@ export function ChatContainer() {
       </ScrollReveal>
 
       {/* Device-local data banner */}
-      <AnimatePresence>
-        {showBanner && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mb-4"
-          >
-            <div className="relative overflow-hidden rounded-2xl border border-amber-400/25 bg-gradient-to-r from-amber-500/15 via-amber-500/8 to-transparent px-4 py-3 shadow-[0_0_24px_-8px_rgba(251,191,36,0.35)]">
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-amber-300/80 to-amber-500/40" />
-              <div className="flex items-start gap-3 pl-2">
-                <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/15">
-                  <HardDrive className="h-4 w-4 text-amber-300" />
+      <ScrollReveal direction="down" once={false} className="mb-4">
+        <AnimatePresence initial={false}>
+          {showBanner && (
+            <motion.div
+              key="local-data-banner"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="relative overflow-hidden rounded-2xl border border-amber-400/25 bg-gradient-to-r from-amber-500/15 via-amber-500/8 to-transparent px-4 py-3 shadow-[0_0_24px_-8px_rgba(251,191,36,0.35)]">
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-1 bg-gradient-to-b from-amber-300/80 to-amber-500/40" />
+                <div className="flex items-start gap-3 pl-2">
+                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-amber-400/30 bg-amber-500/15">
+                    <HardDrive className="h-4 w-4 text-amber-300" />
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <h2 className="text-sm font-semibold tracking-tight text-amber-50">
+                      Stored only on this device
+                    </h2>
+                    <p className="text-xs leading-relaxed text-amber-100/95">
+                      Chat transcripts and preferences stay in this browser
+                      (IndexedDB and localStorage). Clearing site data or
+                      switching devices resets them; saved data may not always
+                      behave as expected.
+                    </p>
+                    <p className="mt-1.5 text-xs leading-relaxed text-amber-100/95">
+                      This site sends an anonymous session id so the API can keep
+                      a separate PDF search index per browser—other visitors'
+                      uploads are not mixed with yours. Those server indexes are
+                      capped and may be removed after about{" "}
+                      {SESSION_INDEX_RETENTION_DAYS} days without use or when the
+                      server runs cleanup on start; if answers no
+                      longer match your document, upload the PDF again.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={dismissBanner}
+                    className="rounded-lg p-1 text-amber-300/90 transition-colors hover:bg-white/10 hover:text-amber-100 shrink-0"
+                    aria-label="Dismiss notice"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
                 </div>
-                <div className="min-w-0 flex-1 space-y-1">
-                  <h2 className="text-sm font-semibold tracking-tight text-amber-50">
-                    Stored only on this device
-                  </h2>
-                  <p className="text-xs leading-relaxed text-amber-100/95">
-                    Chat transcripts and preferences stay in this browser
-                    (IndexedDB and localStorage). Clearing site data or
-                    switching devices resets them; saved data may not always
-                    behave as expected.
-                  </p>
-                  <p className="mt-1.5 text-xs leading-relaxed text-amber-100/95">
-                    This site sends an anonymous session id so the API can keep
-                    a separate PDF search index per browser—other visitors'
-                    uploads are not mixed with yours. Those server indexes are
-                    capped and may be removed after about{" "}
-                    {SESSION_INDEX_RETENTION_DAYS} days without use or when the
-                    server runs cleanup on start; if answers no
-                    longer match your document, upload the PDF again.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={dismissBanner}
-                  className="rounded-lg p-1 text-amber-300/90 transition-colors hover:bg-white/10 hover:text-amber-100 shrink-0"
-                  aria-label="Dismiss notice"
-                >
-                  <X className="h-4 w-4" />
-                </button>
               </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </ScrollReveal>
 
       {/* Header with status */}
       <ScrollReveal direction="down" once={false} className="mb-6">
@@ -353,56 +362,117 @@ export function ChatContainer() {
                 PDF Ready
               </Badge>
             )}
-            <Badge variant="info" icon={<Zap className="w-3 h-3" />}>
-              7-Agent Pipeline
-            </Badge>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge
+                  variant="info"
+                  icon={<Zap className="w-3 h-3" aria-hidden />}
+                  className="cursor-default"
+                  aria-label="About the 7-agent RAG pipeline"
+                >
+                  7-Agent Pipeline
+                </Badge>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="start">
+                <p className="font-medium text-white">7-Agent Pipeline</p>
+                <p className="mt-1 text-[11px] text-white/80 leading-snug">
+                  This app runs a multi-step RAG flow on the server: PDF text is
+                  chunked and embedded, then specialized agents handle routing,
+                  retrieval, and answer generation so replies stay grounded in
+                  your document.
+                </p>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Previous sessions */}
-            <button
-              type="button"
-              onClick={() => setShowSessions((p) => !p)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border bg-white/5 border-white/10 text-white/90 hover:bg-white/10 transition-all"
-              title="View saved chat sessions"
-            >
-              <History className="w-3 h-3" />
-              <span className="hidden sm:inline">Sessions</span>
-              <span
-                className="min-w-[1.25rem] rounded-md bg-white/15 px-1 py-0.5 text-center text-[10px] font-semibold tabular-nums text-white/95"
-                aria-label={`${sessions.length} saved sessions`}
-              >
-                {sessions.length}
-              </span>
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => setShowSessions((p) => !p)}
+                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border bg-white/5 border-white/10 text-white/90 hover:bg-white/10 transition-all"
+                  aria-label={`Open saved chat sessions, ${sessions.length} saved`}
+                >
+                  <History className="w-3 h-3" aria-hidden />
+                  <span className="hidden sm:inline">Sessions</span>
+                  <span className="min-w-[1.25rem] rounded-md bg-white/15 px-1 py-0.5 text-center text-[10px] font-semibold tabular-nums text-white/95">
+                    {sessions.length}
+                  </span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="center">
+                <p className="font-medium text-white">Sessions</p>
+                <p className="mt-1 text-[11px] text-white/80 leading-snug">
+                  Open a panel of chat histories saved in your browser
+                  (IndexedDB) for this site. The number is how many threads are
+                  stored on this device—they are not synced to other browsers.
+                </p>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Sources toggle */}
-            <button
-              type="button"
-              onClick={() => setIncludeSources((p) => !p)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border transition-all ${
-                includeSources
-                  ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
-                  : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10"
-              }`}
-              title="Include source citations in answers"
-            >
-              <BookOpen className="w-3 h-3" />
-              <span className="hidden sm:inline">Sources</span>
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !includeSources;
+                    setIncludeSources(next);
+                    if (next) appToast.sourcesEnabled();
+                    else appToast.sourcesDisabled();
+                  }}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border transition-all ${
+                    includeSources
+                      ? "bg-purple-500/20 border-purple-500/40 text-purple-300"
+                      : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10"
+                  }`}
+                  aria-label="Toggle source citations in answers"
+                >
+                  <BookOpen className="w-3 h-3" aria-hidden />
+                  <span className="hidden sm:inline">Sources</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="center">
+                <p className="font-medium text-white">Sources</p>
+                <p className="mt-1 text-[11px] text-white/80 leading-snug">
+                  When on, the app asks the backend to attach citation snippets
+                  from your PDF to each reply (when the model returns them).
+                  Turn off for shorter responses.
+                </p>
+              </TooltipContent>
+            </Tooltip>
 
             {/* Streaming toggle */}
-            <button
-              type="button"
-              onClick={() => setUseStreaming((p) => !p)}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border transition-all ${
-                useStreaming
-                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
-                  : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10"
-              }`}
-              title="Toggle streaming mode"
-            >
-              <Radio className="w-3 h-3" />
-              <span className="hidden sm:inline">Stream</span>
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = !useStreaming;
+                    setUseStreaming(next);
+                    if (next) appToast.streamingEnabled();
+                    else appToast.streamingDisabled();
+                  }}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs border transition-all ${
+                    useStreaming
+                      ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                      : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10"
+                  }`}
+                  aria-label="Toggle answer streaming"
+                >
+                  <Radio className="w-3 h-3" aria-hidden />
+                  <span className="hidden sm:inline">Stream</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" align="center">
+                <p className="font-medium text-white">Stream</p>
+                <p className="mt-1 text-[11px] text-white/80 leading-snug">
+                  When on, answers stream over the network token-by-token (SSE)
+                  for a live typing effect. When off, you get one JSON response
+                  after the model finishes.
+                </p>
+              </TooltipContent>
+            </Tooltip>
 
             <ModelSelector
               value={selectedModel}
@@ -534,7 +604,7 @@ export function ChatContainer() {
       </AnimatePresence>
 
       {/* PDF Upload Section */}
-      <div className="mb-6 w-full min-w-0">
+      <ScrollReveal direction="down" once={false} delay={0.06} className="mb-6 w-full min-w-0">
         <PDFUpload
           onUpload={uploadPDF}
           isUploading={isUploading}
@@ -544,10 +614,10 @@ export function ChatContainer() {
           error={uploadError}
           onReset={handleResetUpload}
         />
-      </div>
+      </ScrollReveal>
 
       {/* Chat Messages Area */}
-      <div className="w-full min-w-0">
+      <ScrollReveal direction="down" once={false} delay={0.1} className="w-full min-w-0">
         <GlassCard
           variant="default"
           padding="none"
@@ -698,7 +768,7 @@ export function ChatContainer() {
             )}
           </div>
         </GlassCard>
-      </div>
+      </ScrollReveal>
 
       <ConfirmAlertDialog
         open={clearAllOpen}

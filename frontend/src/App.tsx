@@ -21,6 +21,7 @@ import { ChatPage } from "@/pages/chat";
 import { AboutPage } from "@/pages/about";
 import { ApiStatusPage } from "@/pages/api-status";
 import { Toaster } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 function AppFallback() {
   return (
@@ -46,19 +47,21 @@ function App() {
   return (
     <Sentry.ErrorBoundary fallback={<AppFallback />} showDialog>
       <BrowserRouter>
-        <Toaster />
-        <ScrollToTop />
-        <ChatProvider>
-          <AnimatePresence mode="wait">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/chat" element={<ChatPage />} />
-              <Route path="/about" element={<AboutPage />} />
-              <Route path="/api-status" element={<ApiStatusPage />} />
-              <Route path="*" element={<HomePage />} />
-            </Routes>
-          </AnimatePresence>
-        </ChatProvider>
+        <TooltipProvider delayDuration={350}>
+          <Toaster />
+          <ScrollToTop />
+          <ChatProvider>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/chat" element={<ChatPage />} />
+                <Route path="/about" element={<AboutPage />} />
+                <Route path="/api-status" element={<ApiStatusPage />} />
+                <Route path="*" element={<HomePage />} />
+              </Routes>
+            </AnimatePresence>
+          </ChatProvider>
+        </TooltipProvider>
       </BrowserRouter>
     </Sentry.ErrorBoundary>
   );

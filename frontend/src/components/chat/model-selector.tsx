@@ -13,6 +13,11 @@ import { ChevronDown, Cpu, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AI_MODELS, type AIModel } from "@/types";
 import { API_ENDPOINTS, joinApiUrl } from "@/lib/constants";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export interface ModelSelectorProps {
   value: string;
@@ -88,28 +93,55 @@ export function ModelSelector({
 
   return (
     <div ref={ref} className="relative">
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={() => setIsOpen((prev) => !prev)}
-        className={cn(
-          "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm",
-          "bg-white/5 border border-white/10 text-white/90",
-          "hover:bg-white/10 hover:border-white/20 transition-all",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
-        )}
-      >
-        <Cpu className="w-3.5 h-3.5 text-purple-400" />
-        <span className="hidden sm:inline max-w-[120px] truncate">
-          {selected?.name ?? "Select model"}
-        </span>
-        <ChevronDown
-          className={cn(
-            "w-3.5 h-3.5 transition-transform",
-            isOpen && "rotate-180",
-          )}
-        />
-      </button>
+      <Tooltip>
+        {/* Span trigger: disabled <button> does not receive pointer events in
+            some browsers; the wrapper still gets hover so the tooltip works. */}
+        <TooltipTrigger asChild>
+          <span
+            className={cn(
+              "inline-flex rounded-xl align-middle",
+              disabled && "cursor-not-allowed",
+            )}
+          >
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => setIsOpen((prev) => !prev)}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-xl text-sm",
+                "bg-white/5 border border-white/10 text-white/90",
+                "hover:bg-white/10 hover:border-white/20 transition-all",
+                "disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed",
+              )}
+              aria-label={`Chat model: ${selected?.name ?? "Select model"}. Open menu to change.`}
+            >
+              <Cpu className="w-3.5 h-3.5 text-purple-400" aria-hidden />
+              <span className="hidden sm:inline max-w-[120px] truncate">
+                {selected?.name ?? "Select model"}
+              </span>
+              <ChevronDown
+                className={cn(
+                  "w-3.5 h-3.5 transition-transform shrink-0",
+                  isOpen && "rotate-180",
+                )}
+                aria-hidden
+              />
+            </button>
+          </span>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" align="end" className="max-w-[18rem]">
+          <p className="font-medium text-white">Chat model</p>
+          <p className="mt-1 text-[11px] text-white/80 leading-snug">
+            Choose which LLM generates answers for this thread. The menu
+            prefers models returned by the backend; offline, a static list is
+            used. Active:{" "}
+            <span className="font-medium text-white/95">
+              {selected?.name ?? "—"}
+            </span>
+            .
+          </p>
+        </TooltipContent>
+      </Tooltip>
 
       <AnimatePresence>
         {isOpen && (

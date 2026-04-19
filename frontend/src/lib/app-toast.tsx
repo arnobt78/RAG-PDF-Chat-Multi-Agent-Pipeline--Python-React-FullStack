@@ -10,6 +10,8 @@ import {
   RotateCcw,
   History,
   Ban,
+  BookOpen,
+  Radio,
 } from "lucide-react";
 
 function wrapIcon(node: React.ReactNode) {
@@ -99,5 +101,32 @@ export const appToast = {
     toast.message("Upload reset", {
       description: "Pick another PDF to start a fresh session.",
       icon: wrapIcon(<RotateCcw className="text-amber-400" />),
+    }),
+
+  sourcesEnabled: () =>
+    toast.success("Sources on", {
+      description:
+        "When the model returns them, answers include short source citations from your PDF.",
+      icon: wrapIcon(<BookOpen className="text-purple-400" />),
+    }),
+
+  sourcesDisabled: () =>
+    toast.message("Sources off", {
+      description: "Replies stay text-only (slightly smaller payloads).",
+      icon: wrapIcon(<BookOpen className="text-slate-400" />),
+    }),
+
+  streamingEnabled: () =>
+    toast.success("Streaming on", {
+      description:
+        "Answers stream in over SSE so tokens appear progressively (live typing).",
+      icon: wrapIcon(<Radio className="text-emerald-400" />),
+    }),
+
+  streamingDisabled: () =>
+    toast.message("Streaming off", {
+      description:
+        "Each answer loads as one JSON response when the model finishes (no live tokens).",
+      icon: wrapIcon(<Radio className="text-slate-400" />),
     }),
 };
