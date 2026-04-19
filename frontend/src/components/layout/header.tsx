@@ -111,7 +111,7 @@ export function Header() {
                   ? "Online"
                   : status === "disconnected"
                     ? "Offline"
-                    : "..."}
+                    : "Loading"}
               </span>
             </div>
 

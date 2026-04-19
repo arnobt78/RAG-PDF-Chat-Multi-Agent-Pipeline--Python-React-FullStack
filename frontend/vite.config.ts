@@ -26,11 +26,14 @@ export default defineConfig(({ mode }) => {
     },
     server: {
       port: 5173,
+      // Use ``/api/`` (slash after ``api``) so the SPA route ``/api-status`` is not
+      // mistaken for ``/api`` + rewrite → ``/-status`` on the backend.
       proxy: {
-        "/api": {
+        "/api/": {
           target: proxyTarget,
           changeOrigin: true,
-          rewrite: (p) => p.replace(/^\/api/, ""),
+          rewrite: (p) =>
+            p.startsWith("/api/oversight") ? p : p.replace(/^\/api\//, "/"),
         },
       },
     },
