@@ -779,7 +779,7 @@ export function ChatContainer() {
             className={cn(
               "overscroll-contain p-4 sm:p-6 space-y-4",
               chatHistory.length === 0 && !streamingAnswer
-                ? "max-h-[16rem] overflow-y-hidden"
+                ? "overflow-y-hidden"
                 : "max-h-[min(28rem,58dvh)] overflow-y-auto",
             )}
           >
