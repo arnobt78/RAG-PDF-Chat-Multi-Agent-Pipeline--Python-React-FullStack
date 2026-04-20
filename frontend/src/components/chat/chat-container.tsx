@@ -777,10 +777,10 @@ export function ChatContainer() {
             ref={messagesScrollRef}
             onScroll={handleMessagesScroll}
             className={cn(
-              "overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4",
+              "overscroll-contain p-4 sm:p-6 space-y-4",
               chatHistory.length === 0 && !streamingAnswer
-                ? "max-h-[16rem]"
-                : "max-h-[min(28rem,58dvh)]",
+                ? "max-h-[16rem] overflow-y-hidden"
+                : "max-h-[min(28rem,58dvh)] overflow-y-auto",
             )}
           >
             <AnimatePresence mode="popLayout">
