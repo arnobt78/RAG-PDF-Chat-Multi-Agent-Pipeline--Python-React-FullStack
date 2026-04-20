@@ -108,6 +108,8 @@ export function ChatContainer() {
   const prevUploading = React.useRef(false);
   const prevChatLoading = React.useRef(false);
   const chatLenWhenRequestStarted = React.useRef(0);
+  const hadHistoryBeforeUpload = React.useRef(false);
+  const skipNextAutoRestore = React.useRef(false);
 
   const {
     isUploading,
@@ -155,6 +157,10 @@ export function ChatContainer() {
 
   // -- Restore chat history when a PDF is loaded and has a saved session --
   React.useEffect(() => {
+    if (skipNextAutoRestore.current) {
+      skipNextAutoRestore.current = false;
+      return;
+    }
     if (fileName && isLoaded && chatHistory.length === 0) {
       loadChatSession(fileName).then((saved) => {
         if (saved.length > 0) setChatHistory(saved);
@@ -171,17 +177,34 @@ export function ChatContainer() {
   React.useEffect(() => {
     const was = prevUploading.current;
     if (isUploading && !was) {
+      hadHistoryBeforeUpload.current = chatHistory.length > 0;
       appToast.pdfUploading();
     }
     if (!isUploading && was) {
       if (uploadError) {
         appToast.pdfError(uploadError);
       } else if (isLoaded && fileName) {
-        appToast.pdfReady(fileName, chunksCreated ?? undefined);
+        if (hadHistoryBeforeUpload.current) {
+          clearHistory();
+          skipNextAutoRestore.current = true;
+        }
+        appToast.pdfReady(
+          fileName,
+          chunksCreated ?? undefined,
+          hadHistoryBeforeUpload.current,
+        );
       }
     }
     prevUploading.current = isUploading;
-  }, [isUploading, uploadError, isLoaded, fileName, chunksCreated]);
+  }, [
+    isUploading,
+    uploadError,
+    isLoaded,
+    fileName,
+    chunksCreated,
+    chatHistory.length,
+    clearHistory,
+  ]);
 
   React.useEffect(() => {
     const was = prevChatLoading.current;
@@ -296,9 +319,10 @@ export function ChatContainer() {
   }, [clearHistory]);
 
   const handleResetUpload = React.useCallback(() => {
+    clearHistory();
     resetUpload();
     appToast.uploadReset();
-  }, [resetUpload]);
+  }, [clearHistory, resetUpload]);
 
   return (
     <div className="flex w-full min-w-0 flex-col overflow-x-visible">

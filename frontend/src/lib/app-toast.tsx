@@ -32,13 +32,19 @@ export const appToast = {
       icon: wrapIcon(<FileUp className="text-sky-400" />),
     }),
 
-  pdfReady: (fileName: string, chunks?: number) =>
+  pdfReady: (fileName: string, chunks?: number, freshChat?: boolean) =>
     toast.success("PDF ready", {
       id: "pdf-upload",
       description:
-        chunks != null
-          ? `${fileName} · ${chunks} chunks indexed`
-          : `${fileName} is ready to chat about.`,
+        freshChat
+          ? `${
+              chunks != null
+                ? `${fileName} · ${chunks} chunks indexed`
+                : `${fileName} is ready to chat about.`
+            } Messages were removed from this view (PDF stays loaded). Previous messages are still saved in Sessions.`
+          : chunks != null
+            ? `${fileName} · ${chunks} chunks indexed`
+            : `${fileName} is ready to chat about.`,
       icon: wrapIcon(<CheckCircle2 className="text-emerald-400" />),
     }),
 
@@ -101,7 +107,8 @@ export const appToast = {
 
   uploadReset: () =>
     toast.message("Upload reset", {
-      description: "Pick another PDF to start a fresh session.",
+      description:
+        "Messages were removed from this view (PDF stays loaded). Previous messages are still saved in Sessions.",
       icon: wrapIcon(<RotateCcw className="text-amber-400" />),
     }),
 
