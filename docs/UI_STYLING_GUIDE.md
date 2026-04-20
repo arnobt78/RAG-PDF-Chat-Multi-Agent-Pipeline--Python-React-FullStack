@@ -2,6 +2,14 @@
 
 This document provides a comprehensive guide to the styling patterns, color schemes, gradients, shadows, and design system used throughout the application. Use this guide to maintain consistency when adding new components or modifying existing ones.
 
+## This Project (RAG PDF Chat) — styling scope
+
+- **Frontend stack:** React + TypeScript + Tailwind + Framer Motion
+- **Primary UI surfaces:** landing sections, chat workspace, API status dashboard, sticky header/navigation
+- **Core motifs in this repo:** glassmorphism cards, gradient badges, subtle neon shadows, compact toolbars, and dark high-contrast text treatment
+- **Key references:** `frontend/src/styles/globals.css`, `frontend/src/components/ui/*`, `frontend/src/components/chat/*`, `frontend/src/pages/api-status.tsx`
+- **Rule of thumb:** preserve current visual language (radius, opacity scale, border intensity, shadow color matching) when adding new components
+
 ---
 
 ## Table of Contents
@@ -795,6 +803,8 @@ hover:border-sky-300/50
 6. **Semantic colors** - Use color variants to convey meaning (sky=info, emerald=success, amber=warning, rose=error)
 7. **Transition effects** - Add `transition` or `transition-all` to interactive elements
 8. **Border radius consistency** - Use `rounded-[28px]` for cards, `rounded-[20px]` for list items, `rounded-md` for buttons/inputs
+9. **Chat UX consistency** - Keep action toasts, tooltip copy tone, and session-state messaging consistent with `frontend/src/lib/app-toast.tsx`
+10. **Do not regress accessibility** - Preserve visible focus states, semantic labels, and sufficient contrast on dark backgrounds
 
 ---
 

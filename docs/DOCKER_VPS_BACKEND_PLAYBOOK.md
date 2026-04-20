@@ -2,6 +2,16 @@
 
 Copy this checklist into new Python (or similar) backend repos you deploy with **Dockerfile + Coolify**. It maps common “small image” practices to **real** backend constraints (Python wheels, system libs, secrets).
 
+## This Project (RAG PDF Chat) — applied profile
+
+- **Repo layout:** monorepo (`frontend/` + `backend/`), Docker target is `backend/`
+- **Runtime stack:** FastAPI + Uvicorn + LangChain + FAISS + sentence-transformers
+- **Image baseline:** `python:3.12-slim`
+- **Production dependency source:** `backend/requirements.txt` only (no `requirements-dev.txt` in runtime image)
+- **Container port contract:** process listens on `PORT=3000`; Coolify/Traefik must route to `3000`
+- **Sessioned RAG behavior:** browser sends `X-Chat-Session-Id`; backend stores per-session FAISS indexes
+- **Disk housekeeping:** periodic prune is fine on VPS; avoid aggressive prune during active deploy windows
+
 **Related docs in this repo:** [COOLIFY_PUBLIC_BACKEND_GUIDE.md](./COOLIFY_PUBLIC_BACKEND_GUIDE.md) (DNS + Traefik/Caddy + TLS, placeholders only), [DEPLOYMENT.md](./DEPLOYMENT.md) (blog-to-audio layout). Personal VPS runbooks can stay **local** and **gitignored** under `docs/` if you prefer not to publish IPs or internal names.
 
 ---
@@ -171,6 +181,10 @@ Do **not** run `prune -a` during active deploys if you want zero extra pull time
 ## 7. Blog-to-audio–specific note
 
 This API installs **`ffmpeg`** for **pydub** merge paths. Removing `ffmpeg` shrinks the image but **breaks** that behavior. Keep it unless you remove pydub usage.
+
+## 7b. RAG PDF Chat note
+
+This backend does **not** require pydub/ffmpeg for the core PDF-chat path. Keep runtime image focused on Python + vector/LLM dependencies and avoid unrelated media packages unless you intentionally add that feature.
 
 ---
 

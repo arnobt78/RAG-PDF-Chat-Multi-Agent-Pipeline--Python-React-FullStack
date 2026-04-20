@@ -1,85 +1,280 @@
-# Parallax Scroll Reveal System
+# Universal Parallax Scroll Reveal System
 
-This document captures the reusable animation system pattern adopted from the `pets-healthcare-ui` project and adapted for this React + Framer Motion codebase.
+Reusable, framework-friendly motion guide for modern UIs.
+Use this file as a copy-paste reference in any React + Framer Motion project.
 
-## Goals
+---
 
-- Make section content reveal in a soft, repeatable way on viewport entry.
-- Reveal elements one-by-one (badges, lines, cards, pills, list rows).
-- Keep motion smooth and readable (no jumpy transforms).
-- Support "appear + disappear" by re-triggering when content leaves and re-enters the viewport.
-- Layer subtle parallax in hero content without affecting layout stability.
+## What This System Covers
 
-## Core Building Blocks
+- Fade/translate reveals from left, right, and bottom.
+- Soft appear/disappear on viewport enter/leave.
+- One-by-one stagger reveal for cards/lists.
+- Stair-step line reveal for headings/text.
+- Subtle parallax tied to scroll progress.
+- Easy-to-tune motion tokens (`duration`, `delay`, `ease`, `distance`).
 
-### 1) `ScrollReveal` baseline
+---
 
-`frontend/src/components/ui/scroll-reveal.tsx`
+## Motion Principles
 
-- Hidden state: `opacity: 0`, slight translate offset (`28px`), slight scale (`0.985`).
-- Visible state: `opacity: 1`, `x/y: 0`, `scale: 1`.
-- Easing: cubic-bezier style `[0.22, 1, 0.36, 1]`.
-- Default behavior:
-  - `once = false` (reveal/disappear repeatedly on scroll).
-  - `margin = "0px 0px -8% 0px"` (similar to IO root margin behavior from pets project).
-  - `duration = 0.65`.
+1. Keep transforms small (`12px` to `36px`) for readable motion.
+2. Prefer `opacity + translate + tiny scale` over aggressive effects.
+3. Use stagger for hierarchy, not decoration.
+4. Keep parallax subtle and non-blocking.
+5. Respect reduced motion preferences.
 
-### 2) Per-item staggering
+---
 
-For repeated UI (cards, badges, bullets), use one of:
+## Recommended Tokens
 
-- Parent map delay strategy:
-  - `delay={index * 0.08}` or `index * 0.1`
-- Child line strategy:
-  - title first, then description with a tiny additional delay.
+| Token | Suggested Range | Typical Default |
+| --- | --- | --- |
+| `duration` | `0.35 - 0.75` | `0.55` |
+| `stagger` | `0.04 - 0.12` | `0.08` |
+| `distance` | `12 - 40` px | `24` px |
+| `easeOut` | smooth enter | `[0.22, 1, 0.36, 1]` |
+| `easeIn` | smooth exit | `[0.64, 0, 0.78, 0]` |
+| `viewportAmount` | `0.25 - 0.7` | `0.4` |
 
-This creates the one-by-one "stair" reveal effect.
+---
 
-### 3) Line-by-line text reveal
+## 1) Base Reveal Variants (Left / Right / Bottom / Appear)
 
-For hero and section titles:
+```tsx
+import { Variants } from "framer-motion";
 
-- Split copy into line `span`s.
-- Animate each span separately with slightly increasing delays.
+type Direction = "left" | "right" | "bottom" | "appear";
 
-This reproduces the "magazine staircase" style seen in the source design.
+export function revealVariants(
+  direction: Direction = "bottom",
+  distance = 24,
+): Variants {
+  const axis =
+    direction === "left"
+      ? { x: -distance, y: 0 }
+      : direction === "right"
+        ? { x: distance, y: 0 }
+        : direction === "bottom"
+          ? { x: 0, y: distance }
+          : { x: 0, y: 0 };
 
-### 4) Hero parallax layer
+  return {
+    hidden: {
+      opacity: 0,
+      ...axis,
+      scale: 0.985,
+      filter: "blur(4px)",
+    },
+    visible: {
+      opacity: 1,
+      x: 0,
+      y: 0,
+      scale: 1,
+      filter: "blur(0px)",
+      transition: {
+        duration: 0.55,
+        ease: [0.22, 1, 0.36, 1], // ease out
+      },
+    },
+    exit: {
+      opacity: 0,
+      ...axis,
+      scale: 0.99,
+      transition: {
+        duration: 0.28,
+        ease: [0.64, 0, 0.78, 0], // ease in
+      },
+    },
+  };
+}
+```
 
-Apply a subtle transform tied to section scroll progress:
+---
 
-- Use `useScroll({ target: sectionRef, offset: ["start start", "end start"] })`
-- Map progress to:
-  - `y: [0, 54]`
-  - `opacity: [1, 0.9]`
+## 2) Universal `ScrollReveal` Wrapper
 
-Parallax remains decorative and does not break section flow.
+```tsx
+import { motion } from "framer-motion";
+import { revealVariants } from "./revealVariants";
 
-## Recommended Motion Tokens
+export function ScrollReveal({
+  children,
+  direction = "bottom",
+  once = false,
+  delay = 0,
+}: {
+  children: React.ReactNode;
+  direction?: "left" | "right" | "bottom" | "appear";
+  once?: boolean;
+  delay?: number;
+}) {
+  return (
+    <motion.div
+      variants={revealVariants(direction, 24)}
+      initial="hidden"
+      whileInView="visible"
+      exit="exit"
+      viewport={{ once, amount: 0.4, margin: "0px 0px -10% 0px" }}
+      transition={{ delay }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+```
 
-- **Item delay step:** `0.06 - 0.12`
-- **Section card delay step:** `0.08 - 0.12`
-- **Duration:** `0.4 - 0.65`
-- **Ease:** `[0.22, 1, 0.36, 1]`
-- **Viewport amount:** `0.55 - 0.7` for small items, lower for larger blocks
+---
 
-## Implementation Checklist (Per Section)
+## 3) Stagger Container (One-by-One Cards/Rows)
 
-1. Header:
-   - Reveal badge/tag.
-   - Reveal heading.
-   - Reveal subtitle.
-2. Grid/list content:
-   - Reveal each item with incremental delay.
-   - Inside each item, reveal title before description.
-3. Optional micro-motion:
-   - Floating oscillation for badges/stats.
-4. Repeatability:
-   - Keep viewport `once: false` unless a one-time reveal is explicitly desired.
+```tsx
+import { motion } from "framer-motion";
 
-## Accessibility and Stability Notes
+const staggerParent = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.04,
+    },
+  },
+};
 
-- Keep transform ranges subtle to avoid readability issues.
-- Avoid nesting invalid block elements in headings/paragraphs.
-- Use reduced motion support in reusable components where possible.
-- Prefer opacity + translate + tiny scale; avoid large rotations for text blocks.
+const staggerChild = {
+  hidden: { opacity: 0, y: 18 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, ease: [0.22, 1, 0.36, 1] },
+  },
+};
+
+export function StaggerList({ items }: { items: string[] }) {
+  return (
+    <motion.ul
+      variants={staggerParent}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: false, amount: 0.3 }}
+    >
+      {items.map((item) => (
+        <motion.li key={item} variants={staggerChild}>
+          {item}
+        </motion.li>
+      ))}
+    </motion.ul>
+  );
+}
+```
+
+---
+
+## 4) Stair-Line Reveal (Heading or Paragraph Lines)
+
+```tsx
+import { motion } from "framer-motion";
+
+export function StairLines({ lines }: { lines: string[] }) {
+  return (
+    <div>
+      {lines.map((line, i) => (
+        <motion.span
+          key={line + i}
+          className="block"
+          initial={{ opacity: 0, x: -14, y: 6, clipPath: "inset(0 100% 0 0)" }}
+          whileInView={{ opacity: 1, x: 0, y: 0, clipPath: "inset(0 0 0 0)" }}
+          viewport={{ once: false, amount: 0.7 }}
+          transition={{
+            delay: i * 0.08,
+            duration: 0.52,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+        >
+          {line}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+```
+
+---
+
+## 5) Parallax Section (Subtle Scroll-Linked Motion)
+
+```tsx
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
+
+export function ParallaxSection({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLElement | null>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "end start"],
+  });
+
+  const y = useTransform(scrollYProgress, [0, 1], [0, 36]);
+  const opacity = useTransform(scrollYProgress, [0, 1], [1, 0.92]);
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 0.985]);
+
+  return (
+    <section ref={ref}>
+      <motion.div style={{ y, opacity, scale }}>{children}</motion.div>
+    </section>
+  );
+}
+```
+
+---
+
+## 6) Ease-Out to Ease-In Pattern (Enter/Exit)
+
+Use this when elements should feel soft on enter and clean on exit:
+
+- Enter (`ease out`): `[0.22, 1, 0.36, 1]`
+- Exit (`ease in`): `[0.64, 0, 0.78, 0]`
+
+This avoids abrupt fade-outs and keeps transitions professional.
+
+---
+
+## 7) Reduced Motion Safety
+
+```tsx
+import { useReducedMotion } from "framer-motion";
+
+const prefersReducedMotion = useReducedMotion();
+const motionProps = prefersReducedMotion
+  ? { initial: false, animate: { opacity: 1 } }
+  : { initial: "hidden", whileInView: "visible" };
+```
+
+Keep this in shared wrappers so accessibility is automatic.
+
+---
+
+## 8) Implementation Checklist
+
+- Add one shared reveal wrapper component.
+- Standardize direction presets (`left`, `right`, `bottom`, `appear`).
+- Use one parent stagger variant for repeated lists.
+- Use stair-line reveal for hero/subtitles only.
+- Keep parallax optional and subtle.
+- Test on mobile and low-power devices.
+- Avoid using animation state for data/business logic.
+
+---
+
+## 9) Quick Copy Command Set (Prompt Ready)
+
+When reusing in another project, ask:
+
+- "Create a `ScrollReveal` wrapper with left/right/bottom/appear variants."
+- "Add stagger parent/child variants for cards."
+- "Animate heading lines in a stair sequence."
+- "Add subtle parallax with `useScroll` and `useTransform`."
+- "Use ease-out for enter and ease-in for exit."
+- "Keep motion reduced preference support enabled."
+
+This file is intentionally universal so it can be dropped into any repo and implemented quickly.

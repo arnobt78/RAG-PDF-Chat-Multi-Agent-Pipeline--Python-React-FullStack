@@ -2,6 +2,17 @@
 
 Use this in **any** open-source or shared repo where you deploy a **Dockerfile-backed API** to **[Coolify](https://coolify.io/docs)** on a VPS and expose it at **`https://api.yourdomain.com`**.
 
+## This Project (RAG PDF Chat) — quick mapping
+
+- **Backend path:** `backend/`
+- **Framework:** FastAPI + Uvicorn
+- **Container/app port:** `3000`
+- **Public API domain used here:** `https://rag-pdf-backend.arnobmahmud.com`
+- **Frontend origin used here:** `https://pdf-chat-scrapper.vercel.app`
+- **Key health/runtime routes:** `/health`, `/status`, `/runtime-summary`, `/ask`, `/ask/stream`, `/upload`
+- **Frontend env to point at backend:** `VITE_API_BASE_URL=https://rag-pdf-backend.arnobmahmud.com`
+- **Backend CORS env example:** `CORS_ORIGINS=https://pdf-chat-scrapper.vercel.app`
+
 **Placeholders (replace everywhere):**
 
 | Placeholder | Meaning |
