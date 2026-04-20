@@ -258,7 +258,7 @@ export function PDFUpload({
                     <div className="flex items-center gap-3">
                       <Spinner size="lg" color="purple" />
                       <div>
-                        <p className="text-sm font-medium text-white">
+                        <p className="truncate text-sm font-medium text-white">
                           Processing PDF on server…
                         </p>
                         <p className="text-xs text-white/90">
@@ -324,31 +324,37 @@ export function PDFUpload({
                     <div className="flex items-center justify-between gap-3">
                       {/* Left: icon + title + button (hidden when expanded) */}
                       {!isExpanded && (
-                        <div className="flex min-w-0 flex-wrap items-center gap-3">
+                        <div className="flex w-full min-w-0 items-start gap-3 sm:w-auto sm:items-center">
                           <div className="shrink-0 rounded-xl bg-white/10 p-2">
                             <Upload className="h-5 w-5 text-white/90" />
                           </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-white">
-                              Upload your PDF
-                            </p>
-                            <p className="text-xs text-white/70">
-                              Select a file · up to{" "}
-                              {formatFileSize(MAX_FILE_SIZE)}
-                            </p>
+                          <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">
+                            <div className="min-w-0">
+                              <p className="text-sm font-medium text-white">
+                                Upload your PDF
+                              </p>
+                              <p className="text-xs text-white/70">
+                                Select a file · up to{" "}
+                                {formatFileSize(MAX_FILE_SIZE)}
+                              </p>
+                            </div>
+                            <Button
+                              className="mt-2 w-fit shrink-0 sm:mt-0"
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClick();
+                              }}
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              <span className="sm:hidden">Select PDF File</span>
+                              <span className="hidden sm:inline">
+                                Select PDF File
+                              </span>
+                            </Button>
                           </div>
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleClick();
-                            }}
-                          >
-                            <FileText className="mr-2 h-4 w-4" />
-                            Select PDF File
-                          </Button>
                         </div>
                       )}
 

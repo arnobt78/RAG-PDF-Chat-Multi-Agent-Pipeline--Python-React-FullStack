@@ -58,7 +58,7 @@ const glassCardInnerVariants = cva(
       padding: {
         none: "p-0",
         sm: "p-4",
-        default: "p-6",
+        default: "p-4 sm:p-6",
         lg: "p-8",
       },
     },

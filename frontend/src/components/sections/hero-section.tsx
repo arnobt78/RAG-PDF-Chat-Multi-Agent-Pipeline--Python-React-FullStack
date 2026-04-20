@@ -104,7 +104,7 @@ export function HeroSection() {
   return (
     <section className="relative min-h-[calc(100svh-4rem)] sm:min-h-[calc(100svh-5rem)] flex items-center justify-center overflow-hidden">
       <motion.div
-        className="relative z-10 w-full max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 xl:py-8 text-center flex flex-col items-center"
+        className="relative z-10 w-full max-w-9xl mx-auto px-2 sm:px-6 lg:px-8 py-4 md:py-6 xl:py-8 text-center flex flex-col items-center"
         style={{ y: contentY, opacity: contentOpacity }}
       >
         <motion.div
@@ -114,7 +114,10 @@ export function HeroSection() {
           viewport={{ once: false, amount: 0.25 }}
           className="flex w-full flex-col items-center"
         >
-          <motion.div variants={heroStairItem} className="mb-8 flex justify-center">
+          <motion.div
+            variants={heroStairItem}
+            className="mb-8 flex justify-center"
+          >
             <Badge
               variant="outline"
               className="px-4 py-2 text-sm bg-transparent border-white/15"
@@ -135,7 +138,10 @@ export function HeroSection() {
               Chat with Your{" "}
               <span className="gradient-text">PDF Documents</span>
             </motion.span>
-            <motion.span variants={heroStairItem} className="block hero-stair-line">
+            <motion.span
+              variants={heroStairItem}
+              className="block hero-stair-line"
+            >
               Using AI
             </motion.span>
           </motion.h1>

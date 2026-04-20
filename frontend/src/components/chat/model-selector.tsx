@@ -40,7 +40,10 @@ export function ModelSelector({
 }: ModelSelectorProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [models, setModels] = React.useState<AIModel[]>(AI_MODELS);
+  const [menuTop, setMenuTop] = React.useState<number | null>(null);
+  const [isMobileViewport, setIsMobileViewport] = React.useState(false);
   const ref = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   // Fetch available models from backend once
   React.useEffect(() => {
@@ -80,6 +83,13 @@ export function ModelSelector({
     };
   }, []);
 
+  React.useEffect(() => {
+    const updateViewport = () => setIsMobileViewport(window.innerWidth < 640);
+    updateViewport();
+    window.addEventListener("resize", updateViewport);
+    return () => window.removeEventListener("resize", updateViewport);
+  }, []);
+
   const selected = models.find((m) => m.id === value) ?? models[0];
   // Fallback ensures UI stays stable if persisted value is no longer offered.
 
@@ -92,6 +102,24 @@ export function ModelSelector({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const syncPosition = () => {
+      const rect = triggerRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setMenuTop(rect.bottom + 8);
+    };
+
+    syncPosition();
+    window.addEventListener("resize", syncPosition);
+    window.addEventListener("scroll", syncPosition, true);
+    return () => {
+      window.removeEventListener("resize", syncPosition);
+      window.removeEventListener("scroll", syncPosition, true);
+    };
+  }, [isOpen]);
 
   return (
     <div ref={ref} className="relative">
@@ -106,6 +134,7 @@ export function ModelSelector({
             )}
           >
             <button
+              ref={triggerRef}
               type="button"
               disabled={disabled}
               onClick={() => setIsOpen((prev) => !prev)}
@@ -152,7 +181,8 @@ export function ModelSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 z-50 w-[min(20rem,calc(100vw-1rem))] sm:w-72 rounded-xl bg-slate-900/95 backdrop-blur-lg border border-white/10 shadow-2xl overflow-hidden max-h-[min(20rem,58vh)] overflow-y-auto scrollbar-hide"
+            className="fixed inset-x-2 z-50 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 w-auto sm:w-72 rounded-xl bg-slate-900/95 backdrop-blur-lg border border-white/10 shadow-2xl overflow-hidden max-h-[min(20rem,58vh)] overflow-y-auto scrollbar-hide"
+            style={{ top: isMobileViewport ? (menuTop ?? undefined) : undefined }}
           >
             <div className="p-1.5">
               {models.map((model) => (

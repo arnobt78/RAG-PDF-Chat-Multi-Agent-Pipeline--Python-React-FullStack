@@ -69,7 +69,9 @@ export function PageWrapper({
   noAnimation = false,
   clipHorizontal = true,
 }: PageWrapperProps) {
-  const content = <main className={cn("flex-1 min-h-0", className)}>{children}</main>;
+  const content = (
+    <main className={cn("flex-1 min-h-0", className)}>{children}</main>
+  );
 
   return (
     <div
@@ -123,7 +125,7 @@ export function SectionWrapper({
     <section
       id={id}
       className={cn(
-        "w-full max-w-9xl mx-auto px-4 sm:px-6 lg:px-8 py-4 md:py-6 xl:py-8",
+        "w-full max-w-9xl mx-auto px-2 sm:px-6 lg:px-8 py-4 md:py-6 xl:py-8",
         className,
       )}
     >

@@ -178,7 +178,7 @@ export function ApiStatusPage() {
       clipHorizontal={false}
       className="w-full min-w-0"
     >
-      <SectionWrapper className="w-full max-w-9xl mx-auto py-8 sm:py-12 px-4 sm:px-6">
+      <SectionWrapper className="w-full max-w-9xl mx-auto py-8 sm:py-12 px-2 sm:px-6">
         <motion.div
           variants={apiStaggerRoot}
           initial="hidden"

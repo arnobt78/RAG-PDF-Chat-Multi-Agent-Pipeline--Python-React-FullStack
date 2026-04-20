@@ -100,8 +100,10 @@ export function ChatContainer() {
     () => !loadPreference<boolean>(prefKeys.DISMISSED_LOCAL_BANNER, false),
   );
 
-  // Upload area expand/collapse (collapses when a session is restored)
-  const [isUploadExpanded, setIsUploadExpanded] = React.useState(true);
+  // Upload area expand/collapse (default: collapsed on mobile, expanded on desktop).
+  const [isUploadExpanded, setIsUploadExpanded] = React.useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 640 : true,
+  );
 
   // Previous sessions list
   const [sessions, setSessions] = React.useState<ChatSession[]>([]);
@@ -743,7 +745,7 @@ export function ChatContainer() {
         >
           {/* Toolbar */}
           {chatHistory.length > 0 && (
-            <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-white/10">
+            <div className="flex items-center justify-between px-2 sm:px-6 py-2 border-b border-white/10">
               <div className="min-w-0">
                 <p className="text-xs text-slate-200 truncate">
                   {activeSessionName ?? fileName ?? "Current PDF"}
@@ -873,7 +875,7 @@ export function ChatContainer() {
 
           {/* Chat error display */}
           {chatError && (
-            <div className="px-4 sm:px-6 pb-3">
+            <div className="px-2 sm:px-6 pb-3">
               <div className="rounded-xl bg-rose-950/40 border border-rose-500/25 px-3 py-2.5 text-rose-100/90 text-xs sm:text-sm leading-relaxed max-h-36 overflow-y-auto scrollbar-hide">
                 {chatError}
               </div>
