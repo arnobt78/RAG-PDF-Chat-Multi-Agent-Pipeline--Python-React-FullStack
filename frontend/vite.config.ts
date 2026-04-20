@@ -42,10 +42,17 @@ export default defineConfig(({ mode }) => {
       sourcemap: false,
       rollupOptions: {
         output: {
-          manualChunks: {
-            vendor: ["react", "react-dom", "react-router-dom"],
-            motion: ["framer-motion"],
-            icons: ["lucide-react"],
+          manualChunks(id) {
+            if (
+              id.includes("react-router-dom") ||
+              id.includes("/react/") ||
+              id.includes("react-dom")
+            ) {
+              return "vendor";
+            }
+            if (id.includes("framer-motion")) return "motion";
+            if (id.includes("lucide-react")) return "icons";
+            return undefined;
           },
         },
       },

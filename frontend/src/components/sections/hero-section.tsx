@@ -202,7 +202,7 @@ export function HeroSection() {
 
           <motion.div
             variants={heroStatStrip}
-            className="mt-8 sm:mt-10 md:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 md:gap-6 max-w-3xl mx-auto w-full max-[height:860px]:mt-6 max-[height:860px]:gap-2"
+            className="mt-8 sm:mt-10 md:mt-12 grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 md:gap-6 max-w-3xl mx-auto w-full [@media(max-height:860px)]:mt-6 [@media(max-height:860px)]:gap-2"
           >
             {[
               { value: "100%", label: "Open Source" },
