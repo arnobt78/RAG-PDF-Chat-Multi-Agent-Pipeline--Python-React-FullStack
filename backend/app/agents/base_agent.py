@@ -100,6 +100,7 @@ class BaseAgent(ABC):
         start_time = time.time()
         
         try:
+            # Subclasses implement pure transformation logic in process().
             result = self.process(input_data, context)
             duration_ms = (time.time() - start_time) * 1000
             
@@ -111,6 +112,7 @@ class BaseAgent(ABC):
             )
         except Exception as e:
             duration_ms = (time.time() - start_time) * 1000
+            # Errors are normalized into AgentResult so pipeline can fail gracefully.
             
             return AgentResult(
                 success=False,

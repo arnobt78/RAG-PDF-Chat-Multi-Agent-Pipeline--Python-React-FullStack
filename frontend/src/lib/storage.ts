@@ -33,6 +33,7 @@ export function loadPreference<T>(key: string, fallback: T): T {
   try {
     const raw = localStorage.getItem(key);
     if (raw === null) return fallback;
+    // JSON parse lets us support booleans/objects, not only strings.
     return JSON.parse(raw) as T;
   } catch {
     return fallback;
@@ -74,6 +75,7 @@ function openDB(): Promise<IDBDatabase> {
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(STORE_NAME)) {
+        // keyPath keeps writes simple: store.put(session) performs upsert.
         db.createObjectStore(STORE_NAME, { keyPath: "pdfName" });
       }
     };
@@ -94,6 +96,7 @@ export async function saveChatSession(
     const store = tx.objectStore(STORE_NAME);
     const session: ChatSession = {
       pdfName,
+      // Normalize timestamps on write/read so mixed string/Date payloads do not leak.
       entries: entries.map((e) => ({
         ...e,
         timestamp: e.timestamp ? new Date(e.timestamp) : undefined,

@@ -37,6 +37,8 @@ export class ApiError extends Error {
 }
 
 function withSessionHeaders(init?: RequestInit): RequestInit {
+  // Every stateful backend route is partitioned by this session header.
+  // If we ever send a malformed value, upload/status/ask routes should fail fast.
   const sid = getChatApiSessionId();
   if (!isValidChatApiSessionId(sid)) {
     throw new ApiError(
@@ -69,6 +71,7 @@ async function fetchWithErrorHandling<T>(
   options?: RequestInit,
 ): Promise<T> {
   try {
+    // Single wrapper keeps network error shape consistent for all callers/hooks.
     const response = await fetch(url, withSessionHeaders(options));
 
     if (!response.ok) {
@@ -136,6 +139,8 @@ export function streamQuestion(
         return;
       }
 
+      // Read low-level stream chunks and parse SSE lines manually so we can
+      // support custom events (status/token/done/error) in one place.
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";

@@ -101,6 +101,7 @@ export function PDFUpload({
     }
     setCompletedSteps(0);
     const stepMs = 420;
+    // Simulated step ticker is UX-only; backend does actual pipeline work independently.
     const interval = window.setInterval(() => {
       setCompletedSteps((c) => (c >= PIPELINE_STEPS.length ? c : c + 1));
     }, stepMs);
@@ -258,6 +259,7 @@ export function PDFUpload({
                       </div>
                     </div>
                     <div className="rounded-xl border border-white/10 bg-black/40 p-3 font-mono text-[11px] leading-relaxed shadow-inner">
+                      {/* Visual ingest timeline (not server logs) to explain pipeline stages. */}
                       <div className="mb-2 flex items-center gap-2 border-b border-white/10 pb-2 text-[10px] uppercase tracking-wide text-slate-300">
                         <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                         ingest.log

@@ -133,18 +133,22 @@ export function ChatContainer() {
 
   // -- Persist preferences on change --
   React.useEffect(() => {
+    // Keep user model preference sticky between refreshes.
     savePreference(prefKeys.SELECTED_MODEL, selectedModel);
   }, [selectedModel]);
   React.useEffect(() => {
+    // Source toggle is treated as UX preference, not part of server account state.
     savePreference(prefKeys.INCLUDE_SOURCES, includeSources);
   }, [includeSources]);
   React.useEffect(() => {
+    // Streaming mode persists per-device to preserve expected typing behavior.
     savePreference(prefKeys.STREAMING_ENABLED, useStreaming);
   }, [useStreaming]);
 
   // -- Persist chat history to IndexedDB on every change --
   React.useEffect(() => {
     if (fileName && chatHistory.length > 0) {
+      // Debounce is intentionally skipped; IndexedDB writes are cheap at this scale.
       saveChatSession(fileName, chatHistory);
     }
   }, [chatHistory, fileName]);
@@ -210,6 +214,7 @@ export function ChatContainer() {
 
   const handleSend = React.useCallback(
     (message: string) => {
+      // UI switch controls transport only; backend reasoning pipeline remains identical.
       if (useStreaming) {
         sendMessageStreaming(message, selectedModel, includeSources);
       } else {
@@ -227,6 +232,7 @@ export function ChatContainer() {
 
   const handleExport = React.useCallback(() => {
     if (chatHistory.length === 0) return;
+    // Export format is deliberately plain text for portability.
     const lines = chatHistory.flatMap((e: ChatEntry) => [
       `Q: ${e.question}`,
       `A: ${e.answer}`,
@@ -262,6 +268,7 @@ export function ChatContainer() {
 
   const handleRestoreSession = React.useCallback(
     (session: ChatSession) => {
+      // Restore affects client transcript only; no backend reindex happens here.
       setChatHistory(session.entries);
       setShowSessions(false);
       appToast.sessionRestored(session.pdfName, session.entries.length);
@@ -729,6 +736,7 @@ export function ChatContainer() {
               ) : (
                 chatHistory.map((entry: ChatEntry, index: number) => (
                   <React.Fragment key={index}>
+                    {/* Render as user/assistant pair for each historical turn */}
                     <ChatMessage
                       role="user"
                       content={entry.question}

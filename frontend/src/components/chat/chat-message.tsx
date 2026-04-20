@@ -145,6 +145,7 @@ export function ChatMessage({
         )}
 
         {/* Footer with timestamp, model badge, and copy button */}
+        {/* Model badge uses response metadata to expose backend fallback decisions. */}
         <div
           className={cn(
             "flex items-center gap-2 mt-1 px-1 flex-wrap",

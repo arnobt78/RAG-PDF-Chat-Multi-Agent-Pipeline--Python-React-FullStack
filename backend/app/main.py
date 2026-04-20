@@ -46,6 +46,7 @@ async def lifespan(app: FastAPI):
     # Startup
     print("🚀 Starting RAG PDF Chat API...")
 
+    # Read env-backed settings once at startup; reused by singleton services.
     settings = get_settings()
     pdf_processor = PDFProcessor()
     # Disk hygiene: remove stale session index dirs before accepting traffic (see faiss_session_cleanup).
@@ -62,6 +63,7 @@ async def lifespan(app: FastAPI):
     llm_service = LLMService()
 
     # Inject singletons into route modules (FastAPI Depends() reads these globals).
+    # Route modules import these via dependency functions (module globals).
     set_upload_services(pdf_processor, vector_registry)
     set_llm_service(llm_service)
 

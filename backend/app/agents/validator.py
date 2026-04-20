@@ -56,7 +56,7 @@ class ValidatorAgent(BaseAgent):
         """
         answer = input_data
         
-        # Basic validation
+        # Lightweight post-checks only; we do not perform a second LLM pass here.
         validation_issues = []
         
         # Check length
@@ -68,6 +68,7 @@ class ValidatorAgent(BaseAgent):
             validation_issues.append("answer_truncated")
         
         # Check for common failure patterns
+        # This helps frontends label "uncertain" responses without parsing full text.
         failure_indicators = [
             "I cannot find",
             "I don't have information",

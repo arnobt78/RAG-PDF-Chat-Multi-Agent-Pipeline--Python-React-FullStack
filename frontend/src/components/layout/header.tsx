@@ -34,6 +34,7 @@ export function Header() {
   const { status } = useHealth();
 
   React.useEffect(() => {
+    // Close mobile drawer on route change so navigation always lands cleanly.
     setIsMenuOpen(false);
   }, [location.pathname]);
 
@@ -101,6 +102,7 @@ export function Header() {
             <ApiNavDropdown />
 
             {/* Health dot */}
+            {/* Connection badge is informational; chat requests still handle errors inline. */}
             <div
               className="flex items-center gap-1.5 min-w-[86px]"
               title={`Backend: ${status}`}

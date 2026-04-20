@@ -49,6 +49,7 @@ def require_session_id(
     x_chat_session_id: Annotated[str | None, Header()] = None,
 ) -> str:
     """Anonymous browser session (UUID). No auth — isolates FAISS per tab/device."""
+    # Header is user-controlled input; always normalize + validate before use.
     sid = (x_chat_session_id or "").strip()
     if not sid or not is_valid_session_id(sid):
         raise HTTPException(
@@ -62,6 +63,7 @@ def get_vector_service(
     session_id: Annotated[str, Depends(require_session_id)],
 ) -> VectorStoreService:
     # Registry returns a cached VectorStoreService or constructs + loads from disk for this UUID.
+    # This keeps each anonymous browser isolated without account auth.
     return get_vector_registry().get_or_create(session_id)
 
 
@@ -97,6 +99,7 @@ async def upload_pdf(
 
     # Check file size
     settings = get_settings()
+    # Read entire upload once; downstream processor expects bytes.
     contents = await file.read()
 
     if len(contents) > settings.max_file_size:
@@ -109,7 +112,7 @@ async def upload_pdf(
         # Process the PDF
         result = pdf_processor.process_uploaded_file(contents, fname)
 
-        # Create vector store from chunks
+        # Build/replace FAISS index for this session id from fresh chunk list.
         vector_service.create_from_documents(result.chunks)
 
         increment_pdf_uploads()

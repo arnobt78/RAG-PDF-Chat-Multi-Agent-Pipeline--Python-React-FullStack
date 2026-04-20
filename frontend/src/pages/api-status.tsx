@@ -137,6 +137,7 @@ export function ApiStatusPage() {
   const [err, setErr] = React.useState<string | null>(null);
 
   const load = React.useCallback(async (isRefresh: boolean) => {
+    // Distinguish first-load skeleton vs manual refresh spinner for smoother UX.
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
     setErr(null);
@@ -256,6 +257,7 @@ export function ApiStatusPage() {
                   size="sm"
                   className="gap-2"
                   disabled={refreshing}
+                  // Manual refresh is intentionally same fetch path as initial load.
                   onClick={() => void load(true)}
                 >
                   <RefreshCw
@@ -805,6 +807,7 @@ export function ApiStatusPage() {
                             </div>
                           </div>
                           <p className="text-xs text-white/80 leading-relaxed">
+                            {/* LLM readiness and embedding readiness can differ by provider. */}
                             LLM: {row.llm_ready ? "ready" : "no key"} ·
                             Embeddings:{" "}
                             {row.embedding_ready ? "ready" : "not in chain"}

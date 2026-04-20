@@ -74,6 +74,7 @@ export function ChatInput({
   };
 
   const canSend = message.trim().length > 0 && !disabled && !isLoading;
+  // Keep send-button enable logic derived in one place to avoid UI drift.
 
   return (
     <div className="relative w-full min-w-0">

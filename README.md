@@ -1,14 +1,14 @@
 # RAG PDF Chat - Python, React, Tailwind CSS, FastAPI, SSE Streaming, Multi-Agent Pipeline, Text Chunking, Conversion History, Device-Local Data, Anonymous Sessions FullStack Project (Contextual Document Assistant)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Vite](https://img.shields.io/badge/Vite-5.4-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.0.9-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![React](https://img.shields.io/badge/React-18.3.1-blue?logo=react)](https://react.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.4-blue?logo=typescript)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.109+-009688?logo=fastapi)](https://fastapi.tiangolo.com/)
 [![Python](https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 
-A **full-stack Retrieval Augmented Generation (RAG)** demo you can run locally or deploy to a VPS: upload a PDF, build a **per-browser vector index** (FAISS), and chat with an **LLM** using retrieved context. The UI is a **React + TypeScript** single-page app; the API is **FastAPI + LangChain** with a **multi-agent pipeline**, optional **Sentry** tunneling, and sensible **production defaults** (CORS, rate limits, session disk cleanup). Use it to learn how RAG, embeddings, and vector stores fit together end to end.
+A production-style, educational full-stack RAG project that demonstrates how to turn PDF documents into searchable knowledge and chat with them using modern AI models. It is designed for learners and builders who want to understand document chunking, embeddings, vector search, SSE streaming responses, multi-provider model fallback, and practical deployment (Vercel + Coolify VPS) end to end.
 
 - **Frontend Live Demo:** [https://pdf-chat-scrapper.vercel.app/](https://pdf-chat-scrapper.vercel.app/)
 - **Backend Live Demo:** [https://rag-pdf-backend.arnobmahmud.com/](https://rag-pdf-backend.arnobmahmud.com/)
@@ -17,225 +17,321 @@ A **full-stack Retrieval Augmented Generation (RAG)** demo you can run locally o
 
 ## Table of contents
 
+- [Project overview](#project-overview)
 - [What you will learn](#what-you-will-learn)
-- [Keywords & glossary](#keywords--glossary)
-- [Architecture at a glance](#architecture-at-a-glance)
-- [Tech stack & libraries](#tech-stack--libraries)
-- [Project structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Environment variables](#environment-variables)
-- [How to run (local)](#how-to-run-local)
+- [Keywords and glossary (beginner-friendly)](#keywords-and-glossary-beginner-friendly)
+- [Architecture walkthrough](#architecture-walkthrough)
+- [Tech stack and dependencies](#tech-stack-and-dependencies)
+- [Project structure and file walkthrough](#project-structure-and-file-walkthrough)
+- [Core features and how they work](#core-features-and-how-they-work)
 - [API reference](#api-reference)
-- [How the RAG pipeline works](#how-the-rag-pipeline-works)
-- [Frontend features & components](#frontend-features--components)
-- [Reusing parts in other projects](#reusing-parts-in-other-projects)
-- [Docker & VPS notes](#docker--vps-notes)
-- [Scripts (quality checks)](#scripts-quality-checks)
+- [Environment variables (`.env`) explained](#environment-variables-env-explained)
+- [How to run locally](#how-to-run-locally)
+- [How to deploy (Vercel + Coolify VPS)](#how-to-deploy-vercel--coolify-vps)
+- [How to reuse this project in your own apps](#how-to-reuse-this-project-in-your-own-apps)
+- [Quality checks and scripts](#quality-checks-and-scripts)
+- [Troubleshooting notes](#troubleshooting-notes)
 - [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Project overview
+
+This app lets a user upload a PDF and ask questions about it. The backend parses PDF text, splits it into chunks, embeds each chunk into vectors, stores vectors in FAISS, retrieves relevant context for each question, then sends that context to an LLM for grounded responses.
+
+It also includes:
+
+- **Anonymous session isolation** (per browser via session header)
+- **Streaming answers (SSE)** and non-streaming mode
+- **Model selector with provider fallback**
+- **Optional source snippets**
+- **Rate limiting**
+- **Device-local saved chat history in IndexedDB**
+- **Deployment-ready Docker/Coolify setup**
 
 ---
 
 ## What you will learn
 
-- How **PDF text** is chunked, embedded, and stored in **FAISS** for similarity search.
-- How a **question** triggers **retrieval** then **LLM generation** with optional **source citations**.
-- How **anonymous sessions** work via `X-Chat-Session-Id` (no login) while keeping indexes separate.
-- How to configure **OpenRouter** and optional providers (**Groq**, **Gemini**, **Hugging Face**, **OpenAI**).
-- How a **Vite** frontend talks to a **FastAPI** backend, including **SSE streaming** for answers.
+- How RAG (Retrieval Augmented Generation) works in a practical, production-like app.
+- How to build a TypeScript React frontend that calls a FastAPI backend.
+- How to wire PDF upload, chunking, embeddings, and vector search.
+- How to stream model output token-by-token over SSE.
+- How to maintain per-browser isolation without user authentication.
+- How to deploy frontend and backend separately with correct CORS and environment config.
 
 ---
 
-## Keywords & glossary
+## Keywords and glossary (beginner-friendly)
 
-| Keyword        | Short meaning                                                                                                                                      |
-| -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **RAG**        | Retrieval Augmented Generation: retrieve relevant text from your document, then ask the LLM to answer using that context.                          |
-| **Embedding**  | A numeric vector representing text meaning; similar texts have similar vectors.                                                                    |
-| **FAISS**      | Facebook AI Similarity Search: fast vector index for “nearest neighbor” search over embeddings.                                                    |
-| **Chunk**      | A slice of the PDF (e.g. ~1000 characters) used as one retrieval unit.                                                                             |
-| **LangChain**  | Python framework that composes loaders, splitters, chains, and vector stores.                                                                      |
-| **OpenRouter** | One API key to access many models (OpenAI-compatible HTTP).                                                                                        |
-| **SSE**        | Server-Sent Events: one HTTP response stream; used here for streamed answer tokens.                                                                |
-| **Session id** | UUID sent as `X-Chat-Session-Id` so each browser gets its own FAISS folder on disk.                                                                |
-| **LRU**        | Least Recently Used eviction: when too many sessions exist in memory, older ones are dropped from the registry (and disk removed for evicted ids). |
+| Term             | Meaning                                                                         |
+| ---------------- | ------------------------------------------------------------------------------- |
+| **RAG**          | Retrieve relevant document context first, then generate answer with LLM.        |
+| **Embedding**    | Numeric vector representation of text meaning.                                  |
+| **FAISS**        | Fast vector database/index for similarity search.                               |
+| **Chunking**     | Splitting long PDF text into smaller pieces for retrieval.                      |
+| **SSE**          | Server-Sent Events for live streaming answer text.                              |
+| **Session ID**   | Unique browser identifier used to isolate each user’s PDF vector index.         |
+| **LRU eviction** | Removes least-recently-used session indexes when cap is reached.                |
+| **CORS**         | Browser security rule controlling which frontend origins can call backend APIs. |
 
 ---
 
-## Architecture at a glance
+## Architecture walkthrough
 
 ```text
-Browser (React)
-  │  localStorage: API session UUID
-  │  IndexedDB: chat history (per PDF / session UI)
-  │
-  ├─► GET /status, POST /upload, POST /ask, POST /ask/stream
-  │       Header: X-Chat-Session-Id: <uuid v4>
-  │
-  ▼
-FastAPI (app.main)
-  ├─ Health: /, /health, /models, /pipeline-info
-  ├─ Upload: PDF → chunks → embeddings → FAISS (per session path)
-  ├─ Chat: Agent pipeline → LLM → JSON or SSE stream
-  └─ Optional: POST /api/oversight (Sentry tunnel)
+React SPA (frontend)
+  ├─ localStorage: anonymous session UUID (X-Chat-Session-Id)
+  ├─ IndexedDB: saved chat history by PDF
+  └─ Calls FastAPI endpoints (/upload, /ask, /ask/stream, /status, /models)
+
+FastAPI backend
+  ├─ PDF loader + text splitter
+  ├─ Embedding service + FAISS vector store
+  ├─ Agent pipeline (retrieve -> optimize -> answer -> validate)
+  ├─ Optional source snippets
+  ├─ Rate limiting and session cleanup
+  └─ Optional Sentry tunnel (/api/oversight)
 ```
 
 ---
 
-## Tech stack & libraries
+## Tech stack and dependencies
 
 ### Frontend
 
-| Technology        | Role                                           |
-| ----------------- | ---------------------------------------------- |
-| **React 18**      | UI and state.                                  |
-| **TypeScript**    | Types for API payloads and components.         |
-| **Vite**          | Dev server, HMR, production bundling.          |
-| **Tailwind CSS**  | Utility-first styling; glass-style UI.         |
-| **Framer Motion** | Declarative animations.                        |
-| **React Router**  | Routes: home, chat, about.                     |
-| **Radix UI**      | Accessible primitives (e.g. alert dialog).     |
-| **Lucide React**  | Icons.                                         |
-| **Sonner**        | Toasts.                                        |
-| **Sentry React**  | Optional error reporting (tunnel via backend). |
+- **React 18 + TypeScript**
+- **Vite**
+- **Tailwind CSS**
+- **Framer Motion**
+- **React Router**
+- **Radix UI primitives**
+- **Sonner toast notifications**
+- **Sentry browser SDK (optional)**
 
 ### Backend
 
-| Technology                       | Role                                                     |
-| -------------------------------- | -------------------------------------------------------- |
-| **FastAPI**                      | HTTP API, dependency injection, OpenAPI docs at `/docs`. |
-| **Uvicorn**                      | ASGI server.                                             |
-| **Pydantic / pydantic-settings** | Request/response models and `.env` loading.              |
-| **LangChain**                    | PDF loading, splitting, embeddings, FAISS integration.   |
-| **FAISS (CPU)**                  | Vector index.                                            |
-| **sentence-transformers**        | Local CPU embeddings fallback when cloud keys fail.      |
-| **httpx**                        | HTTP client (e.g. Sentry tunnel forward).                |
+- **FastAPI + Uvicorn**
+- **Pydantic + pydantic-settings**
+- **LangChain ecosystem**
+- **FAISS CPU**
+- **sentence-transformers** (local embedding fallback)
+- **httpx / aiohttp**
+- **Tenacity retries**
+
+### Why this stack is useful for learning
+
+- It separates UI concerns from AI/backend concerns cleanly.
+- It demonstrates real deployment constraints (CORS, env vars, reverse proxy).
+- It includes robust failover behavior and operational safety defaults.
 
 ---
 
-## Project structure
+## Project structure and file walkthrough
 
 ```text
 rag-pdf-chat/
-├── README.md                 # This file
-├── docs/                     # Extra planning / notes (optional reading)
-│
-├── frontend/                 # Vite + React SPA
-│   ├── .env.example          # VITE_* variables documented
+├── README.md
+├── docs/                            # deployment and operational guides
+├── frontend/
+│   ├── index.html
+│   ├── package.json
+│   ├── vite.config.ts
 │   ├── src/
-│   │   ├── App.tsx           # Root layout, routes, error boundary
-│   │   ├── main.tsx          # React entry + Sentry init
-│   │   ├── pages/            # home, chat, about
+│   │   ├── main.tsx                # app bootstrap
+│   │   ├── App.tsx                 # routes and app-level providers
+│   │   ├── pages/                  # home, chat, about, api-status
 │   │   ├── components/
-│   │   │   ├── chat/         # Chat UI: container, messages, upload, model selector
-│   │   │   ├── layout/       # Header, footer, page wrapper
-│   │   │   ├── sections/     # Marketing / explainer sections on home & about
-│   │   │   └── ui/           # Buttons, cards, dialogs, inputs (reusable)
-│   │   ├── hooks/            # useChat, usePDFUpload, useHealth, etc.
-│   │   ├── lib/              # api.ts, env.ts, storage (IndexedDB), chat-session, Sentry helpers
-│   │   ├── context/          # React context (e.g. chat-related providers)
-│   │   └── types/            # Shared TS types
-│   ├── vite.config.ts        # Aliases @/*, dev proxy /api → backend
-│   └── vercel.json           # SPA rewrites for Vercel
-│
-└── backend/                  # FastAPI application (use `app.main:app`)
-    ├── Dockerfile            # Production-oriented image (non-root, healthcheck)
-    ├── .dockerignore
-    ├── .env.example          # Full list of backend env vars (copy to .env)
-    ├── requirements.txt      # Runtime Python deps
-    ├── requirements-dev.txt  # ruff, mypy (optional)
-    └── app/
-        ├── main.py           # App factory, CORS, lifespan, routers
-        ├── config.py         # Settings, providers, embedding chain
-        ├── models/           # Pydantic schemas
-        ├── routes/           # health, upload, chat, tunnel
-        ├── services/         # PDF, vector store, LLM, rate limit, session registry, cleanup
-        └── agents/           # Multi-step RAG pipeline (Extractor … Assembler)
+│   │   │   ├── chat/               # chat container, model selector, upload, input
+│   │   │   ├── layout/             # header/footer/layout helpers
+│   │   │   ├── sections/           # marketing/documentation sections
+│   │   │   └── ui/                 # reusable UI primitives
+│   │   ├── hooks/                  # data and behavior hooks
+│   │   ├── lib/                    # api/env/storage/session logic
+│   │   └── types/                  # shared TS types
+│   └── public/
+└── backend/
+    ├── app/
+    │   ├── main.py                 # app setup and middleware
+    │   ├── config.py               # settings/env/provider config
+    │   ├── routes/                 # health, upload, chat, oversight
+    │   ├── services/               # vector store, rate limiting, cleanup
+    │   └── agents/                 # multi-step answer pipeline
+    ├── requirements.txt
+    ├── requirements-dev.txt
+    ├── .env.example
+    ├── Dockerfile
+    └── .dockerignore
 ```
 
 ---
 
-## Prerequisites
+## Core features and how they work
 
-- **Node.js** 18+ (for `npm` / Vite).
-- **Python** 3.11+ (3.12 works; Dockerfile uses 3.12-slim).
-- At least one **LLM/embedding-capable** API key — **OpenRouter** is the recommended default (`OPENROUTER_API_KEY`).
+### 1) PDF upload and indexing
+
+User uploads a PDF through the frontend. Backend:
+
+1. extracts text
+2. chunks it
+3. embeds each chunk
+4. stores vectors in FAISS under session-specific folder
 
 ---
 
-## Environment variables
+### 2) Chat with streaming or non-streaming
 
-You **do** need a backend `.env` for real AI calls. The frontend can run with **defaults** in development (see `frontend/src/lib/env.ts`), but production builds should set `VITE_API_BASE_URL`.
+- **Streaming on** -> uses SSE (`/ask/stream`) for live token output.
+- **Streaming off** -> classic JSON response (`/ask`).
 
-### Backend — required for a working demo
+---
 
-1. Copy the template:
+### 3) Source snippets toggle
+
+- When enabled, backend returns source context snippets (if available).
+- Helps explain where the answer came from.
+
+---
+
+### 4) Multi-model and fallback behavior
+
+- Frontend can select a preferred model.
+- Backend tries configured providers and can fall back when a provider fails or is over quota.
+
+---
+
+### 5) Session isolation and local history
+
+- Browser keeps anonymous session UUID.
+- Backend uses `X-Chat-Session-Id` to separate vector indexes per browser.
+- Frontend stores transcript locally in IndexedDB per PDF.
+
+---
+
+### 6) Rate limits and cleanup
+
+- Per-IP request limits for upload and ask routes.
+- Startup cleanup removes stale session FAISS folders.
+
+---
+
+## API reference
+
+> Most data routes require `X-Chat-Session-Id` header.
+
+| Method | Endpoint         | Purpose                           |
+| ------ | ---------------- | --------------------------------- |
+| `GET`  | `/`              | Basic backend status              |
+| `GET`  | `/health`        | Health check                      |
+| `GET`  | `/models`        | Available models/providers        |
+| `GET`  | `/pipeline-info` | Explains pipeline stages          |
+| `GET`  | `/status`        | Session PDF loaded status         |
+| `POST` | `/upload`        | Upload PDF and build index        |
+| `POST` | `/ask`           | Ask question (non-streaming JSON) |
+| `POST` | `/ask/stream`    | Ask question (SSE streaming)      |
+| `POST` | `/api/oversight` | Sentry tunnel endpoint            |
+
+### Example request
+
+```bash
+curl -X POST "http://127.0.0.1:8000/ask" \
+  -H "Content-Type: application/json" \
+  -H "X-Chat-Session-Id: 11111111-2222-4333-8444-555555555555" \
+  -d '{"question":"Summarize this PDF","model":"openai/gpt-4o-mini","include_sources":true}'
+```
+
+---
+
+## Environment variables (`.env`) explained
+
+This project **does need backend environment variables** for real AI usage.
+
+### Backend (`backend/.env`)
+
+Create from template:
 
 ```bash
 cd backend
 cp .env.example .env
 ```
 
-1. **Minimum** to process PDFs and chat (OpenRouter):
+#### Minimum required
 
 ```env
-OPENROUTER_API_KEY=sk-or-v1-your_key_here
+OPENROUTER_API_KEY=your_openrouter_key
+OPENROUTER_API_BASE=https://openrouter.ai/api/v1
 ```
 
-`backend/.env.example` documents everything else: optional **Groq**, **Gemini**, **HF**, **OpenAI direct**, **CORS**, **FAISS paths**, **session retention**, **rate limits**, **Sentry**, etc. Values you will often tune for production:
+#### Commonly used variables
 
-| Variable                     | Purpose                                                                   |
-| ---------------------------- | ------------------------------------------------------------------------- |
-| `CORS_ORIGINS`               | Comma-separated browser origins allowed to call the API.                  |
-| `FAISS_PERSIST_DIR`          | Root folder for indexes (default `faiss_index`).                          |
-| `MAX_VECTOR_SESSIONS`        | Max in-memory LRU sessions before evicting oldest.                        |
-| `FAISS_SESSION_MAX_AGE_DAYS` | On startup, delete on-disk session folders older than N days (`0` = off). |
-| `RATE_LIMIT_*`               | Per-IP rolling limits for `/upload` and `/ask` (+ stream).                |
+| Variable                       | Required           | Purpose                  |
+| ------------------------------ | ------------------ | ------------------------ |
+| `OPENROUTER_API_KEY`           | Yes                | Main provider key        |
+| `OPENROUTER_API_BASE`          | Yes                | OpenRouter base URL      |
+| `DEFAULT_MODEL`                | Recommended        | Default model ID         |
+| `DEFAULT_PROVIDER`             | Recommended        | Provider selection hint  |
+| `CORS_ORIGINS`                 | Yes for deployment | Allowed frontend origins |
+| `FAISS_PERSIST_DIR`            | Recommended        | Vector index directory   |
+| `MAX_VECTOR_SESSIONS`          | Recommended        | LRU session cap          |
+| `FAISS_SESSION_MAX_AGE_DAYS`   | Recommended        | Startup stale cleanup    |
+| `RATE_LIMIT_UPLOAD_PER_MINUTE` | Recommended        | Upload protection        |
+| `RATE_LIMIT_ASK_PER_MINUTE`    | Recommended        | Ask/stream protection    |
+| `SENTRY_DSN`                   | Optional           | Backend error reporting  |
+| `SENTRY_ENVIRONMENT`           | Optional           | Sentry environment tag   |
 
-### Frontend — optional but recommended for deployment
+#### Optional provider fallbacks
+
+```env
+GROQ_API_KEY=
+OPENAI_DIRECT_API_KEY=
+GOOGLE_API_KEY=
+HF_API_KEY=
+```
+
+---
+
+### Frontend (`frontend/.env`)
+
+For local dev you can run with default assumptions, but recommended:
 
 ```bash
 cd frontend
 cp .env.example .env
 ```
 
-| Variable                                      | Purpose                                                                      |
-| --------------------------------------------- | ---------------------------------------------------------------------------- |
-| `VITE_API_BASE_URL`                           | Backend URL (`http://localhost:8000`) or same-origin `/api` with Vite proxy. |
-| `VITE_DEV_PROXY_TARGET`                       | Where `/api` proxies in dev (default `http://127.0.0.1:8000`).               |
-| `VITE_FAISS_SESSION_MAX_AGE_DAYS`             | Should match backend copy for UI retention text (defaults to `3` if unset).  |
-| `VITE_SENTRY_DSN` / `VITE_SENTRY_TRACES_RATE` | Optional browser error reporting.                                            |
+Key variables:
 
-Example **local** frontend `.env`:
-
-```env
-VITE_API_BASE_URL=http://localhost:8000
-```
-
-Example **same-origin dev** (Vite proxies `/api` to FastAPI):
-
-```env
-VITE_API_BASE_URL=/api
-VITE_DEV_PROXY_TARGET=http://127.0.0.1:8000
-```
+| Variable                          | Required          | Purpose                    |
+| --------------------------------- | ----------------- | -------------------------- |
+| `VITE_API_BASE_URL`               | Yes in production | Backend public base URL    |
+| `VITE_DEV_PROXY_TARGET`           | Optional          | Local Vite proxy target    |
+| `VITE_FAISS_SESSION_MAX_AGE_DAYS` | Optional          | UI retention text parity   |
+| `VITE_SENTRY_DSN`                 | Optional          | Browser Sentry             |
+| `VITE_SENTRY_TRACES_RATE`         | Optional          | Perf tracing rate          |
+| `VITE_APP_ENV`                    | Optional          | Env label (production/dev) |
 
 ---
 
-## How to run (local)
+## How to run locally
 
-### 1. Backend
+### 1) Start backend
 
 ```bash
 cd backend
 python -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
+source .venv/bin/activate
 pip install -r requirements.txt
-cp .env.example .env               # then edit .env — set OPENROUTER_API_KEY
+cp .env.example .env
+# set OPENROUTER_API_KEY in .env
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-- Interactive docs: **<http://127.0.0.1:8000/docs>**
+Backend docs: `http://127.0.0.1:8000/docs`
 
-### 2. Frontend
+---
+
+### 2) Start frontend
 
 ```bash
 cd frontend
@@ -243,126 +339,94 @@ npm install
 npm run dev
 ```
 
-- App: **<http://localhost:5173>**
-
-### 3. Typical learner flow
-
-1. Open the **Chat** page.
-2. **Upload** a PDF (only `.pdf`; size limit enforced server-side).
-3. Wait until status shows the document is ready.
-4. Pick a **model** (if `/models` returns live options).
-5. Ask a question — try **non-streaming** vs **streaming** toggles.
-6. Open **/docs** on the backend to see the same routes the UI uses.
+Frontend app: `http://localhost:5173`
 
 ---
 
-## API reference
+### 3) Learning walkthrough flow
 
-All JSON/upload/stream routes below expect header **`X-Chat-Session-Id`** with a **UUID v4** (the frontend generates and stores one in `localStorage`). Omitting it returns **400**.
-
-| Method | Path             | Auth header         | Description                                                                   |
-| ------ | ---------------- | ------------------- | ----------------------------------------------------------------------------- |
-| `GET`  | `/`              | —                   | Simple API status.                                                            |
-| `GET`  | `/health`        | —                   | Health + default model hint.                                                  |
-| `GET`  | `/models`        | —                   | Lists models from configured providers.                                       |
-| `GET`  | `/pipeline-info` | —                   | JSON describing the 7 pipeline stages (educational).                          |
-| `GET`  | `/status`        | `X-Chat-Session-Id` | Whether this session’s vector index has a loaded PDF.                         |
-| `POST` | `/upload`        | `X-Chat-Session-Id` | Multipart file field `file`: PDF bytes → chunks → FAISS for that session.     |
-| `POST` | `/ask`           | `X-Chat-Session-Id` | JSON body: question, optional `model`, `include_sources`.                     |
-| `POST` | `/ask/stream`    | `X-Chat-Session-Id` | Same body; returns **SSE** (`text/event-stream`) with token chunks.           |
-| `POST` | `/api/oversight` | —                   | Sentry envelope tunnel (restricted hosts); used when browser DSN points here. |
-
-**Example** (curl) — replace `SESSION` with a fresh UUID v4:
-
-```bash
-export API=http://127.0.0.1:8000
-export SESSION=xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
-
-curl -sS -H "X-Chat-Session-Id: $SESSION" "$API/status" | jq .
-
-curl -sS -H "X-Chat-Session-Id: $SESSION" -F "file=@./sample.pdf" "$API/upload" | jq .
-
-curl -sS -H "X-Chat-Session-Id: $SESSION" -H "Content-Type: application/json" \
-  -d '{"question":"What is this document about?","model":"openai/gpt-4o-mini","include_sources":false}' \
-  "$API/ask" | jq .
-```
+1. Open chat page.
+2. Upload sample PDF.
+3. Ask summary question.
+4. Toggle Sources and Stream.
+5. Change model and compare behavior.
+6. Inspect Network tab for `/upload`, `/ask`, `/ask/stream`.
+7. Inspect backend logs to see retrieval/generation lifecycle.
 
 ---
 
-## How the RAG pipeline works
+## How to deploy (Vercel + Coolify VPS)
 
-High-level flow:
+### Backend (Coolify)
 
-1. **Upload** — `PyPDFLoader` reads the PDF → `RecursiveCharacterTextSplitter` creates chunks → embeddings run via configured providers (with local **MiniLM** fallback) → vectors stored in **FAISS** under `faiss_index/sessions/<session_id>/`.
-2. **Ask** — `AgentPipeline` runs staged agents (see `GET /pipeline-info` for full text):
+- Use `backend/Dockerfile`
+- Base Directory: `/backend`
+- Dockerfile path: `/Dockerfile`
+- Port expose: `3000`
+- Set `PORT=3000`
+- Set `CORS_ORIGINS` to your frontend domain(s)
+- Configure domains and Traefik labels for:
+  - sslip fallback host
+  - production subdomain
 
-```text
-Extractor → Analyzer → Preprocessor → Optimizer → Synthesizer → Validator → Assembler
-```
+### Frontend (Vercel)
 
-- **Extractor**: similarity search in FAISS (`RETRIEVAL_K` chunks).
-- **Analyzer / Preprocessor / Optimizer**: clean, dedupe, trim context to budget.
-- **Synthesizer**: calls the LLM via `LLMService` (multi-provider failover).
-- **Validator / Assembler**: quality checks and structured response (e.g. sources).
-
-Read the Python modules under `backend/app/agents/` for implementation details — each file is small and focused, which is ideal for learning.
-
----
-
-## Frontend features & components
-
-| Area                            | What it does                                                                                   |
-| ------------------------------- | ---------------------------------------------------------------------------------------------- |
-| **`ChatContainer`**             | Orchestrates upload, messages, streaming, model selection, session sidebar, local-data banner. |
-| **`PDFUpload`**                 | Drag-and-drop + file picker; talks to `usePDFUpload` → `/upload`.                              |
-| **`ChatMessage` / `ChatInput`** | Renders Q&A; input supports send + keyboard UX.                                                |
-| **`ModelSelector`**             | Fetches `/models` once; falls back to static list.                                             |
-| **`lib/api.ts`**                | Adds `X-Chat-Session-Id`, handles errors, implements SSE client for `/ask/stream`.             |
-| **`lib/storage.ts`**            | IndexedDB persistence for chat sessions (device-local).                                        |
-| **`lib/chat-session.ts`**       | Stable UUID for the anonymous API session.                                                     |
+- Root Directory: `frontend`
+- Framework: Vite
+- Build command: `npm run build`
+- Output directory: `dist`
+- Install command: `npm install --legacy-peer-deps`
+- Set `VITE_API_BASE_URL=https://your-backend-domain`
 
 ---
 
-## Reusing parts in other projects
+## How to reuse this project in your own apps
 
-- **UI primitives** (`frontend/src/components/ui/`): copy `button`, `glass-card`, `input`, `textarea`, `alert-dialog` patterns into any React + Tailwind app; keep `cn()` from `lib/utils.ts`.
-- **`lib/api.ts` pattern**: centralize `fetch`, headers, and error mapping — swap `API_BASE_URL` and routes for your API.
-- **FastAPI routers** (`backend/app/routes/`): each router is a template for splitting `GET`/`POST` concerns; `Depends()` injects services cleanly.
-- **Rate limiter** (`backend/app/services/ip_rate_limit.py`): sliding-window per IP — reusable for other expensive routes.
-- **Session vector registry**: pattern for “anonymous multi-tenant” resource handles without accounts.
+### Reuse frontend UI pieces
 
----
+- Copy `frontend/src/components/ui` for reusable styled primitives.
+- Copy `ChatInput`, `ChatMessage`, `PDFUpload` for chat/document UX.
+- Keep shared utility `cn` from `frontend/src/lib/utils.ts`.
 
-## Docker & VPS notes
+### Reuse backend architecture
 
-```bash
-cd backend
-docker build -t rag-pdf-chat-api .
-# Image defaults PORT=3000 (Coolify / docs/DOCKER_VPS_BACKEND_PLAYBOOK.md). Map host→container accordingly:
-docker run -p 3000:3000 --env-file .env rag-pdf-chat-api
-# Optional: host 8000 → container 3000 → docker run -p 8000:3000 --env-file .env rag-pdf-chat-api
-```
+- Start from `backend/app/routes` route separation.
+- Reuse `config.py` settings pattern for env-driven deployments.
+- Reuse rate-limit service for any expensive endpoint.
+- Reuse session header approach for anonymous multi-user resource isolation.
 
-- Image runs as **non-root**; writable dirs include **`faiss_index/`** and **`.cache/`** for model downloads.
-- Mount a **volume** on `faiss_index` if you want indexes to survive container restarts.
-- Set **`CORS_ORIGINS`** to your real frontend origin(s).
-- Prefer **one worker per replica** or **sticky sessions** if you scale horizontally (shared FAISS on disk + in-memory LRU per process).
+### Reuse API client pattern
+
+- `frontend/src/lib/api.ts` centralizes request and header handling.
+- Adapt endpoint map and payload types for your own backend quickly.
 
 ---
 
-## Scripts (quality checks)
+## Quality checks and scripts
 
-**Frontend** (`frontend/`):
+### Root scripts
 
 ```bash
 npm run lint
-npm run typecheck
+npm run check
 npm run build
+npm run build:all
 ```
 
-**Backend** (`backend/` — with dev deps):
+### Frontend scripts
 
 ```bash
+cd frontend
+npm run lint
+npm run typecheck
+npm run build
+npm audit
+```
+
+### Backend checks
+
+```bash
+cd backend
 pip install -r requirements.txt -r requirements-dev.txt
 ruff check app
 mypy app
@@ -370,12 +434,22 @@ mypy app
 
 ---
 
+## Troubleshooting notes
+
+- **CORS blocked in browser** -> ensure deployed frontend origin is present in `CORS_ORIGINS`, then redeploy backend.
+- **Vercel npm peer conflict** -> use install command with `--legacy-peer-deps`.
+- **No model response** -> verify at least one provider key is valid.
+- **Wrong/empty retrieval** -> re-upload PDF and check session header consistency.
+- **Frequent 404 probes in logs** -> expected on public servers due to internet scanners.
+
+---
+
 ## Contributing
 
 1. Fork the repository.
 2. Create a feature branch.
-3. Make focused changes; run **lint**, **typecheck**, and **build** (frontend) and **ruff** / **mypy** (backend) when possible.
-4. Open a pull request with a short description of behavior and risk.
+3. Keep changes focused and run checks before PR.
+4. Open a PR with short summary, scope, and risk notes.
 
 ---
 

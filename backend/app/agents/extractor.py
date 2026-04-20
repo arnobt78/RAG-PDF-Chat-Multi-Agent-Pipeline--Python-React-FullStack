@@ -58,6 +58,7 @@ class ExtractorAgent(BaseAgent):
         chunks = self.vector_service.similarity_search(question, k=k)
         
         # Store metadata in context for later agents
+        # These fields are consumed by Assembler when citations are enabled.
         context["retrieved_chunks"] = len(chunks)
         context["chunk_sources"] = [
             chunk.metadata.get("page", "N/A") for chunk in chunks

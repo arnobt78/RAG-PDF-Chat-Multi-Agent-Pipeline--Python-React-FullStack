@@ -47,6 +47,7 @@ export function useChat(): UseChatReturn {
   /** Standard JSON request */
   const sendMessage = React.useCallback(
     async (message: string, model?: string, includeSources?: boolean) => {
+      // Optimistically flip loading so input/toolbar can react immediately.
       setState((prev) => ({ ...prev, isLoading: true, error: null }));
 
       try {
@@ -81,6 +82,7 @@ export function useChat(): UseChatReturn {
   /** SSE streaming request */
   const sendMessageStreaming = React.useCallback(
     (message: string, model?: string, includeSources?: boolean) => {
+      // Streaming starts with an empty assistant buffer that grows token-by-token.
       setState((prev) => ({
         ...prev,
         isLoading: true,
@@ -99,6 +101,8 @@ export function useChat(): UseChatReturn {
             setState((prev) => ({ ...prev, streamingAnswer: accumulated }));
           },
           onDone(meta) {
+            // Persist final transcript only when stream completes, so history
+            // does not contain partial assistant messages.
             const entry: ChatEntry = {
               question: questionRef,
               answer: accumulated,
@@ -130,6 +134,7 @@ export function useChat(): UseChatReturn {
   );
 
   const cancelStream = React.useCallback(() => {
+    // Abort fetch reader first, then normalize UI state.
     abortRef.current?.abort();
     setState((prev) => ({
       ...prev,

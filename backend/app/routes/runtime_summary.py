@@ -32,12 +32,14 @@ _PROVIDER_LABELS: dict[str, str] = {
 @router.get("/runtime-summary", response_model=RuntimeSummaryResponse)
 def runtime_summary() -> RuntimeSummaryResponse:
     settings = get_settings()
+    # Embedding chain is dynamic: only providers with usable credentials appear.
     chain = get_embedding_fallback_chain()
     emb_names = {p.name for p, _ in chain}
     rows: list[RuntimeProviderRow] = []
     for name, prov in AI_PROVIDERS.items():
         llm = provider_has_credentials(prov)
         emb = name in emb_names
+        # "working" means both chat + embeddings are available for that provider family.
         if llm and emb:
             st = "working"
         elif llm or emb:
@@ -55,6 +57,7 @@ def runtime_summary() -> RuntimeSummaryResponse:
         )
     usable = sum(1 for r in rows if r.status in ("working", "partial"))
     overall = "ok" if usable else "degraded"
+    # If zero LLM providers are ready, retrieval alone cannot answer questions.
     if not any(r.llm_ready for r in rows):
         overall = "error"
     llm_ready_n = sum(1 for r in rows if r.llm_ready)

@@ -55,6 +55,7 @@ export function ModelSelector({
           Array.isArray(data.models) &&
           data.models.length > 0
         ) {
+          // Normalize backend schema to frontend AIModel shape.
           const live: AIModel[] = data.models.map(
             (m: {
               id: string;
@@ -80,6 +81,7 @@ export function ModelSelector({
   }, []);
 
   const selected = models.find((m) => m.id === value) ?? models[0];
+  // Fallback ensures UI stays stable if persisted value is no longer offered.
 
   React.useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

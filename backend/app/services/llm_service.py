@@ -126,6 +126,7 @@ Answer: """
             seq.append((p, mid))
 
         if preferred_model:
+            # User selection gets first priority to preserve explicit intent.
             pref_p = self._find_provider_for_model(preferred_model)
             if pref_p and preferred_model in pref_p.models:
                 add(pref_p, preferred_model)
@@ -133,6 +134,7 @@ Answer: """
                     if mid != preferred_model:
                         add(pref_p, mid)
 
+        # Then append the global reliability order from config as fallback chain.
         for name in PROVIDER_PRIORITY:
             p = AI_PROVIDERS.get(name)
             if not p:
@@ -157,6 +159,8 @@ Answer: """
 
         for provider, model_id in self._llm_attempt_sequence(preferred_model):
             try:
+                # LCEL chain is intentionally rebuilt per attempt so each provider
+                # uses its own base_url/api_key/model combination.
                 llm = self._build_llm(provider, model_id)
                 chain = prompt | llm | StrOutputParser()
                 answer = chain.invoke(payload)
@@ -192,6 +196,7 @@ Answer: """
             Tuple of (answer, model_used, processing_time_seconds)
         """
         start_time = time.time()
+        # Retrieved chunks become one context payload for prompt grounding.
         context = self._format_docs(context_docs)
         answer, model_used = self._generate_with_failover(question, context, model or self.model)
         processing_time = time.time() - start_time

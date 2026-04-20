@@ -63,7 +63,8 @@ class AnalyzerAgent(BaseAgent):
             if len(content) < self.min_content_length:
                 continue
             
-            # Skip near-duplicate chunks (simple hash-based dedup)
+            # Skip near-duplicate chunks (simple hash-based dedup).
+            # This is intentionally cheap and deterministic for speed.
             content_hash = hash(content[:100])  # Use first 100 chars for dedup
             if content_hash in seen_content:
                 continue
@@ -72,6 +73,7 @@ class AnalyzerAgent(BaseAgent):
             filtered_chunks.append(chunk)
         
         # Update context with analysis results
+        # Useful for API-status/debugging and future observability exports.
         context["original_chunks"] = len(chunks)
         context["filtered_chunks"] = len(filtered_chunks)
         context["chunks_removed"] = len(chunks) - len(filtered_chunks)

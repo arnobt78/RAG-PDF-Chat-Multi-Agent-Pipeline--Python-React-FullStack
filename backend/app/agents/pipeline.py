@@ -117,6 +117,7 @@ class AgentPipeline:
         results: list[AgentResult],
     ):
         """Run one agent step, accumulate results, return (ok, output, total_ms_delta)."""
+        # Agent contract: ``data`` is step-specific input, ``context`` is shared mutable metadata.
         result = agent.execute(data, context)
         results.append(result)
         return result.success, result.data, result.duration_ms, result.error

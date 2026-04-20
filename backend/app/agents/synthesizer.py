@@ -56,7 +56,8 @@ class SynthesizerAgent(BaseAgent):
         question, chunks = input_data
         model = context.get("model")
         
-        # Generate answer
+        # LLMService handles provider/model failover internally; this agent only
+        # passes user intent (question/model) plus retrieved context docs.
         answer, model_used, processing_time = self.llm_service.generate_answer(
             question=question,
             context_docs=chunks,

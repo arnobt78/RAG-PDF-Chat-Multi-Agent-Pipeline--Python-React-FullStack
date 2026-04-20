@@ -3,6 +3,9 @@
   "private": true,
   "scripts": {
     "check": "npm run check:frontend && npm run check:backend",
+    "lint": "npm run lint:frontend && npm run lint:backend",
+    "lint:frontend": "npm --prefix frontend run lint",
+    "lint:backend": "bash scripts/check-backend.sh",
     "check:frontend": "npm --prefix frontend run typecheck && npm --prefix frontend run lint",
     "check:backend": "bash scripts/check-backend.sh",
     "build": "npm --prefix frontend run build",
