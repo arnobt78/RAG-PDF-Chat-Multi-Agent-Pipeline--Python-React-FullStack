@@ -152,7 +152,7 @@ export function ModelSelector({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.95 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-72 z-50 rounded-xl bg-slate-900/95 backdrop-blur-lg border border-white/10 shadow-2xl overflow-hidden max-h-80 overflow-y-auto scrollbar-hide"
+            className="absolute right-0 top-full mt-2 z-50 w-[min(20rem,calc(100vw-1rem))] sm:w-72 rounded-xl bg-slate-900/95 backdrop-blur-lg border border-white/10 shadow-2xl overflow-hidden max-h-[min(20rem,58vh)] overflow-y-auto scrollbar-hide"
           >
             <div className="p-1.5">
               {models.map((model) => (

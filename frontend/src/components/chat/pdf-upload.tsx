@@ -24,6 +24,8 @@ import {
   File,
   Check,
   Loader2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { cn, isValidPDF, formatFileSize } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -76,6 +78,10 @@ export interface PDFUploadProps {
   error?: string | null;
   /** Reset the upload state */
   onReset?: () => void;
+  /** Whether the full drag-drop area is expanded (upload idle state only) */
+  isExpanded?: boolean;
+  /** Toggle expand/collapse of the full upload area */
+  onToggleExpand?: () => void;
 }
 
 export function PDFUpload({
@@ -86,6 +92,8 @@ export function PDFUpload({
   chunksCreated,
   error,
   onReset,
+  isExpanded = true,
+  onToggleExpand,
 }: PDFUploadProps) {
   const [isDragOver, setIsDragOver] = React.useState(false);
   const [validationError, setValidationError] = React.useState<string | null>(
@@ -237,14 +245,14 @@ export function PDFUpload({
           >
             <GlassCard
               variant="default"
-              padding="lg"
+              padding="default"
               className={cn(
                 "border-violet-500/35 transition-[border-color] duration-300",
                 isDragOver && "border-violet-400/55",
                 displayError && "border-red-500/45",
               )}
             >
-              <div className="flex flex-col items-stretch py-4">
+              <div className="flex flex-col items-stretch">
                 {isUploading ? (
                   <div className="space-y-4 px-1">
                     <div className="flex items-center gap-3">
@@ -311,63 +319,137 @@ export function PDFUpload({
                     </div>
                   </div>
                 ) : (
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        handleClick();
-                      }
-                    }}
-                    onClick={handleClick}
-                    onDragOver={handleDragOver}
-                    onDragLeave={handleDragLeave}
-                    onDrop={handleDrop}
-                    className={cn(
-                      "mx-auto flex w-full max-w-5xl cursor-pointer flex-col items-center rounded-3xl border border-dashed px-6 py-10 text-center transition-colors",
-                      isDragOver
-                        ? "border-purple-400/60 bg-purple-500/10"
-                        : "border-white/25 bg-white/[0.03] hover:border-white/40 hover:bg-white/[0.05]",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "mb-4 rounded-3xl p-4 transition-colors",
-                        isDragOver ? "bg-purple-500/25" : "bg-white/10",
+                  <div className="flex flex-col gap-0">
+                    {/* Compact bar — always visible in upload idle state */}
+                    <div className="flex items-center justify-between gap-3">
+                      {/* Left: icon + title + button (hidden when expanded) */}
+                      {!isExpanded && (
+                        <div className="flex min-w-0 flex-wrap items-center gap-3">
+                          <div className="shrink-0 rounded-xl bg-white/10 p-2">
+                            <Upload className="h-5 w-5 text-white/90" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium text-white">
+                              Upload your PDF
+                            </p>
+                            <p className="text-xs text-white/70">
+                              Select a file · up to{" "}
+                              {formatFileSize(MAX_FILE_SIZE)}
+                            </p>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleClick();
+                            }}
+                          >
+                            <FileText className="mr-2 h-4 w-4" />
+                            Select PDF File
+                          </Button>
+                        </div>
                       )}
-                    >
-                      {isDragOver ? (
-                        <File className="h-10 w-10 text-purple-300" />
-                      ) : (
-                        <Upload className="h-10 w-10 text-white/90" />
+
+                      {/* Right: drag-drop hint + expand/collapse toggle — hidden on small screens */}
+                      {onToggleExpand && (
+                        <div className="hidden ml-auto shrink-0 flex-col items-end sm:flex">
+                          {!isExpanded && (
+                            <p className="text-xs font-medium text-white/80">
+                              Drag & drop file
+                            </p>
+                          )}
+                          <button
+                            type="button"
+                            onClick={onToggleExpand}
+                            className="mt-0.5 flex items-center gap-1 text-xs text-white/60 transition-colors hover:text-white"
+                          >
+                            {isExpanded ? (
+                              <>
+                                Collapse <ChevronUp className="h-3.5 w-3.5" />
+                              </>
+                            ) : (
+                              <>
+                                Expand <ChevronDown className="h-3.5 w-3.5" />
+                              </>
+                            )}
+                          </button>
+                        </div>
                       )}
                     </div>
 
-                    <h3 className="mb-2 text-lg font-semibold text-white">
-                      {isDragOver ? "Drop your PDF here" : "Upload your PDF"}
-                    </h3>
-
-                    <p className="mb-4 text-sm text-white/90">
-                      Drag and drop inside the dashed area, or click to browse
-                    </p>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleClick();
-                      }}
-                    >
-                      <FileText className="mr-2 h-4 w-4" />
-                      Select PDF File
-                    </Button>
-
-                    <p className="mt-4 text-xs text-white/80">
-                      Supports PDF files up to {formatFileSize(MAX_FILE_SIZE)}
-                    </p>
+                    {/* Full drag-drop area — only on sm+ and when expanded */}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          key="expanded"
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="hidden overflow-hidden sm:block"
+                        >
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                handleClick();
+                              }
+                            }}
+                            onClick={handleClick}
+                            onDragOver={handleDragOver}
+                            onDragLeave={handleDragLeave}
+                            onDrop={handleDrop}
+                            className={cn(
+                              "mx-auto flex w-full max-w-5xl cursor-pointer flex-col items-center rounded-3xl border border-dashed p-4 sm:p-6 text-center transition-colors",
+                              isDragOver
+                                ? "border-purple-400/60 bg-purple-500/10"
+                                : "border-white/25 bg-white/[0.03] hover:border-white/40 hover:bg-white/[0.05]",
+                            )}
+                          >
+                            <div
+                              className={cn(
+                                "mb-4 rounded-3xl p-4 transition-colors",
+                                isDragOver ? "bg-purple-500/25" : "bg-white/10",
+                              )}
+                            >
+                              {isDragOver ? (
+                                <File className="h-10 w-10 text-purple-300" />
+                              ) : (
+                                <Upload className="h-10 w-10 text-white/90" />
+                              )}
+                            </div>
+                            <h3 className="mb-2 text-lg font-semibold text-white">
+                              {isDragOver
+                                ? "Drop your PDF here"
+                                : "Upload your PDF"}
+                            </h3>
+                            <p className="mb-4 text-sm text-white/90">
+                              Drag and drop inside the dashed area, or click to
+                              browse
+                            </p>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleClick();
+                              }}
+                            >
+                              <FileText className="mr-2 h-4 w-4" />
+                              Select PDF File
+                            </Button>
+                            <p className="mt-4 text-xs text-white/80">
+                              Supports PDF files up to{" "}
+                              {formatFileSize(MAX_FILE_SIZE)}
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 )}
 

@@ -43,12 +43,6 @@ export function ChatInput({
   const [message, setMessage] = React.useState("");
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
 
-  // Auto-focus textarea when enabled
-  React.useEffect(() => {
-    if (!disabled && textareaRef.current) {
-      textareaRef.current.focus();
-    }
-  }, [disabled]);
 
   // Handle send action
   const handleSend = () => {

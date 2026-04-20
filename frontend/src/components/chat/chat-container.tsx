@@ -75,6 +75,7 @@ const DEFAULT_CHAT_MODEL_ID = "openai/gpt-4o-mini";
 export function ChatContainer() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const messagesScrollRef = React.useRef<HTMLDivElement>(null);
+  const uploadSectionRef = React.useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = React.useRef(true);
 
   // Persisted preferences (localStorage)
@@ -99,6 +100,9 @@ export function ChatContainer() {
     () => !loadPreference<boolean>(prefKeys.DISMISSED_LOCAL_BANNER, false),
   );
 
+  // Upload area expand/collapse (collapses when a session is restored)
+  const [isUploadExpanded, setIsUploadExpanded] = React.useState(true);
+
   // Previous sessions list
   const [sessions, setSessions] = React.useState<ChatSession[]>([]);
   const [showSessions, setShowSessions] = React.useState(false);
@@ -108,7 +112,9 @@ export function ChatContainer() {
   );
   // Tracks which session's messages are currently displayed (may differ from uploaded fileName
   // when user restores a session from a different PDF via the sessions list).
-  const [activeSessionName, setActiveSessionName] = React.useState<string | null>(null);
+  const [activeSessionName, setActiveSessionName] = React.useState<
+    string | null
+  >(null);
 
   const prevUploading = React.useRef(false);
   const prevChatLoading = React.useRef(false);
@@ -191,6 +197,7 @@ export function ChatContainer() {
     const was = prevUploading.current;
     if (isUploading && !was) {
       hadHistoryBeforeUpload.current = chatHistory.length > 0;
+      setIsUploadExpanded(true);
       appToast.pdfUploading();
     }
     if (!isUploading && was) {
@@ -206,6 +213,8 @@ export function ChatContainer() {
           chunksCreated ?? undefined,
           hadHistoryBeforeUpload.current,
         );
+        // Scroll to top so the "Chat with PDF" heading is visible after upload.
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     }
     prevUploading.current = isUploading;
@@ -323,6 +332,7 @@ export function ChatContainer() {
       // come from the wrong document. The user must re-upload to query it again.
       if (session.pdfName !== fileName) {
         resetUpload();
+        setIsUploadExpanded(false);
       }
       setShowSessions(false);
       appToast.sessionRestored(session.pdfName, session.entries.length);
@@ -698,22 +708,26 @@ export function ChatContainer() {
       </AnimatePresence>
 
       {/* PDF Upload Section */}
-      <ScrollReveal
-        direction="down"
-        once={false}
-        delay={0.06}
-        className="mb-6 w-full min-w-0"
-      >
-        <PDFUpload
-          onUpload={uploadPDF}
-          isUploading={isUploading}
-          isLoaded={isLoaded}
-          fileName={fileName ?? undefined}
-          chunksCreated={chunksCreated ?? undefined}
-          error={uploadError}
-          onReset={handleResetUpload}
-        />
-      </ScrollReveal>
+      <div ref={uploadSectionRef} className="w-full min-w-0">
+        <ScrollReveal
+          direction="down"
+          once={false}
+          delay={0.06}
+          className="mb-6 w-full min-w-0"
+        >
+          <PDFUpload
+            onUpload={uploadPDF}
+            isUploading={isUploading}
+            isLoaded={isLoaded}
+            fileName={fileName ?? undefined}
+            chunksCreated={chunksCreated ?? undefined}
+            error={uploadError}
+            onReset={handleResetUpload}
+            isExpanded={isUploadExpanded}
+            onToggleExpand={() => setIsUploadExpanded((v) => !v)}
+          />
+        </ScrollReveal>
+      </div>
 
       {/* Chat Messages Area */}
       <ScrollReveal
@@ -777,7 +791,7 @@ export function ChatContainer() {
             ref={messagesScrollRef}
             onScroll={handleMessagesScroll}
             className={cn(
-              "overscroll-contain p-4 sm:p-6 space-y-4",
+              "p-4 sm:p-6 space-y-4",
               chatHistory.length === 0 && !streamingAnswer
                 ? "overflow-y-hidden"
                 : "max-h-[min(28rem,58dvh)] overflow-y-auto",
@@ -790,7 +804,7 @@ export function ChatContainer() {
                   initial={false}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center px-2 py-8 text-center"
+                  className="flex flex-col items-center justify-center text-center"
                 >
                   <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/10 mb-5">
                     <MessageSquare className="w-10 h-10 text-purple-300/90" />
