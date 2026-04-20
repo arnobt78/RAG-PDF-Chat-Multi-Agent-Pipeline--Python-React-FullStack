@@ -106,6 +106,9 @@ export function ChatContainer() {
   const [sessionToDelete, setSessionToDelete] = React.useState<string | null>(
     null,
   );
+  // Tracks which session's messages are currently displayed (may differ from uploaded fileName
+  // when user restores a session from a different PDF via the sessions list).
+  const [activeSessionName, setActiveSessionName] = React.useState<string | null>(null);
 
   const prevUploading = React.useRef(false);
   const prevChatLoading = React.useRef(false);
@@ -149,13 +152,21 @@ export function ChatContainer() {
     savePreference(prefKeys.STREAMING_ENABLED, useStreaming);
   }, [useStreaming]);
 
+  // -- Sync activeSessionName to uploaded file whenever it changes --
+  React.useEffect(() => {
+    if (fileName) setActiveSessionName(fileName);
+  }, [fileName]);
+
   // -- Persist chat history to IndexedDB on every change --
   React.useEffect(() => {
-    if (fileName && chatHistory.length > 0) {
+    // Use activeSessionName so restored sessions save back to their own PDF key,
+    // not to the currently uploaded PDF's key.
+    const key = activeSessionName ?? fileName;
+    if (key && chatHistory.length > 0) {
       // Debounce is intentionally skipped; IndexedDB writes are cheap at this scale.
-      saveChatSession(fileName, chatHistory);
+      saveChatSession(key, chatHistory);
     }
-  }, [chatHistory, fileName]);
+  }, [chatHistory, activeSessionName, fileName]);
 
   // -- Restore chat history when a PDF is loaded and has a saved session --
   React.useEffect(() => {
@@ -304,10 +315,19 @@ export function ChatContainer() {
     (session: ChatSession) => {
       // Restore affects client transcript only; no backend reindex happens here.
       setChatHistory(session.entries);
+      // Track which session's messages are now displayed so the toolbar and
+      // persist effect use the correct PDF name, not the currently uploaded file.
+      setActiveSessionName(session.pdfName);
+      // If the restored session belongs to a different PDF than what is currently
+      // uploaded, clear the upload section so the UI does not imply answers will
+      // come from the wrong document. The user must re-upload to query it again.
+      if (session.pdfName !== fileName) {
+        resetUpload();
+      }
       setShowSessions(false);
       appToast.sessionRestored(session.pdfName, session.entries.length);
     },
-    [setChatHistory],
+    [setChatHistory, fileName, resetUpload],
   );
 
   const handleDeleteSession = React.useCallback(async (pdfName: string) => {
@@ -326,11 +346,13 @@ export function ChatContainer() {
 
   const handleClearToolbarChat = React.useCallback(() => {
     clearHistory();
+    setActiveSessionName(fileName);
     appToast.chatCleared();
-  }, [clearHistory]);
+  }, [clearHistory, fileName]);
 
   const handleResetUpload = React.useCallback(() => {
     clearHistory();
+    setActiveSessionName(null);
     resetUpload();
     appToast.uploadReset();
   }, [clearHistory, resetUpload]);
@@ -710,7 +732,7 @@ export function ChatContainer() {
             <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-white/10">
               <div className="min-w-0">
                 <p className="text-xs text-slate-200 truncate">
-                  {fileName ?? "Current PDF"}
+                  {activeSessionName ?? fileName ?? "Current PDF"}
                 </p>
                 <p className="text-[11px] text-slate-300 truncate">
                   {chatHistory.length} message
@@ -844,27 +866,29 @@ export function ChatContainer() {
             </div>
           )}
 
-          {/* Input area */}
-          <div className="w-full min-w-0 p-4 sm:p-6 border-t border-white/10">
-            {isLoading && useStreaming ? (
-              <div className="flex w-full justify-center">
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={cancelStream}
-                  icon={<StopCircle className="w-4 h-4" />}
-                >
-                  Stop generating
-                </Button>
-              </div>
-            ) : (
-              <ChatInput
-                onSend={handleSend}
-                disabled={!isLoaded}
-                isLoading={isLoading}
-              />
-            )}
-          </div>
+          {/* Input area — hidden when viewing a restored session with no PDF loaded */}
+          {isLoaded && (
+            <div className="w-full min-w-0 p-4 sm:p-6 border-t border-white/10">
+              {isLoading && useStreaming ? (
+                <div className="flex w-full justify-center">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={cancelStream}
+                    icon={<StopCircle className="w-4 h-4" />}
+                  >
+                    Stop generating
+                  </Button>
+                </div>
+              ) : (
+                <ChatInput
+                  onSend={handleSend}
+                  disabled={!isLoaded}
+                  isLoading={isLoading}
+                />
+              )}
+            </div>
+          )}
         </GlassCard>
       </ScrollReveal>
 
