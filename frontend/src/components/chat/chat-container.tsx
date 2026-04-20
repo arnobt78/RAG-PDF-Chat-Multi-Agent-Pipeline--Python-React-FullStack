@@ -671,7 +671,7 @@ export function ChatContainer() {
         <GlassCard
           variant="default"
           padding="none"
-          className="flex min-h-[16rem] max-h-[min(36rem,72dvh)] flex-col border-emerald-600/40 sm:max-h-[min(40rem,75dvh)]"
+          className="flex h-[min(36rem,72dvh)] min-h-[16rem] flex-col border-emerald-600/40 sm:h-[min(40rem,75dvh)]"
         >
           {/* Toolbar */}
           {chatHistory.length > 0 && (
