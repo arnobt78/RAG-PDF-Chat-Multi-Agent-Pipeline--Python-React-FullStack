@@ -325,8 +325,8 @@ export function PDFUpload({
                       {/* Left: icon + title + button (hidden when expanded) */}
                       {!isExpanded && (
                         <div className="flex w-full min-w-0 items-start gap-3 sm:w-auto sm:items-center">
-                          <div className="shrink-0 rounded-xl bg-white/10 p-2">
-                            <Upload className="h-5 w-5 text-white/90" />
+                          <div className="shrink-0 rounded-xl bg-white/10 p-2 border border-white/15">
+                            <Upload className="h-5 w-5 text-white/90 " />
                           </div>
                           <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-3">
                             <div className="min-w-0">
@@ -334,7 +334,7 @@ export function PDFUpload({
                                 Upload your PDF
                               </p>
                               <p className="text-xs text-white/70">
-                                Select a file · up to{" "}
+                                Select a file up to{" "}
                                 {formatFileSize(MAX_FILE_SIZE)}
                               </p>
                             </div>
@@ -417,14 +417,16 @@ export function PDFUpload({
                           >
                             <div
                               className={cn(
-                                "mb-4 rounded-3xl p-4 transition-colors",
-                                isDragOver ? "bg-purple-500/25" : "bg-white/10",
+                                "mb-4 rounded-2xl p-3.5 transition-colors",
+                                isDragOver
+                                  ? "bg-purple-500/25 border border-purple-400/55"
+                                  : "bg-white/10 border border-white/15",
                               )}
                             >
                               {isDragOver ? (
                                 <File className="h-10 w-10 text-purple-300" />
                               ) : (
-                                <Upload className="h-10 w-10 text-white/90" />
+                                <Upload className="h-10 w-10 text-white/90 " />
                               )}
                             </div>
                             <h3 className="mb-2 text-lg font-semibold text-white">

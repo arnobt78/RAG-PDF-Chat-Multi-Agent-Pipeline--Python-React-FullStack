@@ -808,7 +808,7 @@ export function ChatContainer() {
                   exit={{ opacity: 0 }}
                   className="flex flex-col items-center justify-center text-center"
                 >
-                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/10 mb-5">
+                  <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/15 mb-4">
                     <MessageSquare className="w-10 h-10 text-purple-300/90" />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold text-white/95 mb-2 tracking-tight">
