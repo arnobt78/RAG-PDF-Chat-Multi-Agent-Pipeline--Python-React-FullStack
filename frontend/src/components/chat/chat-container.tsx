@@ -68,12 +68,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { SESSION_INDEX_RETENTION_DAYS } from "@/lib/session-retention";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_CHAT_MODEL_ID = "openai/gpt-4o-mini";
 
 export function ChatContainer() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   const messagesScrollRef = React.useRef<HTMLDivElement>(null);
+  const shouldAutoScrollRef = React.useRef(true);
 
   // Persisted preferences (localStorage)
   const [selectedModel, setSelectedModel] = React.useState(() =>
@@ -232,8 +234,17 @@ export function ChatContainer() {
   React.useEffect(() => {
     const scroller = messagesScrollRef.current;
     if (!scroller) return;
+    if (!shouldAutoScrollRef.current) return;
     scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
   }, [chatHistory, isLoading, streamingAnswer]);
+
+  const handleMessagesScroll = React.useCallback(() => {
+    const scroller = messagesScrollRef.current;
+    if (!scroller) return;
+    const distanceFromBottom =
+      scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
+    shouldAutoScrollRef.current = distanceFromBottom < 80;
+  }, []);
 
   const handleSend = React.useCallback(
     (message: string) => {
@@ -324,8 +335,20 @@ export function ChatContainer() {
     appToast.uploadReset();
   }, [clearHistory, resetUpload]);
 
+  const latestEntry = chatHistory[chatHistory.length - 1];
+  const latestMetaLabel = latestEntry
+    ? `${
+        latestEntry.timestamp
+          ? new Date(latestEntry.timestamp).toLocaleString(undefined, {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })
+          : "just now"
+      }${latestEntry.modelUsed ? ` (${latestEntry.modelUsed})` : ""}`
+    : "";
+
   return (
-    <div className="flex w-full min-w-0 flex-col overflow-x-visible">
+    <div className="flex w-full min-w-0 min-h-0 flex-col overflow-x-visible">
       <ScrollReveal direction="down" once={false} className="mb-4">
         <ModelInfoToggle
           selectedModel={selectedModel}
@@ -363,11 +386,10 @@ export function ChatContainer() {
                       browser or profile. The app sends an anonymous session id
                       so the API can keep a separate PDF search index per
                       browser—your uploads are not mixed with other visitors’
-                      documents.
-                      Those server indexes are capped and may be removed after
-                      about {SESSION_INDEX_RETENTION_DAYS} days without use or
-                      when the server runs cleanup; if answers stop matching your
-                      document, upload the PDF again.
+                      documents. Those server indexes are capped and may be
+                      removed after about {SESSION_INDEX_RETENTION_DAYS} days
+                      without use or when the server runs cleanup; if answers
+                      stop matching your document, upload the PDF again.
                     </p>
                   </div>
                   <button
@@ -654,7 +676,12 @@ export function ChatContainer() {
       </AnimatePresence>
 
       {/* PDF Upload Section */}
-      <ScrollReveal direction="down" once={false} delay={0.06} className="mb-6 w-full min-w-0">
+      <ScrollReveal
+        direction="down"
+        once={false}
+        delay={0.06}
+        className="mb-6 w-full min-w-0"
+      >
         <PDFUpload
           onUpload={uploadPDF}
           isUploading={isUploading}
@@ -667,19 +694,30 @@ export function ChatContainer() {
       </ScrollReveal>
 
       {/* Chat Messages Area */}
-      <ScrollReveal direction="down" once={false} delay={0.1} className="w-full min-w-0">
+      <ScrollReveal
+        direction="down"
+        once={false}
+        delay={0.1}
+        className="w-full min-w-0 min-h-0"
+      >
         <GlassCard
           variant="default"
           padding="none"
-          className="flex h-[min(36rem,72dvh)] min-h-[16rem] flex-col border-emerald-600/40 sm:h-[min(40rem,75dvh)]"
+          className="flex min-w-0 flex-col border-emerald-600/40"
         >
           {/* Toolbar */}
           {chatHistory.length > 0 && (
             <div className="flex items-center justify-between px-4 sm:px-6 py-2 border-b border-white/10">
-              <span className="text-xs text-slate-300">
-                {chatHistory.length} message
-                {chatHistory.length !== 1 ? "s" : ""}
-              </span>
+              <div className="min-w-0">
+                <p className="text-xs text-slate-200 truncate">
+                  {fileName ?? "Current PDF"}
+                </p>
+                <p className="text-[11px] text-slate-300 truncate">
+                  {chatHistory.length} message
+                  {chatHistory.length !== 1 ? "s" : ""}
+                  {latestMetaLabel ? ` · ${latestMetaLabel}` : ""}
+                </p>
+              </div>
               <div className="flex items-center gap-1">
                 <Button
                   variant="ghost"
@@ -715,7 +753,13 @@ export function ChatContainer() {
           {/* Messages scrollable area */}
           <div
             ref={messagesScrollRef}
-            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-hide"
+            onScroll={handleMessagesScroll}
+            className={cn(
+              "overflow-y-auto overscroll-contain p-4 sm:p-6 space-y-4",
+              chatHistory.length === 0 && !streamingAnswer
+                ? "max-h-[16rem]"
+                : "max-h-[min(28rem,58dvh)]",
+            )}
           >
             <AnimatePresence mode="popLayout">
               {chatHistory.length === 0 && !streamingAnswer ? (
@@ -724,7 +768,7 @@ export function ChatContainer() {
                   initial={false}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="flex min-h-[14rem] flex-col items-center justify-center px-2 py-10 text-center"
+                  className="flex flex-col items-center justify-center px-2 py-8 text-center"
                 >
                   <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/10 mb-5">
                     <MessageSquare className="w-10 h-10 text-purple-300/90" />

@@ -69,7 +69,7 @@ export function PageWrapper({
   noAnimation = false,
   clipHorizontal = true,
 }: PageWrapperProps) {
-  const content = <main className={cn("flex-1", className)}>{children}</main>;
+  const content = <main className={cn("flex-1 min-h-0", className)}>{children}</main>;
 
   return (
     <div
@@ -87,7 +87,7 @@ export function PageWrapper({
         content
       ) : (
         <motion.div
-          className="flex-1 flex flex-col"
+          className="flex-1 min-h-0 flex flex-col"
           initial="initial"
           animate="animate"
           exit="exit"

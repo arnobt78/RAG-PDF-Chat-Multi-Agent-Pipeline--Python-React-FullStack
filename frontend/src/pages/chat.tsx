@@ -16,9 +16,9 @@ export function ChatPage() {
       showBackground
       showFooter
       clipHorizontal={false}
-      className="w-full min-w-0"
+      className="w-full min-w-0 min-h-0"
     >
-      <SectionWrapper className="w-full overflow-x-visible">
+      <SectionWrapper className="w-full min-h-0 overflow-x-visible">
         <ChatContainer />
       </SectionWrapper>
     </PageWrapper>
