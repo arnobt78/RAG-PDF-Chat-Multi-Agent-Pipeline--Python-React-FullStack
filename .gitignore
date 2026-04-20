@@ -97,6 +97,9 @@ celerybeat.pid
 .dmypy.json
 dmypy.json
 
+# Ruff (local lint cache — never commit)
+.ruff_cache/
+
 # Pyre
 .pyre/
 

@@ -13,6 +13,7 @@ env/
 __pycache__/
 *.py[cod]
 *$py.class
+.ruff_cache/
 
 # FAISS vector store (generated at runtime)
 *.faiss

@@ -10,6 +10,9 @@
 
 A **full-stack Retrieval Augmented Generation (RAG)** demo you can run locally or deploy to a VPS: upload a PDF, build a **per-browser vector index** (FAISS), and chat with an **LLM** using retrieved context. The UI is a **React + TypeScript** single-page app; the API is **FastAPI + LangChain** with a **multi-agent pipeline**, optional **Sentry** tunneling, and sensible **production defaults** (CORS, rate limits, session disk cleanup). Use it to learn how RAG, embeddings, and vector stores fit together end to end.
 
+- **Frontend Live Demo:** [https://pdf-chat-scrapper.vercel.app/](https://pdf-chat-scrapper.vercel.app/)
+- **Backend Live Demo:** [https://rag-pdf-backend.arnobmahmud.com/](https://rag-pdf-backend.arnobmahmud.com/)
+
 ---
 
 ## Table of contents

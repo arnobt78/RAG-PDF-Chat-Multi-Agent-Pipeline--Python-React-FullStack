@@ -73,6 +73,7 @@ const DEFAULT_CHAT_MODEL_ID = "openai/gpt-4o-mini";
 
 export function ChatContainer() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
+  const messagesScrollRef = React.useRef<HTMLDivElement>(null);
 
   // Persisted preferences (localStorage)
   const [selectedModel, setSelectedModel] = React.useState(() =>
@@ -200,9 +201,11 @@ export function ChatContainer() {
     prevChatLoading.current = isLoading;
   }, [isLoading, chatError, chatHistory]);
 
-  // -- Auto-scroll --
+  // -- Auto-scroll inside the chat panel only --
   React.useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const scroller = messagesScrollRef.current;
+    if (!scroller) return;
+    scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
   }, [chatHistory, isLoading, streamingAnswer]);
 
   const handleSend = React.useCallback(
@@ -679,7 +682,10 @@ export function ChatContainer() {
           )}
 
           {/* Messages scrollable area */}
-          <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-hide">
+          <div
+            ref={messagesScrollRef}
+            className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 scrollbar-hide"
+          >
             <AnimatePresence mode="popLayout">
               {chatHistory.length === 0 && !streamingAnswer ? (
                 <motion.div
