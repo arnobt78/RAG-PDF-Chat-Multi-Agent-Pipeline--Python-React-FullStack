@@ -42,7 +42,7 @@ class ValidatorAgent(BaseAgent):
         )
         self.min_answer_length = min_answer_length
         self.max_answer_length = max_answer_length
-    
+
     def process(self, input_data: str, context: dict[str, Any]) -> str:
         """
         Validate the generated answer.
@@ -66,7 +66,7 @@ class ValidatorAgent(BaseAgent):
         if len(answer) > self.max_answer_length:
             answer = answer[:self.max_answer_length] + "..."
             validation_issues.append("answer_truncated")
-        
+
         # Check for common failure patterns
         # This helps frontends label "uncertain" responses without parsing full text.
         failure_indicators = [

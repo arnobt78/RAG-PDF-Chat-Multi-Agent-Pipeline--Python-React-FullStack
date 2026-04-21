@@ -257,7 +257,7 @@ export function ChatContainer() {
     const scroller = messagesScrollRef.current;
     if (!scroller) return;
     if (!shouldAutoScrollRef.current) return;
-    scroller.scrollTo({ top: scroller.scrollHeight, behavior: "smooth" });
+    scroller.scrollTo({ top: scroller.scrollHeight, behavior: "auto" });
   }, [chatHistory, isLoading, streamingAnswer]);
 
   const handleMessagesScroll = React.useCallback(() => {
@@ -270,6 +270,12 @@ export function ChatContainer() {
 
   const handleSend = React.useCallback(
     (message: string) => {
+      // When a new turn starts, pin viewport to latest conversation updates.
+      shouldAutoScrollRef.current = true;
+      const scroller = messagesScrollRef.current;
+      if (scroller) {
+        scroller.scrollTo({ top: scroller.scrollHeight, behavior: "auto" });
+      }
       // UI switch controls transport only; backend reasoning pipeline remains identical.
       if (useStreaming) {
         sendMessageStreaming(message, selectedModel, includeSources);
@@ -732,12 +738,7 @@ export function ChatContainer() {
       </div>
 
       {/* Chat Messages Area */}
-      <ScrollReveal
-        direction="down"
-        once={false}
-        delay={0.1}
-        className="w-full min-w-0 min-h-0"
-      >
+      <div className="w-full min-w-0 min-h-0">
         <GlassCard
           variant="default"
           padding="none"
@@ -799,15 +800,8 @@ export function ChatContainer() {
                 : "max-h-[min(28rem,58dvh)] overflow-y-auto",
             )}
           >
-            <AnimatePresence mode="popLayout">
-              {chatHistory.length === 0 && !streamingAnswer ? (
-                <motion.div
-                  key="empty"
-                  initial={false}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="flex flex-col items-center justify-center text-center"
-                >
+            {chatHistory.length === 0 && !streamingAnswer ? (
+              <div className="flex flex-col items-center justify-center text-center">
                   <div className="p-3.5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-white/5 border border-white/15 mb-4">
                     <MessageSquare className="w-10 h-10 text-purple-300/90" />
                   </div>
@@ -838,37 +832,31 @@ export function ChatContainer() {
                       ))}
                     </div>
                   )}
-                </motion.div>
-              ) : (
-                chatHistory.map((entry: ChatEntry, index: number) => (
-                  <React.Fragment key={index}>
-                    {/* Render as user/assistant pair for each historical turn */}
-                    <ChatMessage
-                      role="user"
-                      content={entry.question}
-                      timestamp={entry.timestamp}
-                      index={index * 2}
-                    />
-                    <ChatMessage
-                      role="assistant"
-                      content={entry.answer}
-                      timestamp={entry.timestamp}
-                      index={index * 2 + 1}
-                      isLatest={index === chatHistory.length - 1 && !isLoading}
-                      sources={entry.sources}
-                      modelUsed={entry.modelUsed}
-                    />
-                  </React.Fragment>
-                ))
-              )}
+              </div>
+            ) : (
+              chatHistory.map((entry: ChatEntry, index: number) => (
+                <React.Fragment key={index}>
+                  {/* Render as user/assistant pair for each historical turn */}
+                  <ChatMessage
+                    role="user"
+                    content={entry.question}
+                    timestamp={entry.timestamp}
+                    index={index * 2}
+                  />
+                  <ChatMessage
+                    role="assistant"
+                    content={entry.answer}
+                    timestamp={entry.timestamp}
+                    index={index * 2 + 1}
+                    isLatest={index === chatHistory.length - 1 && !isLoading}
+                    sources={entry.sources}
+                    modelUsed={entry.modelUsed}
+                  />
+                </React.Fragment>
+              ))
+            )}
 
-              {isLoading && (
-                <TypingIndicator
-                  key="typing-indicator"
-                  streamingText={streamingAnswer}
-                />
-              )}
-            </AnimatePresence>
+            {isLoading && <TypingIndicator streamingText={streamingAnswer} />}
 
             <div ref={messagesEndRef} />
           </div>
@@ -906,7 +894,7 @@ export function ChatContainer() {
             </div>
           )}
         </GlassCard>
-      </ScrollReveal>
+      </div>
 
       <ConfirmAlertDialog
         open={clearAllOpen}

@@ -34,8 +34,8 @@ export function ChatMessage({
   role,
   content,
   timestamp,
-  isLatest = false,
-  index = 0,
+  isLatest: _isLatest = false,
+  index: _index = 0,
   sources,
   modelUsed,
 }: ChatMessageProps) {
@@ -53,29 +53,12 @@ export function ChatMessage({
     }
   };
 
-  const messageVariants = {
-    hidden: { opacity: 0, x: isUser ? 20 : -20, y: 10 },
-    visible: {
-      opacity: 1,
-      x: 0,
-      y: 0,
-      transition: {
-        duration: 0.4,
-        delay: isLatest ? 0 : index * 0.05,
-        ease: "easeOut",
-      },
-    },
-  };
-
   return (
-    <motion.div
+    <div
       className={cn(
         "flex gap-3 group",
         isUser ? "flex-row-reverse" : "flex-row",
       )}
-      variants={messageVariants}
-      initial="hidden"
-      animate="visible"
     >
       {/* Avatar */}
       <div
@@ -125,12 +108,7 @@ export function ChatMessage({
               {sources.length > 1 ? "s" : ""}
             </button>
             {sourcesOpen && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                className="mt-1 space-y-1"
-              >
+              <div className="mt-1 space-y-1">
                 {sources.map((src, i) => (
                   <div
                     key={i}
@@ -139,7 +117,7 @@ export function ChatMessage({
                     {src}
                   </div>
                 ))}
-              </motion.div>
+              </div>
             )}
           </div>
         )}
@@ -180,7 +158,7 @@ export function ChatMessage({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -194,13 +172,7 @@ export const TypingIndicator = React.forwardRef<
   { streamingText?: string | null }
 >(function TypingIndicator({ streamingText }, ref) {
   return (
-    <motion.div
-      ref={ref}
-      className="flex gap-3"
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
-    >
+    <div ref={ref} className="flex gap-3">
       <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-white/10 border border-white/20">
         <Bot className="w-4 h-4 text-purple-400" />
       </div>
@@ -237,7 +209,7 @@ export const TypingIndicator = React.forwardRef<
           </div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 });
 TypingIndicator.displayName = "TypingIndicator";
