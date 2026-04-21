@@ -93,7 +93,9 @@ export function ChatInput({
           wrapperClassName="min-w-0 flex-1 self-stretch"
           className={cn(
             "w-full min-h-[44px] max-h-[200px] resize-none",
-            "bg-transparent border-none focus:ring-0",
+            "bg-transparent border-transparent outline-none ring-0 shadow-none",
+            "focus:border-transparent focus:outline-none focus:ring-0 focus:shadow-none",
+            "focus-visible:border-transparent focus-visible:outline-none focus-visible:ring-0",
             "text-white placeholder:text-slate-300",
           )}
           rows={1}

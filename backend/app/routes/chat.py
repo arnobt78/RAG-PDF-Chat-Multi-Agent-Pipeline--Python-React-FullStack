@@ -22,6 +22,7 @@ from collections.abc import AsyncGenerator
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
+from ..agents.base_agent import AgentResult
 from ..agents.pipeline import AgentPipeline
 from ..models import AnswerResponse, QuestionRequest
 from ..services.ip_rate_limit import check_ask_rate_limit
@@ -131,31 +132,94 @@ async def _stream_pipeline(
 
     try:
         pipeline = AgentPipeline(vector_service, llm_service)
-        result = pipeline.run(
-            question=question,
-            model=model,
-            include_sources=include_sources,
-        )
 
-        if not result.success:
-            yield sse("error", {"message": result.error or "Pipeline failed"})
+        context: dict = {
+            "question": question,
+            "model": model,
+            "include_sources": include_sources,
+            "retrieval_k": pipeline.retrieval_k,
+        }
+        results: list[AgentResult] = []
+        total_ms = 0.0
+
+        # 1) Extractor
+        ok, chunks, ms, err = pipeline._step(pipeline.extractor, question, context, results)
+        total_ms += ms
+        if not ok:
+            yield sse("error", {"message": err or "Extractor failed"})
+            return
+
+        # 2) Analyzer
+        ok, filtered, ms, err = pipeline._step(pipeline.analyzer, chunks, context, results)
+        total_ms += ms
+        if not ok:
+            yield sse("error", {"message": err or "Analyzer failed"})
+            return
+
+        # 3) Preprocessor
+        ok, cleaned, ms, err = pipeline._step(
+            pipeline.preprocessor, filtered, context, results
+        )
+        total_ms += ms
+        if not ok:
+            yield sse("error", {"message": err or "Preprocessor failed"})
+            return
+
+        # 4) Optimizer
+        ok, optimised_pair, ms, err = pipeline._step(
+            pipeline.optimizer, (question, cleaned), context, results
+        )
+        total_ms += ms
+        if not ok:
+            yield sse("error", {"message": err or "Optimizer failed"})
+            return
+
+        # 5) Synthesizer (true provider token stream)
+        stream_question, optimised_chunks = optimised_pair
+        answer = ""
+        model_used = None
+        async for event in llm_service.stream_answer_with_failover(
+            question=stream_question,
+            context_docs=optimised_chunks,
+            model=model,
+        ):
+            if event.get("type") == "token":
+                content = event.get("content", "")
+                answer += content
+                yield sse("token", {"content": content})
+            elif event.get("type") == "complete":
+                model_used = event.get("model_used")
+
+        context["model_used"] = model_used
+        context["answer_length"] = len(answer)
+
+        # 6) Validator
+        ok, validated, ms, err = pipeline._step(pipeline.validator, answer, context, results)
+        total_ms += ms
+        if not ok:
+            yield sse("error", {"message": err or "Validator failed"})
+            return
+
+        # 7) Assembler
+        ok, assembled, ms, err = pipeline._step(
+            pipeline.assembler, validated, context, results
+        )
+        total_ms += ms
+        if not ok:
+            yield sse("error", {"message": err or "Assembler failed"})
             return
 
         increment_chat_completions()
-
-        # Stream the answer token-by-token for a typing effect
-        answer = result.answer or ""
-        chunk_size = 4
-        for i in range(0, len(answer), chunk_size):
-            yield sse("token", {"content": answer[i : i + chunk_size]})
 
         # Final metadata event
         yield sse(
             "done",
             {
-                "model_used": result.model_used,
-                "processing_time": round(time.time() - start, 3),
-                "sources": result.sources,
+                "model_used": assembled.get("model_used") or context.get("model_used"),
+                "processing_time": round(total_ms / 1000, 3)
+                if total_ms > 0
+                else round(time.time() - start, 3),
+                "sources": assembled.get("sources"),
             },
         )
 

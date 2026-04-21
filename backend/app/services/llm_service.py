@@ -11,6 +11,7 @@ Hugging Face, and direct OpenAI for maximum reliability.
 
 import logging
 import time
+from collections.abc import AsyncGenerator
 from typing import Any, cast
 
 from langchain_core.documents import Document
@@ -201,6 +202,45 @@ Answer: """
         answer, model_used = self._generate_with_failover(question, context, model or self.model)
         processing_time = time.time() - start_time
         return answer, model_used, processing_time
+
+    async def stream_answer_with_failover(
+        self,
+        question: str,
+        context_docs: list[Document],
+        model: str | None = None,
+    ) -> AsyncGenerator[dict[str, Any], None]:
+        """
+        Stream answer tokens from providers in failover order.
+
+        Yields dict events:
+            {"type": "token", "content": "...", "model_used": "..."}
+            {"type": "complete", "model_used": "..."}
+        """
+        context = self._format_docs(context_docs)
+        prompt = ChatPromptTemplate.from_template(self.RAG_PROMPT_TEMPLATE)
+        payload = {"context": context, "question": question}
+
+        for provider, model_id in self._llm_attempt_sequence(model or self.model):
+            try:
+                llm = self._build_llm(provider, model_id)
+                chain = prompt | llm | StrOutputParser()
+                async for chunk in chain.astream(payload):
+                    text = chunk if isinstance(chunk, str) else str(chunk)
+                    if text:
+                        yield {
+                            "type": "token",
+                            "content": text,
+                            "model_used": model_id,
+                        }
+                logger.info("LLM stream succeeded: %s / %s", provider.name, model_id)
+                yield {"type": "complete", "model_used": model_id}
+                return
+            except Exception as exc:
+                logger.warning(
+                    "LLM stream %s/%s failed: %s", provider.name, model_id, exc
+                )
+
+        raise RuntimeError("All AI providers failed. Check your API keys and try again.")
 
     def create_rag_chain(self, retriever, model: str | None = None):
         """Create a complete RAG chain with retriever."""
