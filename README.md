@@ -13,7 +13,16 @@ A production-style, educational full-stack RAG project that demonstrates how to 
 - **Frontend Live Demo:** [https://pdf-chat-scrapper.vercel.app/](https://pdf-chat-scrapper.vercel.app/)
 - **Backend Live Demo:** [https://rag-pdf-backend.arnobmahmud.com/](https://rag-pdf-backend.arnobmahmud.com/)
 
----
+![Image 1](https://github.com/user-attachments/assets/d0c1ed31-8c98-4191-b388-8c0d0f55ebda)
+![Image 2](https://github.com/user-attachments/assets/3557b9f2-9e33-40dc-89ff-b616db68bd84)
+![Image 3](https://github.com/user-attachments/assets/0046ca91-1066-435a-89a7-ef442e8a914e)
+![Image 4](https://github.com/user-attachments/assets/eb5e9e49-9993-4c96-939b-a1d1703aa835)
+![Image 5](https://github.com/user-attachments/assets/84a8f448-8918-47d9-8917-3f4e539ea8d0)
+![Image 6](https://github.com/user-attachments/assets/e4ac4e75-c154-4cde-9c96-0640f4b9fcba)
+![Image 7](https://github.com/user-attachments/assets/f075f714-0ceb-47cc-bb1d-54c14602c345)
+![Image 8](https://github.com/user-attachments/assets/bf8f07a1-7185-4b4e-ba45-600ec58339f4)
+![Image 9](https://github.com/user-attachments/assets/bda5e587-f66f-4bb0-a429-95a8a1396912)
+![Image 10](https://github.com/user-attachments/assets/f1353646-bc0c-425e-a037-880c16190ecb)
 
 ## Table of contents
 
