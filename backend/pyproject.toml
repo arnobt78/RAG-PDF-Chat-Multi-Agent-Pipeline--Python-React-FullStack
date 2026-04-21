@@ -17,6 +17,7 @@ known-first-party = ["app"]
 python_version = "3.11"
 packages = ["app"]
 strict = false
+check_untyped_defs = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 ignore_missing_imports = true

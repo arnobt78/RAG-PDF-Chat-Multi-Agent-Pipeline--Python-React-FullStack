@@ -92,5 +92,7 @@ class OptimizerAgent(BaseAgent):
         context["optimizer_input_chunks"] = len(chunks)
         context["optimizer_output_chunks"] = len(fitted)
         context["optimizer_char_budget"] = self.context_char_budget
+        # Keep optimized chunks for downstream source-citation refinement.
+        context["optimized_chunks"] = fitted
 
         return (question, fitted)

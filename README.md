@@ -430,7 +430,13 @@ cd backend
 pip install -r requirements.txt -r requirements-dev.txt
 ruff check app
 mypy app
+python -m unittest discover -s tests -p "test_*.py"
 ```
+
+Current backend integration test:
+
+- `backend/tests/test_chat_stream_sse.py`  
+  Validates `/ask/stream` SSE behavior (`token` + `done`) and source metadata flow.
 
 ---
 

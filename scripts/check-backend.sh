@@ -15,3 +15,6 @@ fi
 "$PY" -m compileall -q app
 "$PY" -m ruff check app
 "$PY" -m mypy app
+if [[ -d tests ]]; then
+  "$PY" -m unittest discover -s tests -p "test_*.py"
+fi

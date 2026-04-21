@@ -53,6 +53,19 @@ export function ChatMessage({
     }
   };
 
+  const formattedSources = React.useMemo(() => {
+    if (!sources) return [];
+    return sources.map((src) => {
+      const raw = String(src).trim();
+      // Backend often stores page metadata as zero-based ints; present one-based pages in UI.
+      if (/^\d+$/.test(raw)) {
+        const pageNum = Number.parseInt(raw, 10) + 1;
+        return `Page ${pageNum}`;
+      }
+      return raw;
+    });
+  }, [sources]);
+
   return (
     <div
       className={cn(
@@ -97,22 +110,22 @@ export function ChatMessage({
         </div>
 
         {/* Source citations collapsible */}
-        {!isUser && sources && sources.length > 0 && (
+        {!isUser && formattedSources.length > 0 && (
           <div className="mt-1.5">
             <button
               onClick={() => setSourcesOpen((p) => !p)}
               className="flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors"
             >
               <FileText className="w-3 h-3" />
-              {sourcesOpen ? "Hide" : "Show"} {sources.length} source
-              {sources.length > 1 ? "s" : ""}
+              {sourcesOpen ? "Hide" : "Show"} {formattedSources.length} source
+              {formattedSources.length > 1 ? "s" : ""}
             </button>
             {sourcesOpen && (
-              <div className="mt-1 space-y-1">
-                {sources.map((src, i) => (
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {formattedSources.map((src, i) => (
                   <div
                     key={i}
-                    className="text-xs text-white/90 bg-white/5 rounded-lg px-3 py-1.5 border border-white/5"
+                    className="inline-flex items-center text-xs text-white/90 bg-white/5 rounded-full px-2.5 py-1 border border-white/10"
                   >
                     {src}
                   </div>
