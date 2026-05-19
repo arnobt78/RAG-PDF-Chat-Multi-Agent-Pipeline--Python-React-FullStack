@@ -14,6 +14,7 @@
 
 import * as React from "react";
 import { api, ApiError, streamQuestion } from "@/lib/api";
+import { createChatEntry } from "@/lib/chat-history";
 import type { ChatEntry } from "@/types";
 
 interface ChatState {
@@ -43,6 +44,8 @@ const initialState: ChatState = {
 export function useChat(): UseChatReturn {
   const [state, setState] = React.useState<ChatState>(initialState);
   const abortRef = React.useRef<AbortController | null>(null);
+  /** Ignores stale onToken/onDone after abort or a newer stream starts */
+  const streamGenerationRef = React.useRef(0);
 
   /** Standard JSON request */
   const sendMessage = React.useCallback(
@@ -53,13 +56,12 @@ export function useChat(): UseChatReturn {
       try {
         const response = await api.askQuestion(message, model, includeSources);
 
-        const newEntry: ChatEntry = {
+        const newEntry = createChatEntry({
           question: message,
           answer: response.answer,
-          timestamp: new Date(),
           sources: response.sources,
           modelUsed: response.model_used,
-        };
+        });
 
         setState((prev) => ({
           ...prev,
@@ -82,6 +84,10 @@ export function useChat(): UseChatReturn {
   /** SSE streaming request */
   const sendMessageStreaming = React.useCallback(
     (message: string, model?: string, includeSources?: boolean) => {
+      // Cancel any in-flight SSE before starting a new turn (prevents overlapping streams).
+      abortRef.current?.abort();
+      const streamId = ++streamGenerationRef.current;
+
       // Streaming starts with an empty assistant buffer that grows token-by-token.
       setState((prev) => ({
         ...prev,
@@ -97,19 +103,20 @@ export function useChat(): UseChatReturn {
         { question: message, model, include_sources: includeSources },
         {
           onToken(text) {
+            if (streamId !== streamGenerationRef.current) return;
             accumulated += text;
             setState((prev) => ({ ...prev, streamingAnswer: accumulated }));
           },
           onDone(meta) {
+            if (streamId !== streamGenerationRef.current) return;
             // Persist final transcript only when stream completes, so history
             // does not contain partial assistant messages.
-            const entry: ChatEntry = {
+            const entry = createChatEntry({
               question: questionRef,
               answer: accumulated,
-              timestamp: new Date(),
               sources: meta.sources,
               modelUsed: meta.model_used,
-            };
+            });
             setState((prev) => ({
               ...prev,
               chatHistory: [...prev.chatHistory, entry],
@@ -118,6 +125,7 @@ export function useChat(): UseChatReturn {
             }));
           },
           onError(msg) {
+            if (streamId !== streamGenerationRef.current) return;
             setState((prev) => ({
               ...prev,
               isLoading: false,
@@ -136,6 +144,7 @@ export function useChat(): UseChatReturn {
   const cancelStream = React.useCallback(() => {
     // Abort fetch reader first, then normalize UI state.
     abortRef.current?.abort();
+    streamGenerationRef.current += 1;
     setState((prev) => ({
       ...prev,
       isLoading: false,
@@ -144,6 +153,8 @@ export function useChat(): UseChatReturn {
   }, []);
 
   const clearHistory = React.useCallback(() => {
+    abortRef.current?.abort();
+    streamGenerationRef.current += 1;
     setState(initialState);
   }, []);
 

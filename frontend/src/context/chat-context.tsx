@@ -15,6 +15,7 @@
 
 import * as React from "react";
 import { api, ApiError, streamQuestion } from "@/lib/api";
+import { createChatEntry } from "@/lib/chat-history";
 import type { ChatEntry, PDFDocument } from "@/types";
 
 // ============================================================================
@@ -84,6 +85,7 @@ interface ChatProviderProps {
 export function ChatProvider({ children }: ChatProviderProps) {
   const [state, setState] = React.useState<ChatContextState>(initialState);
   const abortRef = React.useRef<AbortController | null>(null);
+  const streamGenerationRef = React.useRef(0);
 
   const uploadPDF = React.useCallback(async (file: File) => {
     setState((prev) => ({ ...prev, isUploading: true, uploadError: null }));
@@ -118,6 +120,9 @@ export function ChatProvider({ children }: ChatProviderProps) {
   /** Send a chat message – chooses streaming or standard based on toggle */
   const sendMessage = React.useCallback(
     async (message: string) => {
+      abortRef.current?.abort();
+      const streamId = ++streamGenerationRef.current;
+
       setState((prev) => ({
         ...prev,
         isLoading: true,
@@ -136,17 +141,18 @@ export function ChatProvider({ children }: ChatProviderProps) {
           },
           {
             onToken(text) {
+              if (streamId !== streamGenerationRef.current) return;
               accumulated += text;
               setState((prev) => ({ ...prev, streamingAnswer: accumulated }));
             },
             onDone(meta) {
-              const entry: ChatEntry = {
+              if (streamId !== streamGenerationRef.current) return;
+              const entry = createChatEntry({
                 question: message,
                 answer: accumulated,
-                timestamp: new Date(),
                 sources: meta.sources,
                 modelUsed: meta.model_used,
-              };
+              });
               setState((prev) => ({
                 ...prev,
                 chatHistory: [...prev.chatHistory, entry],
@@ -155,6 +161,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
               }));
             },
             onError(msg) {
+              if (streamId !== streamGenerationRef.current) return;
               setState((prev) => ({
                 ...prev,
                 isLoading: false,
@@ -173,13 +180,12 @@ export function ChatProvider({ children }: ChatProviderProps) {
             state.includeSources,
           );
 
-          const entry: ChatEntry = {
+          const entry = createChatEntry({
             question: message,
             answer: response.answer,
-            timestamp: new Date(),
             sources: response.sources,
             modelUsed: response.model_used,
-          };
+          });
 
           setState((prev) => ({
             ...prev,
@@ -198,6 +204,7 @@ export function ChatProvider({ children }: ChatProviderProps) {
 
   const cancelStream = React.useCallback(() => {
     abortRef.current?.abort();
+    streamGenerationRef.current += 1;
     setState((prev) => ({
       ...prev,
       isLoading: false,
@@ -206,10 +213,14 @@ export function ChatProvider({ children }: ChatProviderProps) {
   }, []);
 
   const clearChat = React.useCallback(() => {
+    abortRef.current?.abort();
+    streamGenerationRef.current += 1;
     setState((prev) => ({ ...prev, chatHistory: [], chatError: null }));
   }, []);
 
   const resetPDF = React.useCallback(() => {
+    abortRef.current?.abort();
+    streamGenerationRef.current += 1;
     setState(initialState);
   }, []);
 

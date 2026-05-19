@@ -17,6 +17,8 @@ export interface ChatMessage {
 }
 
 export interface ChatEntry {
+  /** Stable id for React keys and session export; optional on legacy IndexedDB rows */
+  id?: string;
   question: string;
   answer: string;
   timestamp?: Date;

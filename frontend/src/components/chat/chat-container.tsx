@@ -60,6 +60,7 @@ import {
   clearAllSessions,
   type ChatSession,
 } from "@/lib/storage";
+import { getChatEntryReactKey } from "@/lib/chat-history";
 import { appToast } from "@/lib/app-toast";
 import { ConfirmAlertDialog } from "@/components/ui/confirm-alert-dialog";
 import {
@@ -270,6 +271,9 @@ export function ChatContainer() {
 
   const handleSend = React.useCallback(
     (message: string) => {
+      // Block overlapping turns (e.g. suggestion chips while a stream is active).
+      if (isLoading) return;
+
       // When a new turn starts, pin viewport to latest conversation updates.
       shouldAutoScrollRef.current = true;
       const scroller = messagesScrollRef.current;
@@ -284,6 +288,7 @@ export function ChatContainer() {
       }
     },
     [
+      isLoading,
       sendMessage,
       sendMessageStreaming,
       selectedModel,
@@ -835,7 +840,7 @@ export function ChatContainer() {
               </div>
             ) : (
               chatHistory.map((entry: ChatEntry, index: number) => (
-                <React.Fragment key={index}>
+                <React.Fragment key={getChatEntryReactKey(entry, index)}>
                   {/* Render as user/assistant pair for each historical turn */}
                   <ChatMessage
                     role="user"
@@ -856,7 +861,12 @@ export function ChatContainer() {
               ))
             )}
 
-            {isLoading && <TypingIndicator streamingText={streamingAnswer} />}
+            {isLoading && (
+              <TypingIndicator
+                key="streaming-indicator"
+                streamingText={streamingAnswer}
+              />
+            )}
 
             <div ref={messagesEndRef} />
           </div>

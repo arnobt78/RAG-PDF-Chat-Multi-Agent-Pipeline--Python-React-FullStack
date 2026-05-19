@@ -12,7 +12,6 @@
  */
 
 import * as React from "react";
-import { motion } from "framer-motion";
 import { User, Bot, Copy, Check, FileText, Cpu } from "lucide-react";
 import { cn, formatRelativeTime } from "@/lib/utils";
 
@@ -179,11 +178,16 @@ export function ChatMessage({
  * TypingIndicator / StreamingIndicator
  *
  * Shows animated dots or streaming text while assistant is generating.
+ * Plain DOM + CSS only (no Framer Motion) — avoids insertBefore crashes during SSE.
  */
 export const TypingIndicator = React.forwardRef<
   HTMLDivElement,
   { streamingText?: string | null }
 >(function TypingIndicator({ streamingText }, ref) {
+  // One stable <p> subtree: dots until first token, then text + CSS cursor.
+  const hasTokens =
+    streamingText != null && streamingText.length > 0;
+
   return (
     <div ref={ref} className="flex gap-3">
       <div className="shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-white/10 border border-white/20">
@@ -196,31 +200,29 @@ export const TypingIndicator = React.forwardRef<
           assistantBubbleGlowClass,
         )}
       >
-        {streamingText ? (
-          <p className="text-sm sm:text-base whitespace-pre-wrap break-words">
-            {streamingText}
-            <motion.span
-              className="inline-block w-2 h-4 ml-0.5 bg-purple-400 rounded-sm"
-              animate={{ opacity: [1, 0] }}
-              transition={{ duration: 0.6, repeat: Infinity }}
+        <p className="text-sm sm:text-base whitespace-pre-wrap break-words min-h-[1.25rem]">
+          {hasTokens ? streamingText : null}
+          {!hasTokens && (
+            <span
+              className="inline-flex items-center gap-1 align-middle"
+              aria-hidden
+            >
+              {[0, 1, 2].map((i) => (
+                <span
+                  key={i}
+                  className="w-2 h-2 bg-purple-400 rounded-full animate-bounce"
+                  style={{ animationDelay: `${i * 0.15}s` }}
+                />
+              ))}
+            </span>
+          )}
+          {hasTokens && (
+            <span
+              className="inline-block w-2 h-4 ml-0.5 align-middle bg-purple-400 rounded-sm animate-pulse"
+              aria-hidden
             />
-          </p>
-        ) : (
-          <div className="flex items-center gap-1">
-            {[0, 1, 2].map((i) => (
-              <motion.span
-                key={i}
-                className="w-2 h-2 bg-purple-400 rounded-full"
-                animate={{ y: [0, -6, 0] }}
-                transition={{
-                  duration: 0.6,
-                  repeat: Infinity,
-                  delay: i * 0.15,
-                }}
-              />
-            ))}
-          </div>
-        )}
+          )}
+        </p>
       </div>
     </div>
   );
