@@ -87,4 +87,4 @@ Manual `/chat`: upload → stream → second Q; stop mid-stream; restore session
 
 ## 9. Related docs
 
-- [`README.md`](README.md) · [`docs/LLM_MODEL_SELECTION.md`](LLM_MODEL_SELECTION.md) · deploy playbooks · [`CLAUDE.md`](../CLAUDE.md) · `.agile-v/STATE.md`
+- [`README.md`](../README.md) · [`SECURITY.md`](../SECURITY.md) · [`LLM_MODEL_SELECTION.md`](LLM_MODEL_SELECTION.md) · deploy playbooks · [`CLAUDE.md`](../CLAUDE.md) · `.agile-v/STATE.md`

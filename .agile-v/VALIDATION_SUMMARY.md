@@ -13,6 +13,7 @@
 | Live LLM smoke `/ask` | **Skipped** | No automated call; avoid logging keys |
 | Sentry no-ops without DSN | **Code path** | `initSentry` returns early when `VITE_SENTRY_DSN` empty |
 | Audit vs plan scope | **OK** | No React Query/Redis/auth in scope; Vite SPA state model unchanged |
+| Pre-commit re-check (docs pass) | **PASS** | `check:frontend` + `check:backend` OK |
 
 ## EvalGate
 

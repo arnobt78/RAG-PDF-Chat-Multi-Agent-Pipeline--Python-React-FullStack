@@ -1,30 +1,23 @@
 # STATE.md
 
-**Cycle:** C1 | **Updated:** 2026-08-08  
-**Status:** Models + Sentry harden **done**; checks PASS; ready to commit/deploy.  
-**Gate:** GATE-0001 scoped approved. GATE-0002 N/A.
+**C1** | **2026-08-08** | Models+Sentry+README/SECURITY **done** | checks PASS | on `main`
 
 ## Done
 
-- REQ-0008/0009: env-only Sentry DSN, drop localhost/dev, PII/replay tight  
-- REQ-0013: free catalogs (OpenRouter `:free`, Groq gpt-oss/Qwen, Gemini Flash); default `openai/gpt-oss-20b:free`  
-- Docs: LLM_MODEL_SELECTION, PROJECT_WALKTHROUGH, CLAUDE compact  
-- Validate: `check:frontend`, `build`, `check:backend` PASS
+- REQ-0008/0009/0013 (Sentry harden + free catalogs)  
+- Educational README + SECURITY.md  
+- Compact CLAUDE / PROJECT_WALKTHROUGH / `.agile-v`
 
 ## Ops (human)
 
-- Coolify: `DEFAULT_MODEL=openai/gpt-oss-20b:free` then Redeploy  
-- Vercel: already has `VITE_APP_ENV=production` + DSN — redeploy FE after git push  
-- Sentry DSN rotate: optional for demo  
-- Spot-check prod `/about` `/chat`; archive HMR issues if clean
+Coolify `DEFAULT_MODEL=openai/gpt-oss-20b:free` → Redeploy · Vercel FE redeploy · optional Sentry rotate
 
 ## Deferred
 
-REQ-0010 chat dedupe · REQ-0011 PROJECT_PLAN stale · REQ-0012 more tests
+REQ-0010 · REQ-0011 · REQ-0012
 
 ## Resume
 
 ```md
-/agile-v-core
-Load .agile-v/STATE.md. Next: deploy + optional deferred REQs after approval.
+/agile-v-core → .agile-v/STATE.md → deploy or deferred REQs after approval
 ```

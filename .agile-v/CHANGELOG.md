@@ -12,3 +12,9 @@
 - OpenRouter/Groq/Gemini catalogs + default `openai/gpt-oss-20b:free`.
 - Refreshed `docs/LLM_MODEL_SELECTION.md` verification date and rag-pdf-chat registry notes.
 - Compact CLAUDE.md + PROJECT_WALKTHROUGH; commit/push when human ready.
+
+## 2026-08-08 — Educational README + SECURITY
+
+- Full teaching README (title/screenshots kept); Diploi + stack badges  
+- `SECURITY.md` → contact@arnobmahmud.com  
+- Pre-deploy audit: plan scope OK; no RQ/Redis/auth in this Vite app

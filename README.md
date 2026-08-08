@@ -16,6 +16,7 @@ A production-style, educational full-stack RAG project that demonstrates how to 
 - **Frontend Live Demo:** [https://pdf-chat-scrapper.vercel.app/](https://pdf-chat-scrapper.vercel.app/)
 - **Backend Live Demo:** [https://rag-pdf-backend.arnobmahmud.com/](https://rag-pdf-backend.arnobmahmud.com/)
 - **Security:** Private vulnerability reports — see [SECURITY.md](SECURITY.md) (`contact@arnobmahmud.com`)
+- **Author:** [Arnob Mahmud](https://www.arnobmahmud.com), [LinkedIn](https://www.linkedin.com/in/arnob-mahmud-05839655/), [GitHub](https://github.com/arnobt78), contact: [contact@arnobmahmud.com](mailto:contact@arnobmahmud.com)
 
 ![Image 1](https://github.com/user-attachments/assets/d0c1ed31-8c98-4191-b388-8c0d0f55ebda)
 ![Image 2](https://github.com/user-attachments/assets/3557b9f2-9e33-40dc-89ff-b616db68bd84)
@@ -58,54 +59,54 @@ A production-style, educational full-stack RAG project that demonstrates how to 
 
 This app lets a user **upload a PDF** and **ask questions about it**. The backend:
 
-1. extracts text from the PDF  
-2. splits text into **chunks**  
-3. turns each chunk into an **embedding** (vector)  
-4. stores vectors in **FAISS** (per anonymous browser session)  
-5. for each question, **retrieves** the most relevant chunks  
-6. sends question + context to an **LLM** (with provider failover)  
+1. extracts text from the PDF
+2. splits text into **chunks**
+3. turns each chunk into an **embedding** (vector)
+4. stores vectors in **FAISS** (per anonymous browser session)
+5. for each question, **retrieves** the most relevant chunks
+6. sends question + context to an **LLM** (with provider failover)
 7. returns a grounded answer — optionally **streamed** over **SSE**
 
 It is intentionally a **Vite SPA + FastAPI** split (not Next.js), so you can learn CORS, env vars, reverse proxies, and separate frontend/backend deploys the way many real products do.
 
 Highlights for learners:
 
-- Anonymous session isolation (`X-Chat-Session-Id`) — no login required  
-- Streaming (SSE) and non-streaming chat modes  
-- Free-tier-first multi-provider model catalog (OpenRouter `:free`, Groq, Gemini, …)  
-- Optional source snippets (“where did this answer come from?”)  
-- Device-local chat history (IndexedDB) and preferences (localStorage)  
-- Rate limiting + FAISS session cleanup for demo safety  
+- Anonymous session isolation (`X-Chat-Session-Id`) — no login required
+- Streaming (SSE) and non-streaming chat modes
+- Free-tier-first multi-provider model catalog (OpenRouter `:free`, Groq, Gemini, …)
+- Optional source snippets (“where did this answer come from?”)
+- Device-local chat history (IndexedDB) and preferences (localStorage)
+- Rate limiting + FAISS session cleanup for demo safety
 - Optional Sentry (browser SDK + backend tunnel)
 
 ---
 
 ## What you will learn
 
-- How **RAG** works end-to-end in a runnable app (not only slides).  
-- How a **React + TypeScript + Vite** frontend talks to a **FastAPI** API.  
-- How **chunking → embeddings → vector search → LLM** fits together.  
-- How **SSE** streaming feels in the UI (and how to cancel mid-stream).  
-- How to isolate users **without accounts** using a session header + on-disk indexes.  
-- How to configure **`.env`** for local, Vercel, and Coolify.  
+- How **RAG** works end-to-end in a runnable app (not only slides).
+- How a **React + TypeScript + Vite** frontend talks to a **FastAPI** API.
+- How **chunking → embeddings → vector search → LLM** fits together.
+- How **SSE** streaming feels in the UI (and how to cancel mid-stream).
+- How to isolate users **without accounts** using a session header + on-disk indexes.
+- How to configure **`.env`** for local, Vercel, and Coolify.
 - How to keep a demo resilient with **provider failover** and rate limits.
 
 ---
 
 ## Keywords and glossary (beginner-friendly)
 
-| Term | What it is | Why it matters here |
-| --- | --- | --- |
-| **RAG** | Retrieval Augmented Generation: find relevant text first, then ask the LLM | Answers stay grounded in *your* PDF |
-| **Embedding** | Numbers that represent meaning of text | Similar sentences land near each other in vector space |
-| **FAISS** | Fast similarity search over vectors (Facebook AI) | Speedy “which chunks match this question?” |
-| **Chunking** | Split a long PDF into smaller pieces | Models have context limits; retrieval needs units |
-| **SSE** | Server-Sent Events — one-way stream from server → browser | Token-by-token “typing” answers |
-| **Session ID** | UUID stored in the browser, sent as `X-Chat-Session-Id` | Each visitor gets their own FAISS folder |
-| **LRU eviction** | Drop least-recently-used sessions when the cap is hit | Keeps disk usage bounded on a demo VPS |
-| **CORS** | Browser rule: which websites may call your API | Must list your Vercel origin on Coolify |
-| **Failover** | Try next provider/model when one fails | Free tiers rate-limit and deprecate models often |
-| **IndexedDB** | Browser database for larger local data | Chat history stays on the device (not on the server) |
+| Term             | What it is                                                                 | Why it matters here                                    |
+| ---------------- | -------------------------------------------------------------------------- | ------------------------------------------------------ |
+| **RAG**          | Retrieval Augmented Generation: find relevant text first, then ask the LLM | Answers stay grounded in _your_ PDF                    |
+| **Embedding**    | Numbers that represent meaning of text                                     | Similar sentences land near each other in vector space |
+| **FAISS**        | Fast similarity search over vectors (Facebook AI)                          | Speedy “which chunks match this question?”             |
+| **Chunking**     | Split a long PDF into smaller pieces                                       | Models have context limits; retrieval needs units      |
+| **SSE**          | Server-Sent Events — one-way stream from server → browser                  | Token-by-token “typing” answers                        |
+| **Session ID**   | UUID stored in the browser, sent as `X-Chat-Session-Id`                    | Each visitor gets their own FAISS folder               |
+| **LRU eviction** | Drop least-recently-used sessions when the cap is hit                      | Keeps disk usage bounded on a demo VPS                 |
+| **CORS**         | Browser rule: which websites may call your API                             | Must list your Vercel origin on Coolify                |
+| **Failover**     | Try next provider/model when one fails                                     | Free tiers rate-limit and deprecate models often       |
+| **IndexedDB**    | Browser database for larger local data                                     | Chat history stays on the device (not on the server)   |
 
 ---
 
@@ -135,35 +136,35 @@ Default chat model (code + `.env.example`): `openai/gpt-oss-20b:free` (OpenRoute
 
 ### Frontend (high level)
 
-| Library | Role for learners |
-| --- | --- |
-| **Vite** | Fast dev server + production bundler for the SPA |
-| **React 18** | UI components and hooks |
-| **TypeScript** | Typed props, API payloads, model IDs |
-| **React Router** | `/`, `/chat`, `/about`, `/api-status` |
-| **Tailwind CSS** | Utility-first styling |
-| **Framer Motion** | Landing / section motion (chat streaming uses CSS for stability) |
-| **Radix UI** | Accessible dialogs, menus, tooltips |
-| **Sonner** | Toast notifications |
-| **Sentry React SDK** | Optional errors/replay — only if `VITE_SENTRY_DSN` is set |
+| Library              | Role for learners                                                |
+| -------------------- | ---------------------------------------------------------------- |
+| **Vite**             | Fast dev server + production bundler for the SPA                 |
+| **React 18**         | UI components and hooks                                          |
+| **TypeScript**       | Typed props, API payloads, model IDs                             |
+| **React Router**     | `/`, `/chat`, `/about`, `/api-status`                            |
+| **Tailwind CSS**     | Utility-first styling                                            |
+| **Framer Motion**    | Landing / section motion (chat streaming uses CSS for stability) |
+| **Radix UI**         | Accessible dialogs, menus, tooltips                              |
+| **Sonner**           | Toast notifications                                              |
+| **Sentry React SDK** | Optional errors/replay — only if `VITE_SENTRY_DSN` is set        |
 
 ### Backend (high level)
 
-| Library | Role for learners |
-| --- | --- |
-| **FastAPI** | Typed HTTP API + automatic OpenAPI at `/docs` |
-| **Uvicorn** | ASGI server |
-| **Pydantic / pydantic-settings** | Request schemas + env-driven config |
-| **LangChain** | PDF load, split, LLM glue |
-| **FAISS** | Vector index on disk per session |
-| **sentence-transformers** | Local embedding fallback if cloud embeddings fail |
-| **sse-starlette** | SSE streaming responses |
-| **httpx / tenacity** | HTTP clients and retries |
+| Library                          | Role for learners                                 |
+| -------------------------------- | ------------------------------------------------- |
+| **FastAPI**                      | Typed HTTP API + automatic OpenAPI at `/docs`     |
+| **Uvicorn**                      | ASGI server                                       |
+| **Pydantic / pydantic-settings** | Request schemas + env-driven config               |
+| **LangChain**                    | PDF load, split, LLM glue                         |
+| **FAISS**                        | Vector index on disk per session                  |
+| **sentence-transformers**        | Local embedding fallback if cloud embeddings fail |
+| **sse-starlette**                | SSE streaming responses                           |
+| **httpx / tenacity**             | HTTP clients and retries                          |
 
 ### Why this stack is useful for learning
 
-- Clear **UI vs AI** boundary (easy to swap either side).  
-- Real ops topics: CORS, env vars, Docker, healthchecks.  
+- Clear **UI vs AI** boundary (easy to swap either side).
+- Real ops topics: CORS, env vars, Docker, healthchecks.
 - Free-tier **failover** teaches resilience, not only happy-path demos.
 
 ---
@@ -218,24 +219,24 @@ Agent-oriented map (shorter): [`docs/PROJECT_WALKTHROUGH.md`](docs/PROJECT_WALKT
 
 ## Frontend routes and reusable pieces
 
-| Route | Page | What you see |
-| --- | --- | --- |
-| `/` | Home | Hero, features, pipeline, models, CTA |
-| `/chat` | Chat | Upload PDF, ask questions, stream answers |
-| `/about` | About | Project story / credits |
+| Route         | Page       | What you see                               |
+| ------------- | ---------- | ------------------------------------------ |
+| `/`           | Home       | Hero, features, pipeline, models, CTA      |
+| `/chat`       | Chat       | Upload PDF, ask questions, stream answers  |
+| `/about`      | About      | Project story / credits                    |
 | `/api-status` | API status | Live health / runtime summary from backend |
 
 ### Important components (how to reuse)
 
-| Piece | Path | Reuse idea |
-| --- | --- | --- |
-| `ChatContainer` | `components/chat/chat-container.tsx` | Orchestrates upload + chat + prefs — copy as a “chat screen” shell |
-| `ChatMessage` / `ChatInput` | `components/chat/` | Message bubbles + composer for any assistant UI |
-| `PDFUpload` | `components/chat/pdf-upload.tsx` | Drag/drop file UX |
-| `ModelSelector` | `components/chat/model-selector.tsx` | Fetches `GET /models`, falls back to `AI_MODELS` |
-| UI primitives | `components/ui/` | Buttons, glass cards, dialogs — design-system starters |
-| `api.ts` | `lib/api.ts` | Central `fetch` + `streamQuestion` + session header |
-| `storage.ts` | `lib/storage.ts` | localStorage prefs + IndexedDB sessions |
+| Piece                       | Path                                 | Reuse idea                                                         |
+| --------------------------- | ------------------------------------ | ------------------------------------------------------------------ |
+| `ChatContainer`             | `components/chat/chat-container.tsx` | Orchestrates upload + chat + prefs — copy as a “chat screen” shell |
+| `ChatMessage` / `ChatInput` | `components/chat/`                   | Message bubbles + composer for any assistant UI                    |
+| `PDFUpload`                 | `components/chat/pdf-upload.tsx`     | Drag/drop file UX                                                  |
+| `ModelSelector`             | `components/chat/model-selector.tsx` | Fetches `GET /models`, falls back to `AI_MODELS`                   |
+| UI primitives               | `components/ui/`                     | Buttons, glass cards, dialogs — design-system starters             |
+| `api.ts`                    | `lib/api.ts`                         | Central `fetch` + `streamQuestion` + session header                |
+| `storage.ts`                | `lib/storage.ts`                     | localStorage prefs + IndexedDB sessions                            |
 
 **State model note:** this project does **not** use React Query or Redis. Live UI updates via React state; persistence is device-local. `/chat` uses `useChat` / `usePDFUpload` hooks.
 
@@ -251,8 +252,8 @@ User uploads a PDF → `POST /upload` → backend extracts text, chunks (`CHUNK_
 
 ### 2) Chat: streaming or JSON
 
-- **Streaming on** → `POST /ask/stream` (SSE events: status / token / done / error).  
-- **Streaming off** → `POST /ask` (single JSON answer).  
+- **Streaming on** → `POST /ask/stream` (SSE events: status / token / done / error).
+- **Streaming off** → `POST /ask` (single JSON answer).
 - Stop mid-stream aborts the fetch; a generation counter ignores stale callbacks.
 
 ---
@@ -273,23 +274,23 @@ Free-tier guidance: [`docs/LLM_MODEL_SELECTION.md`](docs/LLM_MODEL_SELECTION.md)
 
 ### 5) Anonymous sessions + local history
 
-- Browser UUID → header `X-Chat-Session-Id`.  
-- Vector indexes isolated per session on the server.  
+- Browser UUID → header `X-Chat-Session-Id`.
+- Vector indexes isolated per session on the server.
 - Chat transcripts saved in **IndexedDB** (device-local — clearing site data resets history).
 
 ---
 
 ### 6) Rate limits + cleanup
 
-- Per-IP rolling windows for upload / ask (env-tunable).  
+- Per-IP rolling windows for upload / ask (env-tunable).
 - On startup, prune FAISS session dirs older than `FAISS_SESSION_MAX_AGE_DAYS`.
 
 ---
 
 ### 7) Observability (optional)
 
-- Frontend Sentry only if `VITE_SENTRY_DSN` is set (never hardcode a DSN in source).  
-- Localhost / `development` events are dropped in client code.  
+- Frontend Sentry only if `VITE_SENTRY_DSN` is set (never hardcode a DSN in source).
+- Localhost / `development` events are dropped in client code.
 - Envelopes can tunnel via `POST /api/oversight` to reduce ad-block drops.
 
 ---
@@ -298,18 +299,18 @@ Free-tier guidance: [`docs/LLM_MODEL_SELECTION.md`](docs/LLM_MODEL_SELECTION.md)
 
 > Data routes that touch FAISS expect header: `X-Chat-Session-Id: <uuid>`.
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| `GET` | `/` | Basic status |
-| `GET` | `/health` | Healthcheck (Coolify / Docker) |
-| `GET` | `/models` | Model catalog for the selector |
-| `GET` | `/pipeline-info` | Human-readable agent pipeline stages |
-| `GET` | `/status` | Whether this session has a PDF loaded |
-| `GET` | `/runtime-summary` | Provider readiness / counters for status UI |
-| `POST` | `/upload` | Upload PDF and build index |
-| `POST` | `/ask` | Question → JSON answer |
-| `POST` | `/ask/stream` | Question → SSE stream |
-| `POST` | `/api/oversight` | Sentry tunnel |
+| Method | Endpoint           | Purpose                                     |
+| ------ | ------------------ | ------------------------------------------- |
+| `GET`  | `/`                | Basic status                                |
+| `GET`  | `/health`          | Healthcheck (Coolify / Docker)              |
+| `GET`  | `/models`          | Model catalog for the selector              |
+| `GET`  | `/pipeline-info`   | Human-readable agent pipeline stages        |
+| `GET`  | `/status`          | Whether this session has a PDF loaded       |
+| `GET`  | `/runtime-summary` | Provider readiness / counters for status UI |
+| `POST` | `/upload`          | Upload PDF and build index                  |
+| `POST` | `/ask`             | Question → JSON answer                      |
+| `POST` | `/ask/stream`      | Question → SSE stream                       |
+| `POST` | `/api/oversight`   | Sentry tunnel                               |
 
 Interactive docs when the API is running: `http://127.0.0.1:8000/docs`
 
@@ -341,8 +342,8 @@ data: {"answer":"Hello world","model_used":"openai/gpt-oss-20b:free"}
 
 ### Do you need a `.env` to open the UI?
 
-- **Frontend alone:** you can open the Vite app without a `.env` for layout browsing.  
-- **Real chat:** the **backend** needs at least one LLM provider key (recommended: OpenRouter).  
+- **Frontend alone:** you can open the Vite app without a `.env` for layout browsing.
+- **Real chat:** the **backend** needs at least one LLM provider key (recommended: OpenRouter).
 - **Embeddings:** cloud keys help; if all cloud embeddings fail, the backend can fall back to local `sentence-transformers` (CPU, no key — slower first download).
 
 Never commit real `.env` files. Copy from the examples only.
@@ -377,25 +378,25 @@ If `DEFAULT_MODEL` / `DEFAULT_PROVIDER` are **omitted**, code defaults in `backe
 
 #### Common backend variables
 
-| Variable | Required? | Purpose |
-| --- | --- | --- |
-| `OPENROUTER_API_KEY` | Yes for primary path | Main LLM + embedding gateway |
-| `OPENROUTER_API_BASE` | Recommended | OpenRouter base URL |
-| `DEFAULT_MODEL` | Optional | Override default model id |
-| `DEFAULT_PROVIDER` | Optional | Hint / default provider name |
-| `CORS_ORIGINS` | Yes in production | Comma-separated frontend origins |
-| `GROQ_API_KEY` | Optional | Groq failover |
-| `GOOGLE_API_KEY` | Optional | Gemini failover |
-| `HF_API_KEY` | Optional | Hugging Face router failover |
-| `OPENAI_DIRECT_API_KEY` | Optional | Paid OpenAI last resort |
-| `FAISS_PERSIST_DIR` | Optional | Index directory (default `faiss_index`) |
-| `MAX_VECTOR_SESSIONS` | Optional | LRU session cap |
-| `FAISS_SESSION_MAX_AGE_DAYS` | Optional | Startup cleanup age |
-| `RATE_LIMIT_UPLOAD_PER_MINUTE` | Optional | Upload budget per IP |
-| `RATE_LIMIT_ASK_PER_MINUTE` | Optional | Ask/stream budget per IP |
-| `SENTRY_DSN` | Optional | Backend Sentry |
-| `SENTRY_ENVIRONMENT` | Optional | e.g. `production` |
-| `DEBUG` | Optional | Extra debug behavior |
+| Variable                       | Required?            | Purpose                                 |
+| ------------------------------ | -------------------- | --------------------------------------- |
+| `OPENROUTER_API_KEY`           | Yes for primary path | Main LLM + embedding gateway            |
+| `OPENROUTER_API_BASE`          | Recommended          | OpenRouter base URL                     |
+| `DEFAULT_MODEL`                | Optional             | Override default model id               |
+| `DEFAULT_PROVIDER`             | Optional             | Hint / default provider name            |
+| `CORS_ORIGINS`                 | Yes in production    | Comma-separated frontend origins        |
+| `GROQ_API_KEY`                 | Optional             | Groq failover                           |
+| `GOOGLE_API_KEY`               | Optional             | Gemini failover                         |
+| `HF_API_KEY`                   | Optional             | Hugging Face router failover            |
+| `OPENAI_DIRECT_API_KEY`        | Optional             | Paid OpenAI last resort                 |
+| `FAISS_PERSIST_DIR`            | Optional             | Index directory (default `faiss_index`) |
+| `MAX_VECTOR_SESSIONS`          | Optional             | LRU session cap                         |
+| `FAISS_SESSION_MAX_AGE_DAYS`   | Optional             | Startup cleanup age                     |
+| `RATE_LIMIT_UPLOAD_PER_MINUTE` | Optional             | Upload budget per IP                    |
+| `RATE_LIMIT_ASK_PER_MINUTE`    | Optional             | Ask/stream budget per IP                |
+| `SENTRY_DSN`                   | Optional             | Backend Sentry                          |
+| `SENTRY_ENVIRONMENT`           | Optional             | e.g. `production`                       |
+| `DEBUG`                        | Optional             | Extra debug behavior                    |
 
 Legacy aliases still work: `OPENAI_API_KEY` / `OPENAI_API_BASE` → OpenRouter fields.
 
@@ -418,14 +419,14 @@ If unset in **dev**, the app defaults API base to `http://localhost:8000`.
 
 #### Production (Vercel)
 
-| Variable | Required? | Purpose |
-| --- | --- | --- |
-| `VITE_API_BASE_URL` | **Yes** | Public HTTPS API URL (no trailing slash) |
-| `VITE_APP_ENV` | Recommended | e.g. `production` (Sentry environment label) |
-| `VITE_SENTRY_DSN` | Optional | Browser Sentry — empty = Sentry **off** |
-| `VITE_SENTRY_TRACES_RATE` | Optional | e.g. `0.2` |
-| `VITE_FAISS_SESSION_MAX_AGE_DAYS` | Optional | Keep UI copy aligned with backend retention |
-| `VITE_DEV_PROXY_TARGET` | Optional | When using Vite proxy + `VITE_API_BASE_URL=/api` |
+| Variable                          | Required?   | Purpose                                          |
+| --------------------------------- | ----------- | ------------------------------------------------ |
+| `VITE_API_BASE_URL`               | **Yes**     | Public HTTPS API URL (no trailing slash)         |
+| `VITE_APP_ENV`                    | Recommended | e.g. `production` (Sentry environment label)     |
+| `VITE_SENTRY_DSN`                 | Optional    | Browser Sentry — empty = Sentry **off**          |
+| `VITE_SENTRY_TRACES_RATE`         | Optional    | e.g. `0.2`                                       |
+| `VITE_FAISS_SESSION_MAX_AGE_DAYS` | Optional    | Keep UI copy aligned with backend retention      |
+| `VITE_DEV_PROXY_TARGET`           | Optional    | When using Vite proxy + `VITE_API_BASE_URL=/api` |
 
 Fork tip: use **your own** Sentry project DSN. Do not commit DSNs into source.
 
@@ -435,8 +436,8 @@ Fork tip: use **your own** Sentry project DSN. Do not commit DSNs into source.
 
 ### Prerequisites
 
-- Python **3.11+**  
-- Node.js **18+** (or current LTS)  
+- Python **3.11+**
+- Node.js **18+** (or current LTS)
 - At least one LLM API key (OpenRouter recommended)
 
 ---
@@ -453,7 +454,7 @@ cp .env.example .env
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-- API: `http://127.0.0.1:8000`  
+- API: `http://127.0.0.1:8000`
 - Swagger: `http://127.0.0.1:8000/docs`
 
 ---
@@ -473,12 +474,12 @@ App: `http://localhost:5173`
 
 ### 3) Learning walkthrough (first hour)
 
-1. Open `/chat`.  
-2. Upload a short PDF.  
-3. Ask: “Summarize this document in 5 bullets.”  
-4. Toggle **streaming** and **sources**.  
-5. Change model in the selector; watch `/models` and Network.  
-6. Refresh the page — history should restore from IndexedDB for that PDF name.  
+1. Open `/chat`.
+2. Upload a short PDF.
+3. Ask: “Summarize this document in 5 bullets.”
+4. Toggle **streaming** and **sources**.
+5. Change model in the selector; watch `/models` and Network.
+6. Refresh the page — history should restore from IndexedDB for that PDF name.
 7. Read `backend/app/agents/` to see pipeline stages.
 
 ---
@@ -487,12 +488,12 @@ App: `http://localhost:5173`
 
 ### Backend (Coolify)
 
-- Dockerfile: `backend/Dockerfile`  
-- Base directory: `/backend`  
-- Expose port matching Coolify (`PORT=3000` is common in this project’s playbooks)  
-- Set `CORS_ORIGINS` to your Vercel origin(s)  
-- Set provider keys; set `DEFAULT_MODEL=openai/gpt-oss-20b:free` (or omit to use code default)  
-- Persist `FAISS_PERSIST_DIR` on a volume  
+- Dockerfile: `backend/Dockerfile`
+- Base directory: `/backend`
+- Expose port matching Coolify (`PORT=3000` is common in this project’s playbooks)
+- Set `CORS_ORIGINS` to your Vercel origin(s)
+- Set provider keys; set `DEFAULT_MODEL=openai/gpt-oss-20b:free` (or omit to use code default)
+- Persist `FAISS_PERSIST_DIR` on a volume
 - After env edits: **Redeploy** (Restart alone may not apply new env in Coolify)
 
 Deeper guides: [`docs/DOCKER_VPS_BACKEND_PLAYBOOK.md`](docs/DOCKER_VPS_BACKEND_PLAYBOOK.md), [`docs/COOLIFY_PUBLIC_BACKEND_GUIDE.md`](docs/COOLIFY_PUBLIC_BACKEND_GUIDE.md).
@@ -501,12 +502,12 @@ Deeper guides: [`docs/DOCKER_VPS_BACKEND_PLAYBOOK.md`](docs/DOCKER_VPS_BACKEND_P
 
 ### Frontend (Vercel)
 
-- Root Directory: `frontend`  
-- Framework: Vite  
-- Build: `npm run build`  
-- Output: `dist`  
-- Install: `npm install --legacy-peer-deps` (if peer conflicts)  
-- Env: `VITE_API_BASE_URL=https://your-backend-domain`  
+- Root Directory: `frontend`
+- Framework: Vite
+- Build: `npm run build`
+- Output: `dist`
+- Install: `npm install --legacy-peer-deps` (if peer conflicts)
+- Env: `VITE_API_BASE_URL=https://your-backend-domain`
 - Recommended: `VITE_APP_ENV=production`
 
 Guardrails: [`docs/VERCEL_PRODUCTION_GUARDRAILS.md`](docs/VERCEL_PRODUCTION_GUARDRAILS.md).
@@ -517,15 +518,15 @@ Guardrails: [`docs/VERCEL_PRODUCTION_GUARDRAILS.md`](docs/VERCEL_PRODUCTION_GUAR
 
 ### Reuse UI
 
-1. Copy `frontend/src/components/ui` + `lib/utils.ts` (`cn` helper).  
-2. Drop in `ChatInput` / `ChatMessage` / `PDFUpload`.  
+1. Copy `frontend/src/components/ui` + `lib/utils.ts` (`cn` helper).
+2. Drop in `ChatInput` / `ChatMessage` / `PDFUpload`.
 3. Point `lib/api.ts` at your API base and session header convention.
 
 ### Reuse backend patterns
 
-1. Keep **route modules** (`routes/`) separate from **services** and **agents**.  
-2. Copy `config.py`’s `AI_PROVIDERS` + `Settings` pattern for env-driven failover.  
-3. Reuse IP rate limiting for expensive endpoints.  
+1. Keep **route modules** (`routes/`) separate from **services** and **agents**.
+2. Copy `config.py`’s `AI_PROVIDERS` + `Settings` pattern for env-driven failover.
+3. Reuse IP rate limiting for expensive endpoints.
 4. Reuse session-header isolation when you need multi-tenant demos without auth.
 
 ### Reuse the RAG idea elsewhere
@@ -574,45 +575,45 @@ Included test: `backend/tests/test_chat_stream_sse.py` (SSE token + done flow wi
 
 ## Troubleshooting notes
 
-| Symptom | Likely fix |
-| --- | --- |
-| CORS errors in browser | Add Vercel origin to `CORS_ORIGINS`, redeploy backend |
-| Chat works locally, fails on Vercel | Set `VITE_API_BASE_URL` to HTTPS API; redeploy frontend |
-| No model / empty answers | Invalid or missing provider key; check Coolify env |
-| Wrong PDF answers after refresh | Session header changed or FAISS session pruned |
-| Old default model in production | Coolify still has `DEFAULT_MODEL=openai/gpt-4o-mini` — update + Redeploy |
-| Sentry noise from localhost | Expected before harden; client now drops localhost/dev; use env-only DSN |
-| `/wp-json/...` 404 in logs | Internet scanners — ignore |
-| Coolify UI blocked | Update Hetzner firewall allowlist for your current public IP (ports 22 / 8000) |
+| Symptom                             | Likely fix                                                                     |
+| ----------------------------------- | ------------------------------------------------------------------------------ |
+| CORS errors in browser              | Add Vercel origin to `CORS_ORIGINS`, redeploy backend                          |
+| Chat works locally, fails on Vercel | Set `VITE_API_BASE_URL` to HTTPS API; redeploy frontend                        |
+| No model / empty answers            | Invalid or missing provider key; check Coolify env                             |
+| Wrong PDF answers after refresh     | Session header changed or FAISS session pruned                                 |
+| Old default model in production     | Coolify still has `DEFAULT_MODEL=openai/gpt-4o-mini` — update + Redeploy       |
+| Sentry noise from localhost         | Expected before harden; client now drops localhost/dev; use env-only DSN       |
+| `/wp-json/...` 404 in logs          | Internet scanners — ignore                                                     |
+| Coolify UI blocked                  | Update Hetzner firewall allowlist for your current public IP (ports 22 / 8000) |
 
 ---
 
 ## Related documentation
 
-| Doc | Topic |
-| --- | --- |
-| [`docs/PROJECT_WALKTHROUGH.md`](docs/PROJECT_WALKTHROUGH.md) | Short agent/dev map |
-| [`docs/LLM_MODEL_SELECTION.md`](docs/LLM_MODEL_SELECTION.md) | Free-tier providers + failover strategy |
-| [`docs/DOCKER_VPS_BACKEND_PLAYBOOK.md`](docs/DOCKER_VPS_BACKEND_PLAYBOOK.md) | Docker / VPS ops |
-| [`docs/VERCEL_PRODUCTION_GUARDRAILS.md`](docs/VERCEL_PRODUCTION_GUARDRAILS.md) | Frontend deploy tips |
-| [`SECURITY.md`](SECURITY.md) | Vulnerability reporting |
-| [`CLAUDE.md`](CLAUDE.md) / [`AGENTS.md`](AGENTS.md) | Agent workflow |
+| Doc                                                                            | Topic                                   |
+| ------------------------------------------------------------------------------ | --------------------------------------- |
+| [`docs/PROJECT_WALKTHROUGH.md`](docs/PROJECT_WALKTHROUGH.md)                   | Short agent/dev map                     |
+| [`docs/LLM_MODEL_SELECTION.md`](docs/LLM_MODEL_SELECTION.md)                   | Free-tier providers + failover strategy |
+| [`docs/DOCKER_VPS_BACKEND_PLAYBOOK.md`](docs/DOCKER_VPS_BACKEND_PLAYBOOK.md)   | Docker / VPS ops                        |
+| [`docs/VERCEL_PRODUCTION_GUARDRAILS.md`](docs/VERCEL_PRODUCTION_GUARDRAILS.md) | Frontend deploy tips                    |
+| [`SECURITY.md`](SECURITY.md)                                                   | Vulnerability reporting                 |
+| [`CLAUDE.md`](CLAUDE.md) / [`AGENTS.md`](AGENTS.md)                            | Agent workflow                          |
 
 ---
 
 ## Security
 
-- Report vulnerabilities privately: **contact@arnobmahmud.com** (details in [SECURITY.md](SECURITY.md)).  
-- Do not publish API keys, Coolify secrets, or real DSNs in issues/PRs.  
+- Report vulnerabilities privately: **<contact@arnobmahmud.com>** (details in [SECURITY.md](SECURITY.md)).
+- Do not publish API keys, Coolify secrets, or real DSNs in issues/PRs.
 - This demo uses **anonymous** sessions — not enterprise auth. Treat public demos accordingly.
 
 ---
 
 ## Contributing
 
-1. Fork the repository.  
-2. Create a focused feature branch.  
-3. Run `npm run check` (and backend checks) before opening a PR.  
+1. Fork the repository.
+2. Create a focused feature branch.
+3. Run `npm run check` (and backend checks) before opening a PR.
 4. Describe scope, risks, and how you tested.
 
 ---
