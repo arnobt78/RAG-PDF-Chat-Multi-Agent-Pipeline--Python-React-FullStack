@@ -78,7 +78,7 @@ def load_and_process_pdf(pdf_path: str):
     # Create the retrieval QA chain using LCEL (LangChain Expression Language)
     llm = ChatOpenAI(
         temperature=0,
-        model="openai/gpt-4o-mini",
+        model="openai/gpt-oss-20b:free",
         base_url=OPENROUTER_API_BASE,
         api_key=OPENROUTER_API_KEY,
     )

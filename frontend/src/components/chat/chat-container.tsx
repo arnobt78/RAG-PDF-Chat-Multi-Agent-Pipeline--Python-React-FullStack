@@ -71,7 +71,7 @@ import {
 import { SESSION_INDEX_RETENTION_DAYS } from "@/lib/session-retention";
 import { cn } from "@/lib/utils";
 
-const DEFAULT_CHAT_MODEL_ID = "openai/gpt-4o-mini";
+const DEFAULT_CHAT_MODEL_ID = "openai/gpt-oss-20b:free";
 
 export function ChatContainer() {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
@@ -79,16 +79,27 @@ export function ChatContainer() {
   const uploadSectionRef = React.useRef<HTMLDivElement>(null);
   const shouldAutoScrollRef = React.useRef(true);
 
-  // Persisted preferences (localStorage)
-  const [selectedModel, setSelectedModel] = React.useState(() =>
-    loadPreference<string>(prefKeys.SELECTED_MODEL, DEFAULT_CHAT_MODEL_ID),
-  );
+  // Persisted preferences (localStorage). Stale IDs (e.g. old paid OpenRouter
+  // defaults) fall back to the current free-tier default so /ask stays valid.
+  const [selectedModel, setSelectedModel] = React.useState(() => {
+    const id = loadPreference<string>(
+      prefKeys.SELECTED_MODEL,
+      DEFAULT_CHAT_MODEL_ID,
+    );
+    return AI_MODELS.some((m) => m.id === id) ? id : DEFAULT_CHAT_MODEL_ID;
+  });
   const [modelMeta, setModelMeta] = React.useState(() => {
     const id = loadPreference<string>(
       prefKeys.SELECTED_MODEL,
       DEFAULT_CHAT_MODEL_ID,
     );
-    const m = AI_MODELS.find((x) => x.id === id) ?? AI_MODELS[0];
+    const resolved = AI_MODELS.some((m) => m.id === id)
+      ? id
+      : DEFAULT_CHAT_MODEL_ID;
+    const m =
+      AI_MODELS.find((x) => x.id === resolved) ??
+      AI_MODELS.find((x) => x.isDefault) ??
+      AI_MODELS[0];
     return { name: m.name, provider: m.provider };
   });
   const [includeSources, setIncludeSources] = React.useState(() =>

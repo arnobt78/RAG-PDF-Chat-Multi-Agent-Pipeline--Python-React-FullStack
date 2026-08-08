@@ -67,7 +67,7 @@ const initialState: ChatContextState = {
   isLoading: false,
   uploadError: null,
   chatError: null,
-  selectedModel: "openai/gpt-4o-mini",
+  selectedModel: "openai/gpt-oss-20b:free",
   includeSources: false,
   streamingEnabled: true,
   streamingAnswer: null,

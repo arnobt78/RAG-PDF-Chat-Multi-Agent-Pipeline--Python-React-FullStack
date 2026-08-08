@@ -75,18 +75,20 @@ class AIProvider:
 # ---------------------------------------------------------------------------
 # Supported AI providers (order = default fallback priority)
 # ---------------------------------------------------------------------------
+# Free-tier-first catalogs (verified 2026-08-08). Prefer :free OpenRouter IDs and
+# current Groq gpt-oss / Qwen replacements before Llama shutdown (2026-08-16).
+# Re-check OpenRouter max_price=0 + Groq deprecations before changing production defaults.
 AI_PROVIDERS: dict[str, AIProvider] = {
     "openrouter": AIProvider(
         name="openrouter",
         base_url="https://openrouter.ai/api/v1",
         api_key_env="OPENROUTER_API_KEY",
         models=[
-            "openai/gpt-4o-mini",
-            "openai/gpt-4o",
-            "anthropic/claude-3-haiku",
-            "anthropic/claude-3.7-sonnet",
-            "meta-llama/llama-3.3-70b-instruct",
-            "google/gemini-2.0-flash-001",
+            "openrouter/free",
+            "openai/gpt-oss-20b:free",
+            "google/gemma-4-26b-a4b-it:free",
+            "nvidia/nemotron-3-nano-30b-a3b:free",
+            "nvidia/nemotron-3-super-120b-a12b:free",
         ],
         embedding_model="openai/text-embedding-3-small",
     ),
@@ -95,9 +97,9 @@ AI_PROVIDERS: dict[str, AIProvider] = {
         base_url="https://api.groq.com/openai/v1",
         api_key_env="GROQ_API_KEY",
         models=[
-            "llama-3.3-70b-versatile",
-            "llama-3.1-8b-instant",
-            "mixtral-8x7b-32768",
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+            "qwen/qwen3.6-27b",
         ],
         embedding_model=None,
     ),
@@ -119,7 +121,6 @@ AI_PROVIDERS: dict[str, AIProvider] = {
         models=[
             "gemini-2.5-flash",
             "gemini-2.5-flash-lite",
-            "gemini-2.5-pro",
             "gemini-flash-latest",
             "gemini-2.0-flash",
         ],
@@ -177,7 +178,7 @@ class Settings(BaseSettings):
     embedding_openai_direct: bool = Field(default=False)
 
     # Default AI settings
-    default_model: str = "openai/gpt-4o-mini"
+    default_model: str = "openai/gpt-oss-20b:free"
     default_provider: str = "openrouter"
     temperature: float = 0.0
     max_tokens: int = 2048

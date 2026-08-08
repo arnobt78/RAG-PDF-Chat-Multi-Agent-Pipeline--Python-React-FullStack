@@ -1,71 +1,35 @@
-# Agent guide — rag-pdf-chat
+# CLAUDE.md
 
-Quick orientation for AI agents reviewing or changing this repo.
+## Project
+
+**rag-pdf-chat** — Vite/React SPA + FastAPI/LangChain/FAISS RAG PDF chat. Anonymous sessions, SSE, multi-provider failover, IndexedDB history.
+
+**Cycle:** C1 | **Gate:** GATE-0001 scoped done (models + Sentry) | **Resume:** `.agile-v/STATE.md`
 
 ## Stack
 
-| Layer | Tech | State / data |
-|-------|------|----------------|
-| Frontend | React 18, TS, Vite, Tailwind, Framer Motion (not on SSE hot path) | `useState`, `localStorage`, **IndexedDB** |
-| Backend | FastAPI, FAISS, LangChain agents | Per-session FAISS on disk; no user DB |
-| Deploy | Vercel (SPA), Coolify VPS (API) | CORS + `X-Chat-Session-Id` |
+FE: React 18, TS, Vite 8, Tailwind, RR6, Framer, Sentry (env DSN)  
+BE: Python 3.11+, FastAPI, LangChain, FAISS, sse-starlette  
+Data: FAISS per `X-Chat-Session-Id`; IndexedDB/localStorage — no Redis/React Query/auth  
+Deploy: Vercel FE + Coolify/Docker BE  
+Validate: `npm run check` / `build`; `scripts/check-backend.sh`
 
-**No TanStack React Query** — chat updates propagate via React state + `useEffect` persistence to IndexedDB (`saveChatSession` on `chatHistory` change). Do not add query invalidation patterns unless the project adopts a query client.
+## Defaults (2026-08-08)
 
-## Chat data flow (`/chat`)
+- Default model: `openai/gpt-oss-20b:free` (`backend/app/config.py`, FE `AI_MODELS`)
+- Sentry: `VITE_SENTRY_DSN` only; drop localhost/`development`; no hardcoded DSN
+- Coolify: set `DEFAULT_MODEL` to free ID or omit (code default applies)
 
-```
-ChatContainer → useChat() → streamQuestion() / api.askQuestion()
-                ↓
-         chatHistory + streamingAnswer
-                ↓
-    IndexedDB (storage.ts) on chatHistory change
-```
+## Architecture
 
-- **Active path:** [`use-chat.ts`](frontend/src/hooks/use-chat.ts) + [`chat-container.tsx`](frontend/src/components/chat/chat-container.tsx).
-- **Parallel path:** [`chat-context.tsx`](frontend/src/context/chat-context.tsx) (`ChatProvider` in `App.tsx`) — keep in sync with `useChat` when changing stream/entry logic.
+Keep existing folders/naming. Extend, don’t parallel. Map: `docs/PROJECT_WALKTHROUGH.md`  
+SPA only — no Next/SSR unless approved. `/chat` uses `useChat`; `ChatProvider` duplicate = REQ-0010 deferred.
 
-## Shared chat helpers
+## Rules
 
-[`frontend/src/lib/chat-history.ts`](frontend/src/lib/chat-history.ts):
+TS strict · no secrets in git · no unrelated refactors · update only affected docs  
+Memory: `.agile-v/` · Traceability: REQUIREMENTS / DECISION_LOG / STATE
 
-- `createChatEntry()` — assigns `id` + `timestamp` for new turns.
-- `getChatEntryReactKey()` — stable React keys; legacy IndexedDB rows without `id` use index+timestamp fallback.
+## Workflow
 
-[`ChatEntry`](frontend/src/types/index.ts) has optional `id?: string`.
-
-## SSE / streaming safeguards (Sentry insertBefore fix)
-
-Production issue: `NotFoundError: insertBefore` during rapid SSE updates on `/chat`.
-
-| Area | Fix |
-|------|-----|
-| [`TypingIndicator`](frontend/src/components/chat/chat-message.tsx) | CSS-only dots/cursor; single stable `<p>`; **no Framer Motion** on streaming subtree |
-| [`use-chat.ts`](frontend/src/hooks/use-chat.ts) | Abort prior stream; `streamGenerationRef` ignores stale callbacks; abort on clear/cancel |
-| [`chat-context.tsx`](frontend/src/context/chat-context.tsx) | Same abort + generation pattern |
-| [`chat-container.tsx`](frontend/src/components/chat/chat-container.tsx) | `getChatEntryReactKey`; `key="streaming-indicator"`; `handleSend` blocks when `isLoading` |
-
-## Quality commands
-
-```bash
-npm run check      # frontend typecheck + eslint + backend ruff/mypy/tests
-npm run build      # frontend production build
-npm run lint       # frontend + backend lint only
-```
-
-## Conventions
-
-- Minimize scope; match existing patterns in touched files.
-- Comments: explain non-obvious behavior (SSE, session, persistence), not obvious code.
-- Do not commit `.env` or secrets.
-- Sentry: [`frontend/src/lib/sentry.ts`](frontend/src/lib/sentry.ts) — tunnel via backend; do not `ignoreErrors` for DOM reconciliation bugs without fixing root cause.
-
-## Key paths
-
-- API client: `frontend/src/lib/api.ts`
-- Session header: `frontend/src/lib/chat-session.ts`
-- Preferences + IndexedDB: `frontend/src/lib/storage.ts`
-- Backend entry: `backend/app/main.py`
-- Ops docs: `docs/`
-
-See also [`PROJECT_WALKTHROUGH.md`](PROJECT_WALKTHROUGH.md).
+Analyze → plan → wait approval → implement → validate → update STATE resume point.

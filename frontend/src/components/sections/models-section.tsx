@@ -38,14 +38,13 @@ const providers: ProviderBlock[] = [
     icon: Globe,
     color: "from-blue-500 to-purple-500",
     description:
-      "Primary gateway: GPT-4o, Claude, Llama, and Gemini routes through one OpenAI-compatible API.",
+      "Primary free-tier gateway: :free models and the openrouter/free router via one OpenAI-compatible API.",
     models: [
-      "GPT-4o Mini",
-      "GPT-4o",
-      "Claude 3 Haiku",
-      "Claude 3.7 Sonnet",
-      "Llama 3.3 70B",
-      "Gemini 2.0 Flash",
+      "Free Router",
+      "GPT-OSS 20B :free",
+      "Gemma 4 26B :free",
+      "Nemotron 3 Nano :free",
+      "Nemotron 3 Super :free",
     ],
     badge: "Primary",
   },
@@ -54,8 +53,8 @@ const providers: ProviderBlock[] = [
     icon: Zap,
     color: "from-amber-500 to-orange-500",
     description:
-      "LPU-backed inference for sub-second answers when OpenRouter is slow or unavailable.",
-    models: ["Llama 3.3 70B", "Llama 3.1 8B", "Mixtral 8x7B"],
+      "LPU-backed gpt-oss / Qwen fallbacks (replaces deprecated Llama IDs) when OpenRouter is slow or unavailable.",
+    models: ["GPT-OSS 120B", "GPT-OSS 20B", "Qwen 3.6 27B"],
     badge: "Fast fallback",
   },
   {
@@ -63,11 +62,10 @@ const providers: ProviderBlock[] = [
     icon: Sparkles,
     color: "from-cyan-500 to-blue-600",
     description:
-      "Native Gemini models including 2.5 Flash, Flash-Lite, Pro, and 2.0 Flash endpoints.",
+      "Native Gemini free-tier Flash family (2.5 Flash, Flash-Lite, rolling latest, and 2.0 Flash).",
     models: [
       "Gemini 2.5 Flash",
       "Gemini 2.5 Flash-Lite",
-      "Gemini 2.5 Pro",
       "Gemini Flash (latest)",
       "Gemini 2.0 Flash",
     ],
@@ -87,7 +85,7 @@ const providers: ProviderBlock[] = [
     icon: Cpu,
     color: "from-emerald-500 to-teal-500",
     description:
-      "Optional direct api.openai.com access when you set OPENAI_DIRECT_API_KEY (chat failover only).",
+      "Optional paid direct api.openai.com access when you set OPENAI_DIRECT_API_KEY (chat failover only).",
     models: ["GPT-4o Mini", "GPT-4o", "GPT-4 Turbo"],
     badge: "Optional",
   },

@@ -247,7 +247,7 @@ User uploads a PDF through the frontend. Backend:
 curl -X POST "http://127.0.0.1:8000/ask" \
   -H "Content-Type: application/json" \
   -H "X-Chat-Session-Id: 11111111-2222-4333-8444-555555555555" \
-  -d '{"question":"Summarize this PDF","model":"openai/gpt-4o-mini","include_sources":true}'
+  -d '{"question":"Summarize this PDF","model":"openai/gpt-oss-20b:free","include_sources":true}'
 ```
 
 ---

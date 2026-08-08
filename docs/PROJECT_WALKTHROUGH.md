@@ -6,7 +6,7 @@ End-to-end map of **rag-pdf-chat** for reviews and safe edits.
 
 1. Open SPA → anonymous `X-Chat-Session-Id` in `localStorage` ([`chat-session.ts`](frontend/src/lib/chat-session.ts)).
 2. `/chat` → upload PDF → `POST /upload` → chunks embedded into session FAISS folder.
-3. Ask question → `POST /ask` or `POST /ask/stream` (SSE).
+3. Ask question → `POST /ask` or `POST /ask/stream` (SSE). Default model: `openai/gpt-oss-20b:free`.
 4. UI shows user/assistant bubbles; history saved to IndexedDB per PDF name.
 5. Preferences (model, streaming, sources) in `localStorage` via [`storage.ts`](frontend/src/lib/storage.ts).
 
@@ -14,7 +14,7 @@ End-to-end map of **rag-pdf-chat** for reviews and safe edits.
 
 ```text
 frontend/src/
-├── main.tsx              # Sentry init, React root
+├── main.tsx              # Sentry init (env DSN only), React root
 ├── App.tsx               # Router, ChatProvider, Sentry ErrorBoundary
 ├── pages/
 │   ├── chat.tsx          # ChatContainer only
@@ -28,13 +28,13 @@ frontend/src/
 │   ├── use-chat.ts         # Primary chat state for /chat
 │   └── use-pdf-upload.ts
 ├── context/
-│   └── chat-context.tsx    # Global mirror of chat/upload (keep aligned with use-chat)
+│   └── chat-context.tsx    # Parallel chat/upload path (REQ-0010: dedupe later)
 ├── lib/
 │   ├── api.ts              # fetch + streamQuestion (AbortController)
 │   ├── chat-history.ts     # createChatEntry, getChatEntryReactKey
 │   ├── storage.ts          # localStorage + IndexedDB sessions
 │   └── sentry.ts, env.ts, constants.ts
-└── types/index.ts          # ChatEntry, API types, AI_MODELS
+└── types/index.ts          # ChatEntry, API types, AI_MODELS (free-tier first)
 ```
 
 ## 3. Backend layout
@@ -42,6 +42,7 @@ frontend/src/
 ```text
 backend/app/
 ├── main.py           # CORS, routes, middleware
+├── config.py         # AI_PROVIDERS free-tier catalogs + default_model
 ├── routes/           # health, upload, chat (ask + stream), oversight (Sentry tunnel)
 ├── services/         # vector store, rate limit, session cleanup
 └── agents/           # retrieve → optimize → answer → validate
@@ -51,7 +52,7 @@ Session isolation: header `X-Chat-Session-Id` → separate FAISS directory per b
 
 ## 4. Chat state & “invalidation”
 
-This project does **not** use React Query.
+This project does **not** use React Query / Redis / Zod SSR.
 
 | Concern | Mechanism |
 |---------|-----------|
@@ -59,39 +60,31 @@ This project does **not** use React Query.
 | Cross-tab / refresh | `loadChatSession` / `saveChatSession` (IndexedDB) |
 | List of saved sessions | `listChatSessions()`; refreshed when `chatHistory` or `showSessions` changes |
 | Restore session | `setChatHistory` in `handleRestoreSession` |
+| Stale model pref | Unknown IDs → `openai/gpt-oss-20b:free` |
 
-New messages get `ChatEntry.id` from `createChatEntry()`; UI keys via `getChatEntryReactKey()`.
+## 5. Streaming
 
-## 5. Streaming implementation
+- Toggle: `prefKeys.STREAMING_ENABLED`. Partial text via `streamingAnswer` + CSS `TypingIndicator`.
+- Complete → append `ChatEntry`, clear stream. Stop / new send → abort + generation guard.
 
-- **Toggle:** `prefKeys.STREAMING_ENABLED` in localStorage.
-- **While loading:** `streamingAnswer` string grows per SSE token; `TypingIndicator` renders partial text.
-- **On complete:** `onDone` appends full `ChatEntry` to `chatHistory`, clears `streamingAnswer`, `isLoading=false`.
-- **Stop:** `cancelStream()` aborts fetch + bumps `streamGenerationRef`.
-- **New send while active:** prior stream aborted; stale callbacks ignored by generation id.
+## 6. Sentry (FE)
 
-## 6. Recent fix: `/chat` DOM crash (Sentry)
+- DSN: `VITE_SENTRY_DSN` only (empty = off). Tunnel: `POST /api/oversight`.
+- Drops `environment=development` and localhost. PII off; replay masked.
+- Prior HMR-only `AboutPage` / Header hooks noise on `127.0.0.1` — not production blockers.
 
-**Symptom:** `NotFoundError: insertBefore` ~2s into second streamed reply (Chrome, production).
+## 7. Recent fix: `/chat` DOM crash
 
-**Cause:** Framer Motion inside `<p>` updated every SSE token + branch swap dots ↔ text.
+**Resolution (May 2026):** CSS-only `TypingIndicator`, stream abort/generation guards, stable keys. Monitor Sentry `8d59c4e6` after deploy.
 
-**Resolution (May 2026):** CSS-only `TypingIndicator`, stream abort/generation guards, stable React keys. Monitor Sentry issue `8d59c4e6` after deploy.
-
-## 7. Verification checklist
+## 8. Verification
 
 ```bash
 npm run check && npm run build
 ```
 
-Manual `/chat`:
+Manual `/chat`: upload → stream → second Q; stop mid-stream; restore session.
 
-- Upload PDF → stream answer → second question while streaming completes.
-- Stop mid-stream → send again.
-- Clear chat / restore IndexedDB session — no ErrorBoundary crash.
+## 9. Related docs
 
-## 8. Related docs
-
-- User-facing: [`README.md`](README.md)
-- Deploy: `docs/VERCEL_PRODUCTION_GUARDRAILS.md`, `docs/DOCKER_VPS_BACKEND_PLAYBOOK.md`
-- Agent rules: [`CLAUDE.md`](CLAUDE.md)
+- [`README.md`](README.md) · [`docs/LLM_MODEL_SELECTION.md`](LLM_MODEL_SELECTION.md) · deploy playbooks · [`CLAUDE.md`](../CLAUDE.md) · `.agile-v/STATE.md`
